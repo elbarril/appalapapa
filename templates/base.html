@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Lista de Pacientes</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='/css/bootstrap.min.css') }}">
+    </head>
+
+    <body>
+        <header>
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <a class="navbar-brand" href="{{ url_for('index') }}">Terapia - Pacientes</a>
+
+                    <div class="collapse show navbar-collapse justify-content-end" id="navbarSupportedContent">
+                        <div class="navbar-nav">
+                            <div class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                  Añadir
+                                </a>
+
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ url_for('add_person') }}">Paciente</a>
+                                    <a class="dropdown-item" href="{{ url_for('add_session') }}">Sesión</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <main class="container mt-4">
+            {% block main %}{% endblock main %}
+        </main>
+
+        <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    </body>
+</html>
