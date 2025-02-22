@@ -1,51 +1,64 @@
 {% extends "base.html" %}
 
 {% block main %}
-    <h1 class="my-4">Pacientes con Sesiones Pendientes</h1>
+    <h1 class="my-4 display-4">Pacientes con Sesiones Pendientes</h1>
     
     <div>
         <div>
             {% for label, filter in filters %}
-                <a class="btn btn-secondary {% if show == filter or not show and loop.index == 1 %}active{% endif %}" href="{{ url_for('index') }}?show={{filter}}">{{label|upper}}</a>
+                <a class="btn btn-sm btn-secondary bg-gradient {% if show == filter or not show and loop.index == 1 %}active{% endif %}" href="{{ url_for('index') }}?show={{filter}}">
+                    <strong>{{label|upper}}</strong>
+                </a>
             {% endfor %}
         </div>
-
+        <hr>
         {% if total %}
             {% for name, sessions in grouped_sessions.items() %}
                 {% if sessions %}
-                <div class="mt-4">
-                    <h2>{{ name }}</h2>
+                    <div class="my-4">
+                        <h2 class="display-6">{{ name|title }}</h2>
 
-                    <ul class="list-group">
-                        {% for id, date, price, pending in sessions %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Estado:</strong>
-                                {% if not pending %}<strong class="text-success">PAGADO</strong>{% endif %}
-                                {% if pending %}<strong class="text-warning">PENDIENTE</strong>{% endif %}
-                                <br>
-                                <strong>Fecha de Sesión:</strong>
-                                {{ date }}
-                                <br>
+                        <ul class="list-group">
+                            {% for id, date, price, pending in sessions %}
+                            <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap shadow p-4 my-2">
+                                <div class="col-12 col-lg-10">
+                                    <strong>Estado:</strong>
+                                    {% if not pending %}<strong class="text-success">PAGADO</strong>{% endif %}
+                                    {% if pending %}<strong class="text-danger">PENDIENTE</strong>{% endif %}
+                                    <hr>
+                                    <strong>Fecha de Sesión:</strong>
+                                    {{ date|title }}
+                                    <br>
+                                    <strong>Precio:</strong>
+                                    {{ price }}
+                                    <hr>
+                                </div>
+                                
+                                <div class="d-grid gap-2 col-12 col-lg-2 mt-2">
+                                    <a href="{{ url_for('update_session', id=id, name=name) }}"  class="btn btn-sm btn-secondary bg-gradient">
+                                        <strong>Editar Información</strong>    
+                                    </a>
 
-                                <strong>Precio:</strong> {{ price }}
-                            </div>
-                            
-                            <div class="d-grid gap-2 d-md-block">
-                                <a class="btn btn-secondary" href="{{ url_for('update_session', id=id, name=name) }}">Editar</a>
-                                {% if pending %}
-                                    <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-primary">Pagó</a>
-                                {% else %}
-                                    {% if allow_delete %}
-                                    <a href="{{ url_for('remove_session', id=id) }}" class="btn btn-primary">Eliminar</a>
+                                    {% if pending %}
+                                        <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-sm btn-primary bg-gradient">
+                                            <strong>Marcar cómo Pagado</strong>
+                                        </a>
+                                    {% else %}
+                                        {% if allow_delete %}
+                                        <a href="{{ url_for('remove_session', id=id) }}" class="btn btn-sm btn-danger bg-gradient">
+                                            <strong>Eliminar Nota</strong>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-sm btn-primary bg-gradient">
+                                            <strong>Marcar cómo Pendiente</strong>
+                                        </a>
                                     {% endif %}
-                                    <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-primary">Pendiente</a>
-                                {% endif %}
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <hr>
                 {% endif %}
             {% endfor %}
         {% else %}

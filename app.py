@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
+import locale
 from datetime import datetime
+locale.setlocale(locale.LC_TIME, '')
 
 def format_date(date_str):
-    return datetime.strptime(date_str, "%Y-%m-%d").strftime("%d/%m/%Y")
+    return datetime.strptime(date_str, "%Y-%m-%d").strftime("%A %d/%m/%Y")
 
 def format_price(price):
     return f"${float(price):,.2f}"
