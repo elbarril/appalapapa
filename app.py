@@ -10,8 +10,6 @@ def format_price(price):
 
 app = Flask(__name__)
 
-ALLOW_DELETE = False
-
 def init_db():
     with sqlite3.connect("database.db") as conn:
         cursor = conn.cursor()
@@ -35,10 +33,16 @@ def init_db():
 
 init_db()
 
+ALLOW_DELETE = True
+
+ALL_FILTER = 'all'
+PENDING_FILTER = 'pending'
+PAID_FILTER = 'paid'
+
 FILTERS = [
-    ("TODOS", "all"),
-    ("PENDIENTES", "pending"),
-    ("PAGADOS", "paid")
+    ("TODOS", ALL_FILTER),
+    ("PENDIENTES", PENDING_FILTER),
+    ("PAGADOS", PAID_FILTER)
 ]
 
 @app.route('/')
@@ -47,28 +51,16 @@ def index():
 
     with sqlite3.connect("database.db") as conn:
         cursor = conn.cursor()
-        if show == "pending":
-            cursor.execute("""
-                SELECT persons.id, persons.name, sessions.session_date, sessions.session_price, sessions.pending
-                FROM persons
-                LEFT JOIN sessions ON persons.id = sessions.person_id AND sessions.pending = 1
-                ORDER BY persons.name, sessions.session_date
-            """)
-        elif show == "paid":
-            cursor.execute("""
-                SELECT persons.id, persons.name, sessions.session_date, sessions.session_price, sessions.pending
-                FROM persons
-                LEFT JOIN sessions ON persons.id = sessions.person_id AND sessions.pending = 0
-                ORDER BY persons.name, sessions.session_date
-            """)
-        else:
-            cursor.execute("""
-                SELECT persons.id, persons.name, sessions.session_date, sessions.session_price, sessions.pending
-                FROM persons
-                LEFT JOIN sessions ON persons.id = sessions.person_id
-                ORDER BY persons.name, sessions.session_date
-            """)
-            
+        query = "SELECT sessions.id, persons.name, sessions.session_date, sessions.session_price, sessions.pending \
+                    FROM persons LEFT JOIN sessions ON persons.id = sessions.person_id"
+
+        if show == PENDING_FILTER:
+            query += " AND sessions.pending = 1"
+        elif show == PAID_FILTER:
+            query += " AND sessions.pending = 0"
+
+        query += " ORDER BY persons.name, sessions.session_date"
+        cursor.execute(query)
         data = cursor.fetchall()
 
     grouped_sessions = {}
