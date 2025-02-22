@@ -53,7 +53,7 @@ def index():
 
     with sqlite3.connect("database.db") as conn:
         cursor = conn.cursor()
-        query = "SELECT sessions.id, persons.name, sessions.session_date, sessions.session_price, sessions.pending \
+        query = "SELECT persons.id, persons.name, sessions.id, sessions.session_date, sessions.session_price, sessions.pending \
                     FROM persons LEFT JOIN sessions ON persons.id = sessions.person_id"
 
         if show == PENDING_FILTER:
@@ -67,12 +67,12 @@ def index():
 
     grouped_sessions = {}
     total = 0
-    for person_id, name, date, price, pending in data:
+    for person_id, name, session_id, date, price, pending in data:
         if name not in grouped_sessions:
-            grouped_sessions[name] = []
+            grouped_sessions[(person_id,name)] = []
         if date and price:
             total += 1
-            grouped_sessions[name].append((person_id, format_date(date), format_price(price), pending))
+            grouped_sessions[(person_id,name)].append((session_id, format_date(date), format_price(price), pending))
 
     return render_template('index.html', grouped_sessions=grouped_sessions, filters=FILTERS, allow_delete=ALLOW_DELETE, show=show, total=total)
 
@@ -120,6 +120,17 @@ def remove_session(id):
         conn.commit()
     return redirect(url_for('index'))
 
+@app.route('/remove_person/<int:id>/<name>', methods=['GET', 'POST'])
+def remove_person(id, name):
+    if request.method == 'POST':
+        with sqlite3.connect("database.db") as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM sessions WHERE person_id = ?", (id,))    
+            cursor.execute("DELETE FROM persons WHERE id = ?", (id,))
+            conn.commit()
+        return redirect(url_for('index'))
+    return render_template('delete_person.html', id=id, name=name)
+
 @app.route('/toggle_pending/<int:id>')
 def toggle_pending(id):
     with sqlite3.connect("database.db") as conn:
@@ -130,7 +141,7 @@ def toggle_pending(id):
     return redirect(url_for('index'))
 
 @app.route('/update_session/<int:id>/<name>', methods=['GET', 'POST'])
-def update_session(id,name):
+def update_session(id, name):
     if request.method == 'POST':
         session_date = request.form.get('session_date')
         session_price = request.form.get('session_price')

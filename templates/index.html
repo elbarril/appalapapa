@@ -12,57 +12,62 @@
             {% endfor %}
         </div>
         <hr>
-        {% if total %}
-            {% for name, sessions in grouped_sessions.items() %}
+
+        {% for person, sessions in grouped_sessions.items() %}
+            <div class="my-4">
+                <h2 class="display-6">
+                    {{ person[1]|title }}
+                    
+                    <a href="{{ url_for('remove_person', id=person[0], name=person[1]) }}" class="btn btn-sm btn-danger bg-gradient d-inline">
+                        <strong>Eliminar Paciente</strong>
+                    </a>
+                </h2>
+
                 {% if sessions %}
-                    <div class="my-4">
-                        <h2 class="display-6">{{ name|title }}</h2>
+                    <ul class="list-group">
+                        {% for id, date, price, pending in sessions %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap shadow p-4 my-2">
+                            <div class="col-12 col-lg-10">
+                                <strong>Estado:</strong>
+                                {% if not pending %}<strong class="text-success">PAGADO</strong>{% endif %}
+                                {% if pending %}<strong class="text-danger">PENDIENTE</strong>{% endif %}
+                                <hr>
+                                <strong>Fecha de Sesión:</strong>
+                                {{ date|title }}
+                                <br>
+                                <strong>Precio:</strong>
+                                {{ price }}
+                                <hr>
+                            </div>
+                            
+                            <div class="d-grid gap-2 col-12 col-lg-2 mt-2">
+                                <a href="{{ url_for('update_session', id=id, name=person[1]) }}"  class="btn btn-sm btn-secondary bg-gradient">
+                                    <strong>Editar Información</strong>    
+                                </a>
 
-                        <ul class="list-group">
-                            {% for id, date, price, pending in sessions %}
-                            <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap shadow p-4 my-2">
-                                <div class="col-12 col-lg-10">
-                                    <strong>Estado:</strong>
-                                    {% if not pending %}<strong class="text-success">PAGADO</strong>{% endif %}
-                                    {% if pending %}<strong class="text-danger">PENDIENTE</strong>{% endif %}
-                                    <hr>
-                                    <strong>Fecha de Sesión:</strong>
-                                    {{ date|title }}
-                                    <br>
-                                    <strong>Precio:</strong>
-                                    {{ price }}
-                                    <hr>
-                                </div>
-                                
-                                <div class="d-grid gap-2 col-12 col-lg-2 mt-2">
-                                    <a href="{{ url_for('update_session', id=id, name=name) }}"  class="btn btn-sm btn-secondary bg-gradient">
-                                        <strong>Editar Información</strong>    
+                                {% if pending %}
+                                    <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-sm btn-primary bg-gradient">
+                                        <strong>Marcar cómo Pagado</strong>
                                     </a>
-
-                                    {% if pending %}
-                                        <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-sm btn-primary bg-gradient">
-                                            <strong>Marcar cómo Pagado</strong>
-                                        </a>
-                                    {% else %}
-                                        {% if allow_delete %}
-                                        <a href="{{ url_for('remove_session', id=id) }}" class="btn btn-sm btn-danger bg-gradient">
-                                            <strong>Eliminar Nota</strong>
-                                        </a>
-                                        {% endif %}
-                                        <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-sm btn-primary bg-gradient">
-                                            <strong>Marcar cómo Pendiente</strong>
-                                        </a>
+                                {% else %}
+                                    {% if allow_delete %}
+                                    <a href="{{ url_for('remove_session', id=id) }}" class="btn btn-sm btn-danger bg-gradient">
+                                        <strong>Eliminar Nota</strong>
+                                    </a>
                                     {% endif %}
-                                </div>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <hr>
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            <h2 class="mt-4">No hay resultados.</h2>
-        {% endif %}
+                                    <a href="{{ url_for('toggle_pending', id=id) }}" class="btn btn-sm btn-primary bg-gradient">
+                                        <strong>Marcar cómo Pendiente</strong>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                        <h3 class="mt-4">No hay resultados.</h3>
+                    {% endif %}
+                <hr>
+            </div>
+        {% endfor %}
     </div>
 {% endblock main %}

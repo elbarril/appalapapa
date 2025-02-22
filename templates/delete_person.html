@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <h1 class="my-4 text-center">Eliminar Paciente: {{ name|title }}</h1>
+    <p class="paragraph">Si elimina el paciente también se eliminarán las sesiones registradas a él.</p>
+
+    <form action="{{ url_for('remove_person', id=id, name=name) }}" method="post" class="card p-4 shadow-sm">
+        <input type="text" name="id" value="{{ id }}" hidden>
+        <button type="submit" class="btn btn-danger">Eliminar</button>
+        <a class="btn btn-primary" href="{{ url_for('index') }}">Cancelar</a>
+    </form>
+{% endblock main %}
