@@ -21,7 +21,7 @@
                     </h2>
 
                     <div>
-                        <a href="{{ url_for('remove_person', id=person[0], name=person[1]) }}" class="btn btn-sm btn-danger bg-gradient d-inline">
+                        <a href="{{ url_for('remove_person', person_id=person[0]) }}" class="btn btn-sm btn-danger bg-gradient d-inline">
                             <strong>Eliminar Paciente</strong>
                         </a>
                     </div>
@@ -45,7 +45,7 @@
                             </div>
                             
                             <div class="d-grid gap-2 col-12 col-lg-2 mt-2">
-                                <a href="{{ url_for('update_session', id=id, name=person[1]) }}"  class="btn btn-sm btn-secondary bg-gradient">
+                                <a href="{{ url_for('update_session', id=id, person_id=person[0]) }}"  class="btn btn-sm btn-secondary bg-gradient">
                                     <strong>Editar Información</strong>    
                                 </a>
 

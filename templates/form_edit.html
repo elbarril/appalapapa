@@ -3,7 +3,7 @@
 {% block main %}
     <h1 class="my-4 text-center">Editar Sesión de {{ name|title }}</h1>
 
-    <form action="{{ url_for('update_session', id=id, name=name) }}" method="post" class="card p-4 shadow-sm">
+    <form action="{{ url_for('update_session', id=id, person_id=person_id) }}" method="post" class="card p-4 shadow-sm">
         <div class="mb-3">
             <label for="session_date" class="form-label">Fecha de la Sesión</label>
             <input type="date" id="session_date" name="session_date" class="form-control" value="{{ date }}" required>
