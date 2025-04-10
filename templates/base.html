@@ -16,16 +16,28 @@
 
                     <div class="collapse show navbar-collapse justify-content-end" id="navbarSupportedContent">
                         <div class="navbar-nav">
-                            <div class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                  Añadir
-                                </a>
+                            {% if session.get('user') %}
+                                <span class="navbar-text me-3">
+                                    Hola, {{ session['user'] }}
+                                </span>
 
-                                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ url_for('add_person') }}">Paciente</a>
-                                    <a class="dropdown-item" href="{{ url_for('add_session') }}">Sesión</a>
+                                <div class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                      Añadir
+                                    </a>
+    
+                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ url_for('add_person') }}">Paciente</a>
+                                        <a class="dropdown-item" href="{{ url_for('add_session') }}">Sesión</a>
+                                    </div>
                                 </div>
-                            </div>
+
+                                <a class="nav-link" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                            {% else %}
+                                <a class="nav-link" href="{{ url_for('login') }}">Iniciar sesión</a>
+                                <a class="nav-link" href="{{ url_for('register') }}">Registrarse</a>
+                                <a class="nav-link" href="{{ url_for('reset_password') }}">Resetear contraseña</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -33,6 +45,16 @@
         </header>
 
         <main class="container mt-4">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="alert alert-info">
+                  {% for message in messages %}
+                    <div>{{ message }}</div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endwith %}
+
             {% block main %}{% endblock main %}
         </main>
 
