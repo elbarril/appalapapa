@@ -1,42 +1,56 @@
 <!DOCTYPE html>
-
 <html lang="es">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Lista de Pacientes</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='/css/bootstrap.min.css') }}">
+        <meta name="description" content="Sistema de gestión de pacientes y sesiones de terapia">
+        <title>{% block title %}Terapia - Gestión de Pacientes{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        {% block extra_css %}{% endblock %}
     </head>
 
     <body>
         <header>
-            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="{{ url_for('index') }}">Terapia - Pacientes</a>
+                    <a class="navbar-brand" href="{{ url_for('main.index') }}">
+                        <strong>Terapia</strong> - Pacientes
+                    </a>
+                    
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
 
-                    <div class="collapse show navbar-collapse justify-content-end" id="navbarSupportedContent">
+                    <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                         <div class="navbar-nav">
-                            {% if session.get('user') %}
+                            {% if current_user.is_authenticated %}
                                 <span class="navbar-text me-3">
-                                    Hola, {{ session['user'] }}
+                                    Hola, <strong>{{ current_user.email.split('@')[0] }}</strong>
                                 </span>
 
                                 <div class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                      Añadir
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" 
+                                       data-bs-toggle="dropdown" aria-expanded="false">
+                                        Añadir
                                     </a>
     
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ url_for('add_person') }}">Paciente</a>
-                                        <a class="dropdown-item" href="{{ url_for('add_session') }}">Sesión</a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item" href="{{ url_for('patients.add_person') }}">
+                                            <span class="me-2">👤</span> Paciente
+                                        </a>
+                                        <a class="dropdown-item" href="{{ url_for('sessions.add_session') }}">
+                                            <span class="me-2">📅</span> Sesión
+                                        </a>
                                     </div>
                                 </div>
 
-                                <a class="nav-link" href="{{ url_for('logout') }}">Cerrar sesión</a>
+                                <a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
                             {% else %}
-                                <a class="nav-link" href="{{ url_for('login') }}">Iniciar sesión</a>
-                                <a class="nav-link" href="{{ url_for('register') }}">Registrarse</a>
-                                <a class="nav-link" href="{{ url_for('reset_password') }}">Resetear contraseña</a>
+                                <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+                                <a class="nav-link" href="{{ url_for('auth.register') }}">Registrarse</a>
                             {% endif %}
                         </div>
                     </div>
@@ -45,19 +59,26 @@
         </header>
 
         <main class="container mt-4">
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                <div class="alert alert-info">
-                  {% for message in messages %}
-                    <div>{{ message }}</div>
-                  {% endfor %}
-                </div>
-              {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
             {% endwith %}
 
             {% block main %}{% endblock main %}
         </main>
 
+        <footer class="container mt-5 mb-3 text-center text-muted">
+            <hr>
+            <small>&copy; {{ now().year if now is defined else 2026 }} Terapia - Sistema de Gestión</small>
+        </footer>
+
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+        {% block extra_js %}{% endblock %}
     </body>
 </html>

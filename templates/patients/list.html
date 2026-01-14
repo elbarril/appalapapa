@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="d-flex justify-content-between align-items-center my-4">
+        <h1 class="display-5">Pacientes con Sesiones</h1>
+    </div>
+    
+    <div>
+        <!-- Filters -->
+        <div class="mb-3">
+            {% for label, filter in filters %}
+                <a class="btn btn-sm btn-secondary bg-gradient {% if show == filter or (not show and loop.index == 1) %}active{% endif %}" 
+                   href="{{ url_for('patients.index') }}?show={{ filter }}">
+                    <strong>{{ label|upper }}</strong>
+                </a>
+            {% endfor %}
+        </div>
+        <hr>
+
+        {% if grouped_sessions %}
+            <!-- Grid layout: max 3 patients per row -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            {% for person, sessions in grouped_sessions.items() %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Patient header -->
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0 text-truncate" title="{{ person[1]|title }}">
+                                    {{ person[1]|title }}
+                                </h5>
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de paciente">
+                                    <a href="{{ url_for('patients.edit_person', person_id=person[0]) }}" 
+                                       class="btn btn-outline-secondary" 
+                                       title="Editar paciente" 
+                                       aria-label="Editar paciente {{ person[1]|title }}">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                                        <span class="visually-hidden">Editar</span>
+                                    </a>
+                                    {% if allow_delete %}
+                                        <a href="{{ url_for('patients.remove_person', person_id=person[0]) }}" 
+                                           class="btn btn-danger bg-gradient" 
+                                           title="Eliminar paciente" 
+                                           aria-label="Eliminar paciente {{ person[1]|title }}">
+                                            <i class="bi bi-trash" aria-hidden="true"></i>
+                                            <span class="visually-hidden">Eliminar</span>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Patient body with sessions carousel -->
+                        <div class="card-body p-2">
+                            {% if sessions %}
+                                <!-- Carousel for session cards -->
+                                <div id="carousel-{{ person[0] }}" class="carousel slide" data-bs-ride="false">
+                                    <!-- Carousel indicators -->
+                                    {% if sessions|length > 1 %}
+                                    <div class="carousel-indicators position-relative mb-2" style="bottom: 0;">
+                                        {% for session in sessions %}
+                                        <button type="button" 
+                                                data-bs-target="#carousel-{{ person[0] }}" 
+                                                data-bs-slide-to="{{ loop.index0 }}" 
+                                                {% if loop.first %}class="active bg-secondary" aria-current="true"{% else %}class="bg-secondary"{% endif %}
+                                                aria-label="Sesión {{ loop.index }}"
+                                                style="width: 10px; height: 10px; border-radius: 50%;">
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Carousel slides -->
+                                    <div class="carousel-inner">
+                                        {% for id, date, price, pending in sessions %}
+                                        <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                            <div class="card border mx-auto">
+                                                <div class="card-header d-flex justify-content-between align-items-center py-2">
+                                                    <small class="text-muted">Sesión {{ loop.index }}/{{ sessions|length }}</small>
+                                                    {% if not pending %}
+                                                        <span class="badge bg-success">PAGADO</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">PENDIENTE</span>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="card-body py-2">
+                                                    <p class="card-text mb-1">
+                                                        <strong>Fecha:</strong> {{ date|title }}
+                                                    </p>
+                                                    <p class="card-text mb-0">
+                                                        <strong>Precio:</strong> 
+                                                        {{ "%.2f"|format(price) if price is number else price }}
+                                                    </p>
+                                                </div>
+                                                <div class="card-footer py-2">
+                                                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de sesión">
+                                                        <a href="{{ url_for('sessions.update_session', session_id=id, person_id=person[0]) }}" 
+                                                           class="btn btn-secondary bg-gradient"
+                                                           title="Editar sesión"
+                                                           aria-label="Editar sesión del {{ date|title }}">
+                                                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                                                            <span class="visually-hidden">Editar</span>
+                                                        </a>
+                                                        {% if pending %}
+                                                            <a href="{{ url_for('sessions.toggle_pending', session_id=id) }}" 
+                                                               class="btn btn-primary bg-gradient"
+                                                               title="Marcar como pagado"
+                                                               aria-label="Marcar sesión del {{ date|title }} como pagado">
+                                                                <i class="bi bi-check-circle" aria-hidden="true"></i>
+                                                                <span class="visually-hidden">Pagado</span>
+                                                            </a>
+                                                        {% else %}
+                                                            <a href="{{ url_for('sessions.toggle_pending', session_id=id) }}" 
+                                                               class="btn btn-outline-primary"
+                                                               title="Marcar como pendiente"
+                                                               aria-label="Marcar sesión del {{ date|title }} como pendiente">
+                                                                <i class="bi bi-clock-history" aria-hidden="true"></i>
+                                                                <span class="visually-hidden">Pendiente</span>
+                                                            </a>
+                                                            {% if allow_delete %}
+                                                                <a href="{{ url_for('sessions.remove_session', session_id=id) }}" 
+                                                                   class="btn btn-outline-danger"
+                                                                   title="Eliminar sesión"
+                                                                   aria-label="Eliminar sesión del {{ date|title }}">
+                                                                    <i class="bi bi-trash" aria-hidden="true"></i>
+                                                                    <span class="visually-hidden">Eliminar</span>
+                                                                </a>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Carousel controls -->
+                                    {% if sessions|length > 1 %}
+                                    <div class="d-flex justify-content-center gap-3 mt-2">
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" 
+                                                data-bs-target="#carousel-{{ person[0] }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true" 
+                                                  style="filter: invert(50%); width: 1rem; height: 1rem;"></span>
+                                            <span class="visually-hidden">Anterior</span>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" 
+                                                data-bs-target="#carousel-{{ person[0] }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true" 
+                                                  style="filter: invert(50%); width: 1rem; height: 1rem;"></span>
+                                            <span class="visually-hidden">Siguiente</span>
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center my-3">No hay sesiones registradas.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center my-5">
+                <h3 class="text-muted">No hay pacientes registrados.</h3>
+                <a href="{{ url_for('patients.add_person') }}" class="btn btn-primary mt-3">
+                    Agregar primer paciente
+                </a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock main %}

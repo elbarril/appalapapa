@@ -1,0 +1,17 @@
+# Include base requirements
+-r base.txt
+
+# Production WSGI server
+gunicorn>=21.0.0
+
+# PostgreSQL driver
+psycopg2-binary>=2.9.9
+
+# Redis for rate limiting and caching
+redis>=5.0.0
+
+# Error monitoring
+sentry-sdk[flask]>=1.39.0
+
+# Performance
+blinker>=1.7.0

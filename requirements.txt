@@ -1,7 +1,29 @@
-blinker==1.9.0
-click==8.1.8
-Flask==3.1.0
-itsdangerous==2.2.0
-Jinja2==3.1.5
-MarkupSafe==3.0.2
-Werkzeug==3.1.3
+# Include all dependencies for the therapy session management app
+# For environment-specific dependencies, see requirements/ folder
+
+# Core Flask dependencies
+Flask>=3.0.0
+Flask-SQLAlchemy>=3.1.0
+Flask-Migrate>=4.0.0
+Flask-Login>=0.6.3
+Flask-WTF>=1.2.0
+Flask-Limiter>=3.5.0
+
+# Database
+SQLAlchemy>=2.0.0
+
+# Security & Validation
+Werkzeug>=3.0.0
+email-validator>=2.1.0
+
+# Configuration
+python-dotenv>=1.0.0
+python-decouple>=3.8
+
+# WSGI Server (for development)
+# For production, install gunicorn separately
+
+# Development extras (optional, install with: pip install -r requirements/dev.txt)
+# Testing extras (optional, install with: pip install -r requirements/test.txt)
+# Production extras (optional, install with: pip install -r requirements/prod.txt)
+

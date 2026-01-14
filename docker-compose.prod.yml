@@ -1,0 +1,47 @@
+# =============================================================================
+# Docker Compose - Production Override
+# =============================================================================
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# =============================================================================
+
+services:
+  web:
+    build:
+      target: production
+    container_name: therapy-web-prod
+    ports:
+      - "8000:8000"
+    volumes:
+      # Only mount instance for database (no source code)
+      - db-data:/app/instance
+    environment:
+      - FLASK_CONFIG=production
+      - FLASK_DEBUG=False
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=8000
+      - DATABASE_URL=${DATABASE_URL}
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+  db:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+
+  redis:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M

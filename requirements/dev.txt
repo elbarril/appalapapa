@@ -1,0 +1,14 @@
+# Include base requirements
+-r base.txt
+
+# Development tools
+flask-debugtoolbar>=0.14.0
+
+# Code quality
+black>=24.0.0
+isort>=5.13.0
+flake8>=7.0.0
+mypy>=1.8.0
+
+# Type stubs
+types-Flask>=1.1.0

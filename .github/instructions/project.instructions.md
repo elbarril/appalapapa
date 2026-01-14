@@ -5,451 +5,390 @@ applyTo: '**'
 # Project Context: Therapy Session Management Application
 
 ## Overview
-Flask-based web application for managing patient therapy sessions with payment tracking. Single-file monolithic architecture using SQLite database.
+Flask-based web application for managing patient therapy sessions with payment tracking. **Modular architecture** with factory pattern, blueprints, service layer, and SQLAlchemy ORM.
 
-## Current Architecture
+## Current Architecture (Post-Refactoring)
 
 ### Application Structure
-- **Type**: Monolithic Flask application
-- **Database**: SQLite (file-based: `database.db`)
+- **Type**: Modular Flask application with factory pattern
+- **Database**: SQLite (dev), PostgreSQL (prod), SQLAlchemy 2.0+ ORM
 - **Frontend**: Jinja2 templates with Bootstrap 5
-- **Authentication**: Session-based with hardcoded credentials
-- **Language**: Spanish UI, Python codebase
+- **Authentication**: Flask-Login with session management
+- **Security**: Flask-WTF CSRF, Flask-Limiter rate limiting
+- **Language**: Spanish UI, English code/comments
 
-### Database Schema
-- **users**: User accounts (email, hashed password)
-- **persons**: Patient records (name only)
-- **sessions**: Therapy sessions (date, price, pending status)
+### Project Structure
+```
+appalapapa/
+├── app/                          # Application package
+│   ├── __init__.py              # App factory (create_app)
+│   ├── config.py                # Configuration classes
+│   ├── extensions.py            # Flask extensions
+│   ├── api/v1/                  # REST API endpoints
+│   ├── cli/                     # CLI commands
+│   ├── middleware/              # Error handlers, security
+│   ├── models/                  # SQLAlchemy models
+│   ├── routes/                  # View blueprints
+│   ├── services/                # Business logic layer
+│   ├── utils/                   # Utilities (constants, formatters)
+│   └── validators/              # Flask-WTF forms
+├── templates/                   # Jinja2 templates (organized by module)
+│   ├── base.html               # Base template with nav
+│   ├── auth/                   # Authentication templates
+│   │   ├── login.html
+│   │   ├── register.html
+│   │   ├── reset_password.html
+│   │   └── change_password.html
+│   ├── patients/               # Patient management templates
+│   │   ├── list.html           # Main dashboard
+│   │   ├── form_person.html
+│   │   └── delete_person.html
+│   ├── sessions/               # Session management templates
+│   │   ├── form_session.html
+│   │   └── form_edit.html
+│   └── errors/                 # Error pages (403, 404, 500)
+├── static/                      # Static assets (CSS, JS)
+├── tests/                       # pytest test suite
+│   ├── unit/                    # Unit tests
+│   └── integration/             # Integration tests
+├── requirements/                # Dependency files by environment
+├── run.py                       # Development entry point
+├── wsgi.py                      # Production WSGI entry
+├── Dockerfile                   # Docker configuration
+└── docker-compose.yml           # Docker Compose
+```
+
+### Database Schema (SQLAlchemy Models)
+- **User**: User accounts with roles (admin/therapist/viewer)
+- **Person**: Patient records with soft delete support
+- **TherapySession**: Therapy sessions (date, price, pending status)
+- **AuditLog**: Audit trail for all CRUD operations
 
 ---
 
-## Good Practices Detected
+## Implemented Best Practices
 
-### 1. Security
-✅ **Password hashing** using Werkzeug's `generate_password_hash` and `check_password_hash`
-✅ **Login decorator** (`@login_required`) for route protection
-✅ **Foreign key constraints** with `ON DELETE CASCADE` for data integrity
-✅ **SQL injection protection** via parameterized queries (`?` placeholders)
+### 1. Security ✅
+- **Environment variables**: All secrets via `.env` file
+- **Password hashing**: Werkzeug's secure password hashing
+- **CSRF protection**: Flask-WTF on all forms
+- **Rate limiting**: Flask-Limiter on authentication routes
+- **SQL injection prevention**: SQLAlchemy ORM (no raw SQL)
+- **Security headers**: Custom middleware for X-Frame-Options, etc.
+- **Role-based access**: Admin, Therapist, Viewer roles
 
-### 2. Code Organization
-✅ **Decorator pattern** for authentication (`@login_required`)
-✅ **Context managers** for database connections (`with sqlite3.connect()`)
-✅ **Template inheritance** (base.html extended by all templates)
-✅ **Separation of concerns**: formatting functions (`format_date`, `format_price`)
-✅ **DRY principle**: filter constants (`FILTERS`, `ALL_FILTER`, etc.)
+### 2. Architecture ✅
+- **Factory pattern**: `create_app()` for testability
+- **Blueprints**: Organized route separation (auth, patients, sessions)
+- **Service layer**: Business logic decoupled from routes
+- **Soft delete**: Recoverable data with `SoftDeleteMixin`
+- **Audit logging**: Track all data changes with user attribution
+- **Database migrations**: Flask-Migrate (Alembic)
 
-### 3. User Experience
-✅ **Flash messages** for user feedback on operations
-✅ **Persistent sessions** (365 days) for convenience
-✅ **Bootstrap styling** for responsive, professional UI
-✅ **Confirmation page** for destructive operations (delete person)
+### 3. Code Quality ✅
+- **Type hints**: On all function signatures
+- **Form validation**: Flask-WTF with custom validators
+- **Error handling**: Centralized error handlers
+- **Logging**: Configured logging with levels
+- **Constants**: Named constants in `utils/constants.py`
 
----
+### 4. Testing ✅
+- **pytest**: Unit and integration tests
+- **Fixtures**: Reusable test data in `conftest.py`
+- **Coverage**: pytest-cov for coverage reports
 
-## Critical Issues & Bad Practices
+### 5. DevOps ✅
+- **Docker**: Multi-stage build for dev/prod
+- **CI/CD**: GitHub Actions pipeline
+- **Environment configs**: dev/test/prod separation
 
-### 🔴 SECURITY VULNERABILITIES (HIGH PRIORITY)
+### 6. Accessibility (WCAG 2.1 AA) ✅
+- **Semantic HTML**: Proper heading hierarchy, landmark elements
+- **ARIA Labels**: All interactive elements have accessible names
+- **Keyboard Navigation**: Full functionality without mouse
+- **Color Contrast**: Minimum 4.5:1 ratio for text
+- **Focus Indicators**: Visible focus states for all interactive elements
+- **Form Accessibility**: Labels linked to inputs, error announcements
 
-#### 1. Hardcoded Secret Key
-```python
-app.secret_key = 'lui-psi-app'  # ❌ NEVER commit secrets to code
-```
-**Risk**: Session hijacking, XSS attacks
-**Fix**: Use environment variables with strong random keys
-```python
-app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
-```
-
-#### 2. Hardcoded Email Whitelist
-```python
-ALLOWED_EMAILS = {'emidesouches@gmail.com', 'luimuntaner@gmail.com'}  # ❌ PII in code
-```
-**Risk**: Privacy violation, GDPR non-compliance, inflexible
-**Fix**: Move to database table or environment variable
-
-#### 3. Weak Security Question
-```python
-if '-08-17' not in security:  # ❌ Trivial to guess
-```
-**Risk**: Account takeover
-**Fix**: Implement proper password reset with email verification or remove feature
-
-#### 4. Debug Mode in Production
-```python
-app.run(debug=True)  # ❌ Exposes stack traces & debugger
-```
-**Risk**: Information disclosure
-**Fix**: Use environment-based configuration
-
-#### 5. No CSRF Protection
-**Risk**: Cross-site request forgery attacks on all POST forms
-**Fix**: Use `Flask-WTF` with CSRF tokens
+### 7. Minimalist UI Design ✅
+- **Visual Simplicity**: Clean layouts with purposeful whitespace
+- **Limited Colors**: 3-4 primary colors maximum
+- **Typography**: Consistent font sizing scale
+- **Content-First**: UI serves content, not decoration
+- **Progressive Disclosure**: Essential info first, details on demand
 
 ---
 
-### 🟠 SCALABILITY & ARCHITECTURE ISSUES
+## Coding Conventions
 
-#### 1. Database Connection Anti-pattern
+### 1. Database Access (Use Services)
 ```python
-# ❌ Opens new connection on EVERY request
-with sqlite3.connect("database.db") as conn:
-```
-**Problems**:
-- No connection pooling
-- SQLite not suitable for concurrent writes
-- No migration system
-- Hardcoded database path repeated 15+ times
+# ✅ CORRECT - Use service layer
+from app.services.patient_service import PatientService
 
-**Fix**: 
-- Use Flask-SQLAlchemy for ORM and connection pooling
-- Implement configuration management
-- Add migration system (Flask-Migrate/Alembic)
-- Consider PostgreSQL for production
+success, person, message = PatientService.create(name='John Doe', user_id=user.id)
 
-#### 2. Monolithic File Structure
-**Problems**:
-- All 293 lines in single `app.py`
-- No separation of models, views, controllers
-- Difficult to test
-- No business logic layer
-
-**Recommended Structure**:
-```
-app/
-├── __init__.py          # App factory
-├── models.py            # Database models
-├── routes/
-│   ├── auth.py          # Authentication routes
-│   ├── patients.py      # Patient management
-│   └── sessions.py      # Session management
-├── services/            # Business logic
-├── config.py            # Configuration classes
-└── extensions.py        # Flask extensions
-```
-
-#### 3. No Environment Configuration
-**Problems**:
-- No `.env` file support
-- Hardcoded values throughout
-- Can't differentiate dev/staging/production
-
-**Fix**: Use `python-decouple` or `Flask-Environ`
-
-#### 4. Missing Data Validation
-```python
-person_id = request.form.get('person_id')  # ❌ No validation
-session_price = request.form.get('session_price')  # ❌ Can be negative/text
-```
-**Fix**: Use `Flask-WTF` forms with validators
-
----
-
-### 🟡 CODE QUALITY ISSUES
-
-#### 1. No Error Handling
-```python
-# ❌ No try/except around database operations
-cursor.execute("DELETE FROM sessions WHERE id = ?", (id,))
-```
-**Problems**: 
-- App crashes on DB errors
-- No user-friendly error messages
-- No logging
-
-#### 2. Raw SQL Everywhere
-```python
-# ❌ No abstraction layer
-query = "SELECT persons.id, persons.name, sessions.id..."
-```
-**Problems**:
-- Hard to maintain
-- No type safety
-- Prone to errors
-- Complex joins in views
-
-**Fix**: Use SQLAlchemy ORM
-
-#### 3. Magic Strings and Numbers
-```python
-if '-08-17' not in security:  # ❌ What is this date?
-session.permanent_session_lifetime = timedelta(days=365)  # ❌ Why 365?
-```
-**Fix**: Use named constants with comments
-
-#### 4. Inconsistent Naming
-```python
-ALLOW_DELETE = True  # Constant (good)
-grouped_sessions = defaultdict(list)  # Variable (good)
-ALLOWED_EMAILS = {...}  # Constant but data (inconsistent)
-```
-
-#### 5. Weak Security Question Implementation
-```python
-if '-08-17' not in security:  # ❌ Substring match, predictable
-```
-
-#### 6. No Input Sanitization
-```python
-name = request.form.get('name')  # ❌ No strip(), title(), or length check
-```
-
----
-
-### 🟡 MISSING FEATURES FOR PRODUCTION
-
-#### 1. No Logging System
-- No audit trail for data changes
-- No error tracking
-- Can't debug production issues
-
-**Fix**: Implement `logging` module or use Sentry
-
-#### 2. No Testing
-- No unit tests
-- No integration tests
-- No fixtures
-
-**Fix**: Add pytest with test structure
-
-#### 3. No API Versioning
-- No REST API (only HTML)
-- No mobile app support
-
-#### 4. No Backup Strategy
-- SQLite file can be corrupted/lost
-- No automated backups
-
-#### 5. No Rate Limiting
-- Vulnerable to brute force attacks
-- No protection against abuse
-
-**Fix**: Use `Flask-Limiter`
-
-#### 6. No Email Verification
-- Registration has no email confirmation
-- Password reset has no email token
-
-#### 7. No User Roles/Permissions
-- All logged-in users have full access
-- No admin vs. regular user distinction
-
-#### 8. No Soft Deletes
-```python
-cursor.execute("DELETE FROM sessions WHERE id = ?", (id,))  # ❌ Permanent
-```
-**Risk**: Accidental data loss with no recovery
-
----
-
-### 🔵 FRONTEND ISSUES
-
-#### 1. No Frontend Validation
-- Forms have no client-side validation
-- Poor UX (unnecessary server round-trips)
-
-#### 2. No JavaScript Framework
-- Limited interactivity
-- No real-time updates
-- Entire page reload for every action
-
-#### 3. Hardcoded Bootstrap Files
-```html
-<link rel="stylesheet" href="{{ url_for('static', filename='/css/bootstrap.min.css') }}">
-```
-**Problem**: No version control, no CDN fallback, outdated
-
-#### 4. No Accessibility Features
-- No ARIA labels
-- No keyboard navigation hints
-- No screen reader support
-
----
-
-## Coding Conventions to Follow
-
-### 1. Database Access
-```python
-# ❌ AVOID
-with sqlite3.connect("database.db") as conn:
-    cursor = conn.cursor()
-    cursor.execute(...)
-
-# ✅ USE (with SQLAlchemy)
-from app.models import Session
-session = Session.query.filter_by(id=id).first()
+# ❌ AVOID - Direct database access in routes
+db.session.add(Person(name='John Doe'))
 ```
 
 ### 2. Error Handling Pattern
 ```python
-# ✅ Always wrap operations
+# ✅ Always use try/except with logging
 try:
-    # Database/file operations
-    pass
-except SQLAlchemyError as e:
-    current_app.logger.error(f"Database error: {e}")
-    flash("Error al procesar la solicitud. Intente nuevamente.", "error")
+    success, result, message = SomeService.do_something()
+    if success:
+        flash(message, 'success')
+    else:
+        flash(message, 'error')
+except Exception as e:
+    current_app.logger.error(f"Error: {e}")
+    flash("Error inesperado. Intente nuevamente.", "error")
     db.session.rollback()
-    return redirect(url_for('index'))
 ```
 
-### 3. Configuration Management
+### 3. Route Organization
 ```python
-# ✅ Use config classes
-class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-class DevelopmentConfig(Config):
-    DEBUG = True
-
-class ProductionConfig(Config):
-    DEBUG = False
-```
-
-### 4. Route Organization
-```python
-# ✅ Use blueprints
+# ✅ Use blueprints with prefixes
 from flask import Blueprint
 
-auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+patients_bp = Blueprint('patients', __name__, url_prefix='/patients')
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
+@patients_bp.route('/add', methods=['GET', 'POST'])
+@login_required
+def add():
+    # ...
+```
+
+### 4. Form Validation
+```python
+# ✅ Use Flask-WTF forms
+from app.validators.forms import PersonForm
+
+form = PersonForm()
+if form.validate_on_submit():
+    name = form.name.data.strip()
+```
+
+### 5. Spanish UI / English Code
+```python
+# ✅ UI messages in Spanish
+flash("Paciente creado exitosamente.", "success")
+
+# ✅ Code and comments in English
+def create_patient(name: str) -> Person:
+    """Create a new patient record."""
     pass
 ```
 
-### 5. Form Validation
-```python
-# ✅ Use Flask-WTF
-from flask_wtf import FlaskForm
-from wtforms import StringField, DecimalField
-from wtforms.validators import DataRequired, Email, NumberRange
-
-class SessionForm(FlaskForm):
-    person_id = IntegerField('Person', validators=[DataRequired()])
-    session_date = DateField('Date', validators=[DataRequired()])
-    session_price = DecimalField('Price', validators=[
-        DataRequired(), 
-        NumberRange(min=0, message="El precio debe ser positivo")
-    ])
+### 6. Template Organization
 ```
+templates/
+├── base.html           # Base template (extends nothing)
+├── auth/               # Authentication templates
+├── patients/           # Patient management templates
+├── sessions/           # Session management templates
+└── errors/             # Error pages (403, 404, 500)
 
-### 6. Spanish UI Consistency
-- All user-facing messages in Spanish
-- All code/comments in English
-- Flash messages follow: `flash("Mensaje descriptivo.", "category")`
+# ✅ All templates extend base.html
+{% extends 'base.html' %}
 
-### 7. Template Patterns
-```django
-{# ✅ Use Bootstrap utility classes #}
-<div class="d-flex justify-content-between align-items-center">
-    {# Content #}
-</div>
+# ✅ Use block main for content
+{% block main %}...{% endblock main %}
 
-{# ✅ Consistent button styling #}
-<a href="..." class="btn btn-sm btn-primary bg-gradient">
-    <strong>Texto del Botón</strong>
-</a>
+# ✅ Always include CSRF token in forms
+{{ form.hidden_tag() }}
+
+# ✅ Use blueprint-based url_for
+{{ url_for('auth.login') }}
+{{ url_for('patients.index') }}
+{{ url_for('sessions.add_session') }}
 ```
 
 ---
 
-## Immediate Action Items (Priority Order)
+## Key Files Reference
 
-### Phase 1: Security (URGENT)
-1. Move `SECRET_KEY` to environment variable
-2. Move `ALLOWED_EMAILS` to database or config
-3. Add CSRF protection (Flask-WTF)
-4. Remove weak security question or implement proper reset
-5. Add rate limiting to login/register
-
-### Phase 2: Architecture
-1. Implement configuration management (dev/prod)
-2. Add SQLAlchemy ORM
-3. Restructure into modular architecture
-4. Add database migrations (Flask-Migrate)
-5. Implement logging system
-
-### Phase 3: Validation & Error Handling
-1. Add Flask-WTF forms with validation
-2. Add comprehensive error handling
-3. Add input sanitization
-4. Implement soft deletes
-
-### Phase 4: Testing & Documentation
-1. Set up pytest framework
-2. Write unit tests for models
-3. Write integration tests for routes
-4. Add API documentation
-5. Create deployment guide
-
-### Phase 5: Features
-1. Add user roles (admin/user)
-2. Implement email verification
-3. Add audit logging
-4. Add export functionality (PDF/CSV)
-5. Add backup automation
+| File | Purpose |
+|------|---------|
+| `CHANGELOG.md` | Version history and release notes |
+| `README.md` | Project overview and documentation |
+| `app/__init__.py` | App factory, register extensions/blueprints |
+| `app/config.py` | Configuration classes (dev/test/prod) |
+| `app/extensions.py` | Flask extension instances |
+| `app/models/*.py` | SQLAlchemy models with mixins |
+| `app/services/*.py` | Business logic (auth, patient, session) |
+| `app/routes/*.py` | View blueprints |
+| `app/validators/forms.py` | Flask-WTF form definitions |
+| `templates/base.html` | Base template with navigation |
+| `templates/auth/*.html` | Authentication templates (login, register) |
+| `templates/patients/*.html` | Patient management templates |
+| `templates/sessions/*.html` | Session management templates |
+| `templates/errors/*.html` | Error pages (403, 404, 500) |
+| `tests/conftest.py` | Pytest fixtures |
 
 ---
 
-## Files That Need Immediate Attention
+## Environment Variables (.env)
 
-1. **app.py** (Lines 71, 68): Remove hardcoded secrets
-2. **app.py** (Line 292): Remove debug mode
-3. **app.py** (Lines 131-135): Fix weak security question
-4. **app.py** (All routes): Add CSRF protection
-5. **README.md**: Typo on line 6 (`sctivate` → `activate`)
-6. **requirements.txt**: Add missing dependencies (python-decouple, Flask-WTF, Flask-SQLAlchemy)
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `SECRET_KEY` | Flask secret key | `your-secret-key-here` |
+| `FLASK_CONFIG` | Configuration name | `development` |
+| `DATABASE_URL` | Database connection | `sqlite:///instance/database.db` |
+| `ALLOWED_EMAILS` | Allowed registration emails | `user@example.com` |
+| `SENTRY_DSN` | Sentry error tracking (prod) | `https://...` |
 
 ---
 
-## DO NOT DO (Anti-patterns to Avoid)
+## CLI Commands
 
-❌ Hardcode sensitive data (emails, passwords, keys)
+```bash
+# Database
+flask db init-db          # Initialize tables
+flask db seed             # Seed sample data
+flask db backup           # Backup database
+
+# Users
+flask user create EMAIL   # Create new user
+flask user list           # List all users
+flask user set-role EMAIL ROLE
+```
+
+---
+
+## Testing Commands
+
+```bash
+# Activate virtual environment first
+venv\Scripts\activate     # Windows
+source venv/bin/activate  # macOS/Linux
+
+# Run tests
+pytest                    # All tests
+pytest -v                 # Verbose
+pytest --cov=app          # With coverage
+pytest tests/unit/        # Unit tests only
+pytest tests/integration/ # Integration tests only
+```
+
+---
+
+## Visual Verification with Screenshots (Frontend Changes)
+
+When modifying templates or frontend files, **always take screenshots** to verify:
+
+### Screenshot Verification Workflow
+1. **Start the server** (if not running):
+   ```bash
+   flask run
+   # or
+   python run.py
+   ```
+
+2. **Open in Simple Browser**: Use VS Code's internal browser at `http://localhost:5000`
+
+3. **Take a screenshot**: Capture the current state of the UI
+
+4. **Verify visually**:
+   - Layout renders correctly without overlapping
+   - Text is readable and properly aligned
+   - Buttons and links are visible and functional
+   - Forms display correctly with labels
+
+5. **Check accessibility**:
+   - Keyboard navigation works (Tab, Enter, Escape)
+   - Focus indicators are visible
+   - Color contrast is sufficient
+   - ARIA labels are present on interactive elements
+
+6. **Test responsive design**: Check at different viewport widths:
+   - Mobile: ~375px
+   - Tablet: ~768px  
+   - Desktop: ~1200px+
+
+7. **If errors found**: 
+   - Fix the issue
+   - **Take another screenshot** to confirm the fix
+   - Repeat until no issues remain
+
+8. **Complete**: Only mark task done after screenshot verification passes
+
+### Common Issues to Check
+- Navigation arrows overlapping content (carousels)
+- Text overflow/truncation
+- Button alignment and spacing
+- Card/grid layout responsiveness
+- Flash message visibility
+- Missing focus indicators
+- Poor color contrast
+
+---
+
+## Backend Testing Workflow (Backend Changes)
+
+When modifying any backend file, **always run tests** to verify:
+
+### Mandatory Testing Steps
+1. **Run full test suite**:
+   ```bash
+   pytest
+   ```
+
+2. **Run specific test category** based on change:
+   ```bash
+   # For model changes
+   pytest tests/unit/test_models.py -v
+   
+   # For service changes
+   pytest tests/unit/test_services.py -v
+   
+   # For route changes
+   pytest tests/integration/ -v
+   
+   # For form/validator changes
+   pytest tests/unit/test_validators.py -v
+   ```
+
+3. **Check for failures**: All tests must pass before marking complete
+
+4. **Add new tests**: If new functionality lacks test coverage, write tests
+
+5. **Run with coverage** (optional but recommended):
+   ```bash
+   pytest --cov=app --cov-report=term-missing
+   ```
+
+### When to Run Tests
+- ✅ After modifying any file in `app/models/`
+- ✅ After modifying any file in `app/services/`
+- ✅ After modifying any file in `app/routes/`
+- ✅ After modifying any file in `app/validators/`
+- ✅ After modifying any file in `app/utils/`
+- ✅ After modifying any file in `app/middleware/`
+- ✅ After modifying any file in `app/api/`
+
+---
+
+## DO NOT DO (Anti-patterns)
+
+❌ Hardcode secrets or emails in source code
 ❌ Use `debug=True` in production
-❌ Skip input validation
-❌ Ignore error handling
-❌ Commit database files to Git
-❌ Use raw SQL without parameterization
 ❌ Skip CSRF protection on forms
-❌ Store plaintext passwords
-❌ Use SQLite for production with multiple users
+❌ Access database directly in routes (use services)
+❌ Commit `.env` file to Git
+❌ Skip input validation
 ❌ Mix Spanish/English in user-facing text
-❌ Create database connections in views
-❌ Skip logging for critical operations
-❌ Allow negative prices or invalid dates
-❌ Use substring matching for security (`if '-08-17' not in`)
-❌ Delete data permanently without confirmation or soft delete
-
----
-
-## Future Agents: Where to Find Things
-
-- **Database connection**: Repeated in every route (needs refactoring to models)
-- **Authentication**: `login_required` decorator (line 16-24)
-- **Filtering logic**: Index route (lines 153-183)
-- **Date formatting**: `format_date()` function (line 11)
-- **Price formatting**: `format_price()` function (line 14)
-- **Constants**: Lines 56-68 (ALLOW_DELETE, FILTERS, ALLOWED_EMAILS)
-- **Templates**: `templates/` directory, all extend `base.html`
-- **Static assets**: `static/css/` and `static/js/` (Bootstrap only)
-
----
-
-## Technology Stack Summary
-
-**Backend**: Flask 3.1.0, Python 3.x
-**Database**: SQLite3 (stdlib)
-**Security**: Werkzeug password hashing
-**Templates**: Jinja2
-**Frontend**: Bootstrap 5.x, minimal custom JS
-**Session**: Flask built-in sessions (cookie-based)
-
-**Missing Critical Dependencies**:
-- Flask-WTF (forms & CSRF)
-- Flask-SQLAlchemy (ORM)
-- Flask-Migrate (migrations)
-- python-decouple (config)
-- Flask-Limiter (rate limiting)
-- gunicorn (production server)
+❌ Create raw SQL queries (use ORM)
+❌ Skip tests for new features
+❌ Delete data permanently without soft delete
+❌ Skip CHANGELOG.md updates for new features
+❌ Skip screenshot verification after frontend changes
+❌ Assume frontend changes work without visual testing
+❌ Skip running pytest after backend modifications
+❌ Ignore test failures and proceed with changes
+❌ Create UI elements without ARIA labels
+❌ Use color alone to convey information
+❌ Skip keyboard navigation testing
+❌ Create cluttered, complex UI layouts
+❌ Add decorative elements that don't serve function

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="my-4 text-center">
+                {% if editing %}Editar Paciente{% else %}Añadir Nuevo Paciente{% endif %}
+            </h1>
+
+            <form method="post" class="card p-4 shadow-sm">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre del Paciente</label>
+                    {{ form.name(class="form-control", id="name", placeholder="Nombre completo") }}
+                    {% if form.name.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.name.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.notes is defined %}
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notas (opcional)</label>
+                    {{ form.notes(class="form-control", id="notes", rows="3", placeholder="Notas adicionales...") }}
+                    {% if form.notes.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        {% if editing %}Guardar Cambios{% else %}Agregar Paciente{% endif %}
+                    </button>
+                    <a href="{{ url_for('patients.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock main %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block main %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="my-4 text-center">Añadir Nueva Sesión</h1>
+
+            <form method="post" class="card p-4 shadow-sm">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label for="person_id" class="form-label">Paciente</label>
+                    {{ form.person_id(class="form-select", id="person_id") }}
+                    {% if form.person_id.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.person_id.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="session_date" class="form-label">Fecha de la Sesión</label>
+                    {{ form.session_date(class="form-control", id="session_date") }}
+                    {% if form.session_date.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.session_date.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="session_price" class="form-label">Precio de la Sesión ($)</label>
+                    {{ form.session_price(class="form-control", id="session_price", step="0.01", min="0") }}
+                    {% if form.session_price.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.session_price.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if form.pending is defined %}
+                <div class="mb-3 form-check">
+                    {{ form.pending(class="form-check-input", id="pending") }}
+                    <label class="form-check-label" for="pending">Pago pendiente</label>
+                </div>
+                {% endif %}
+
+                {% if form.notes is defined %}
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notas (opcional)</label>
+                    {{ form.notes(class="form-control", id="notes", rows="2", placeholder="Notas de la sesión...") }}
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Agregar Sesión</button>
+                    <a href="{{ url_for('patients.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock main %}

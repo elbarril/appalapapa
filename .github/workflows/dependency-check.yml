@@ -1,0 +1,44 @@
+# =============================================================================
+# GitHub Actions - Dependency Update Check
+# =============================================================================
+# Runs weekly to check for outdated dependencies
+# =============================================================================
+
+name: Dependency Check
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Every Sunday at midnight
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  check-updates:
+    name: Check for Updates
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install pip-tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-tools
+
+      - name: Check for outdated packages
+        run: |
+          pip install -r requirements/base.txt
+          pip list --outdated --format=json > outdated.json
+          cat outdated.json
+
+      - name: Upload outdated packages report
+        uses: actions/upload-artifact@v4
+        with:
+          name: outdated-packages
+          path: outdated.json
