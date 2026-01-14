@@ -264,12 +264,20 @@ Before starting any task:
 
 **For Frontend/Template Changes:**
 1. Start the Flask development server
-2. Open the page in Simple Browser
-3. **Take a screenshot** of the rendered page
-4. Verify accessibility (keyboard nav, screen reader, contrast)
-5. Check responsive design at mobile/tablet/desktop sizes
-6. If issues found: fix, then take new screenshot to confirm
-7. Only complete after screenshot verification passes
+2. **For authenticated pages**: Login via external browser first (see test credentials below)
+3. Open the page in Simple Browser (shares session with external browser)
+4. **Take a screenshot** of the rendered page
+5. Verify accessibility (keyboard nav, screen reader, contrast)
+6. Check responsive design at mobile/tablet/desktop sizes
+7. **Check dark mode**: Verify UI works in both light and dark themes
+8. If issues found: fix, then take new screenshot to confirm
+9. Only complete after screenshot verification passes
+
+**Note on Simple Browser Limitations:**
+- VS Code Simple Browser is view-only (cannot fill forms or click buttons)
+- For pages requiring login, authenticate in an external browser first
+- Simple Browser will share the session cookie if using same localhost port
+- For unauthenticated pages (login, register, error pages), Simple Browser works directly
 
 When generating code:
 - Follow the coding conventions in project instructions

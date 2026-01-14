@@ -3,6 +3,7 @@ Pytest configuration and fixtures.
 
 Provides test fixtures for the entire test suite.
 """
+
 import pytest
 from datetime import date, timedelta
 
@@ -13,15 +14,15 @@ from app.models.person import Person
 from app.models.session import TherapySession
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def app():
     """
     Create application for testing.
-    
+
     Uses in-memory SQLite database.
     """
-    app = create_app('testing')
-    
+    app = create_app("testing")
+
     with app.app_context():
         db.create_all()
         yield app
@@ -46,13 +47,11 @@ def sample_user(app):
     """Create a sample user for testing."""
     with app.app_context():
         user = User.create_user(
-            email='test@example.com',
-            password='TestPass123',
-            role='therapist'
+            email="test@example.com", password="TestPass123", role="therapist"
         )
         db.session.add(user)
         db.session.commit()
-        
+
         # Refresh to get ID
         db.session.refresh(user)
         return user
@@ -63,9 +62,7 @@ def admin_user(app):
     """Create an admin user for testing."""
     with app.app_context():
         user = User.create_user(
-            email='admin@example.com',
-            password='AdminPass123',
-            role='admin'
+            email="admin@example.com", password="AdminPass123", role="admin"
         )
         db.session.add(user)
         db.session.commit()
@@ -78,9 +75,7 @@ def sample_person(app, sample_user):
     """Create a sample patient for testing."""
     with app.app_context():
         person = Person(
-            name='Test Patient',
-            notes='Test notes',
-            created_by_id=sample_user.id
+            name="Test Patient", notes="Test notes", created_by_id=sample_user.id
         )
         db.session.add(person)
         db.session.commit()
@@ -97,7 +92,7 @@ def sample_session(app, sample_person, sample_user):
             session_date=date.today(),
             session_price=100.00,
             pending=True,
-            created_by_id=sample_user.id
+            created_by_id=sample_user.id,
         )
         db.session.add(session)
         db.session.commit()
@@ -113,14 +108,14 @@ def multiple_sessions(app, sample_person, sample_user):
         for i in range(5):
             session = TherapySession(
                 person_id=sample_person.id,
-                session_date=date.today() - timedelta(days=i*7),
+                session_date=date.today() - timedelta(days=i * 7),
                 session_price=100.00 + (i * 10),
                 pending=(i % 2 == 0),  # Alternate pending/paid
-                created_by_id=sample_user.id
+                created_by_id=sample_user.id,
             )
             db.session.add(session)
             sessions.append(session)
-        
+
         db.session.commit()
         for s in sessions:
             db.session.refresh(s)
@@ -129,20 +124,21 @@ def multiple_sessions(app, sample_person, sample_user):
 
 class AuthActions:
     """Helper class for authentication in tests."""
-    
+
     def __init__(self, client):
         self._client = client
-    
-    def login(self, email='test@example.com', password='TestPass123'):
+
+    def login(self, email="test@example.com", password="TestPass123"):
         """Log in with credentials."""
-        return self._client.post('/auth/login', data={
-            'email': email,
-            'password': password
-        }, follow_redirects=True)
-    
+        return self._client.post(
+            "/auth/login",
+            data={"email": email, "password": password},
+            follow_redirects=True,
+        )
+
     def logout(self):
         """Log out current user."""
-        return self._client.get('/auth/logout', follow_redirects=True)
+        return self._client.get("/auth/logout", follow_redirects=True)
 
 
 @pytest.fixture
@@ -161,5 +157,5 @@ def logged_in_client(client, sample_user, auth):
 @pytest.fixture
 def logged_in_admin(client, admin_user, auth):
     """Client logged in as admin."""
-    auth.login(email='admin@example.com', password='AdminPass123')
+    auth.login(email="admin@example.com", password="AdminPass123")
     return client

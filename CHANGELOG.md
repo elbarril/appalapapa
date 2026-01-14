@@ -5,6 +5,37 @@ All notable changes to the Therapy Session Management Application will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-01-14
+
+### Added
+- **Dark Mode with Theme Switcher**: Full dark mode support with user preference persistence
+  - Dark mode enabled by default using Bootstrap 5.3's `data-bs-theme` attribute
+  - Theme switcher button in navbar (sun/moon icons) for toggling between light and dark modes
+  - User preference saved to localStorage and persists across sessions
+  - Smooth CSS transitions when switching themes
+  - Full accessibility: keyboard navigation, ARIA labels, focus indicators
+  - Script runs before page load to prevent flash of incorrect theme
+
+### Changed
+- **Improved Dark Mode UI Compatibility**: Updated all UI components for proper dark mode support
+  - Patient card headers: Removed `bg-light` class, now use theme-adaptive `border-bottom`
+  - Filter buttons: Changed to `btn-outline-light` for better visibility in dark mode
+  - Session action buttons: Updated color scheme for better contrast
+    - Edit button: `btn-outline-light` (high contrast)
+    - Mark as paid: `btn-success` (green, semantic match to PAGADO badge)
+    - Mark as pending: `btn-outline-warning` (yellow, semantic match to pending state)
+  - Carousel navigation: Replaced `filter: invert()` hack with Bootstrap Icons (`bi-chevron-left/right`)
+  - Text colors: Updated from `text-muted` to `text-body-secondary` for theme adaptability
+  - Delete buttons: Changed to `btn-outline-danger` for cleaner minimalist look
+
+### Fixed
+- **Accessibility Improvements**:
+  - Filter buttons now wrapped in `btn-group` with `role="group"` and `aria-label`
+  - Carousel navigation buttons have descriptive `aria-label` including patient name
+  - Patient header layout improved with proper flex spacing (`gap-2`, `flex-grow-1`)
+
+---
+
 ## [2.1.2] - 2026-01-14
 
 ### Changed

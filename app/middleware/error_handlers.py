@@ -3,13 +3,14 @@ Global error handlers.
 
 Provides custom error pages and logging for all HTTP errors.
 """
+
 from flask import render_template, request, current_app
 
 
 def handle_400(error):
     """Handle 400 Bad Request errors."""
     current_app.logger.warning(f"400 error: {request.url} - {error}")
-    return render_template('errors/400.html', error=error), 400
+    return render_template("errors/400.html", error=error), 400
 
 
 def handle_403(error):
@@ -17,26 +18,31 @@ def handle_403(error):
     current_app.logger.warning(
         f"403 error: {request.url} - User attempted unauthorized access"
     )
-    return render_template('errors/403.html', error=error), 403
+    return render_template("errors/403.html", error=error), 403
 
 
 def handle_404(error):
     """Handle 404 Not Found errors."""
     current_app.logger.info(f"404 error: {request.url}")
-    return render_template('errors/404.html', error=error), 404
+    return render_template("errors/404.html", error=error), 404
 
 
 def handle_500(error):
     """Handle 500 Internal Server errors."""
     current_app.logger.error(f"500 error: {request.url} - {error}", exc_info=True)
-    return render_template('errors/500.html', error=error), 500
+    return render_template("errors/500.html", error=error), 500
 
 
 def handle_csrf_error(error):
     """Handle CSRF token errors."""
     current_app.logger.warning(f"CSRF error: {request.url} - {error.description}")
-    return render_template('errors/403.html', 
-                          error="El formulario ha expirado. Por favor, actualiza la página e intenta nuevamente."), 403
+    return (
+        render_template(
+            "errors/403.html",
+            error="El formulario ha expirado. Por favor, actualiza la página e intenta nuevamente.",
+        ),
+        403,
+    )
 
 
 def register_error_handlers(app):

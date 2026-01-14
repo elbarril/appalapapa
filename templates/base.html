@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +7,48 @@
         <title>{% block title %}Terapia - Gestión de Pacientes{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+        <style>
+            /* Theme transition for smooth mode switching */
+            html {
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
+            body, .navbar, .card, .modal-content, .dropdown-menu, .form-control, .form-select {
+                transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            }
+            /* Theme switcher button styling */
+            .theme-switcher {
+                background: transparent;
+                border: none;
+                padding: 0.5rem;
+                cursor: pointer;
+                font-size: 1.25rem;
+                line-height: 1;
+                color: var(--bs-navbar-color);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .theme-switcher:hover {
+                color: var(--bs-navbar-hover-color);
+            }
+            .theme-switcher:focus {
+                outline: 2px solid var(--bs-primary);
+                outline-offset: 2px;
+                border-radius: 0.25rem;
+            }
+            /* Hide inactive theme icon */
+            [data-bs-theme="dark"] .theme-icon-dark,
+            [data-bs-theme="light"] .theme-icon-light {
+                display: none;
+            }
+        </style>
+        <script>
+            // Apply saved theme immediately to prevent flash
+            (function() {
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            })();
+        </script>
         {% block extra_css %}{% endblock %}
     </head>
 
@@ -20,12 +62,12 @@
                     
                     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
                             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
-                            aria-expanded="false" aria-label="Toggle navigation">
+                            aria-expanded="false" aria-label="Alternar navegación">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
                     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-                        <div class="navbar-nav">
+                        <div class="navbar-nav align-items-center">
                             {% if current_user.is_authenticated %}
                                 <span class="navbar-text me-3">
                                     Hola, <strong>{{ current_user.email.split('@')[0] }}</strong>
@@ -52,6 +94,15 @@
                                 <a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a>
                                 <a class="nav-link" href="{{ url_for('auth.register') }}">Registrarse</a>
                             {% endif %}
+                            
+                            <!-- Theme Switcher -->
+                            <button type="button" class="theme-switcher nav-link ms-2" 
+                                    id="themeSwitcher" 
+                                    aria-label="Cambiar tema de color"
+                                    title="Cambiar tema">
+                                <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
+                                <i class="bi bi-moon-fill theme-icon-dark" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -79,6 +130,45 @@
         </footer>
 
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+        <script>
+            // Theme Switcher Functionality
+            (function() {
+                const themeSwitcher = document.getElementById('themeSwitcher');
+                
+                function setTheme(theme) {
+                    document.documentElement.setAttribute('data-bs-theme', theme);
+                    localStorage.setItem('theme', theme);
+                    
+                    // Update aria-label for accessibility
+                    const label = theme === 'dark' 
+                        ? 'Cambiar a modo claro' 
+                        : 'Cambiar a modo oscuro';
+                    themeSwitcher.setAttribute('aria-label', label);
+                    themeSwitcher.setAttribute('title', label);
+                }
+                
+                function toggleTheme() {
+                    const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    setTheme(newTheme);
+                }
+                
+                // Initialize theme from localStorage or default to dark
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                setTheme(savedTheme);
+                
+                // Add click event listener
+                themeSwitcher.addEventListener('click', toggleTheme);
+                
+                // Support keyboard navigation
+                themeSwitcher.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleTheme();
+                    }
+                });
+            })();
+        </script>
         {% block extra_js %}{% endblock %}
     </body>
 </html>

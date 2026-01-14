@@ -117,6 +117,37 @@ appalapapa/
 - **Content-First**: UI serves content, not decoration
 - **Progressive Disclosure**: Essential info first, details on demand
 
+### 8. Dark Mode Support ✅
+- **Default Theme**: Dark mode is the default (`data-bs-theme="dark"`)
+- **Theme Switcher**: Sun/moon toggle button in navbar
+- **Persistence**: User preference saved to localStorage
+- **Bootstrap 5.3 Theming**: Uses native `data-bs-theme` attribute
+- **Adaptive Classes**: Use theme-aware classes (see guidelines below)
+
+#### Dark Mode UI Guidelines
+When creating or modifying UI components:
+
+```html
+<!-- ✅ DO: Use theme-adaptive classes -->
+<div class="card-header border-bottom">  <!-- Not bg-light -->
+<small class="text-body-secondary">      <!-- Not text-muted -->
+<button class="btn btn-outline-light">   <!-- High contrast in dark -->
+
+<!-- ❌ DON'T: Use hardcoded colors -->
+<div class="bg-light">                   <!-- Breaks in dark mode -->
+<span style="color: #666;">              <!-- Won't adapt -->
+<button style="filter: invert(50%);">    <!-- Hacky, unreliable -->
+```
+
+**Button Color Semantic Guide**:
+| Action | Class | Reason |
+|--------|-------|--------|
+| Edit/neutral | `btn-outline-secondary` | Good contrast in both light and dark modes |
+| Success/paid | `btn-success` | Green = positive confirmation |
+| Warning/pending | `btn-outline-warning` | Yellow = attention needed |
+| Danger/delete | `btn-outline-danger` | Red = destructive action |
+| Navigation | `btn-outline-secondary` | Subtle, non-competing |
+
 ---
 
 ## Coding Conventions
@@ -278,6 +309,19 @@ pytest tests/integration/ # Integration tests only
 
 When modifying templates or frontend files, **always take screenshots** to verify:
 
+### Test Credentials for Development
+
+To access authenticated pages for visual verification, use:
+
+| Email | Password | Role | Notes |
+|-------|----------|------|-------|
+| `test@example.com` | `test123` | admin | Created by `flask db-utils seed` |
+
+**Setup test user** (if not exists):
+```bash
+flask db-utils seed
+```
+
 ### Screenshot Verification Workflow
 1. **Start the server** (if not running):
    ```bash
@@ -286,11 +330,18 @@ When modifying templates or frontend files, **always take screenshots** to verif
    python run.py
    ```
 
-2. **Open in Simple Browser**: Use VS Code's internal browser at `http://localhost:5000`
+2. **Login first** (for authenticated pages):
+   - Open browser at `http://localhost:5000/auth/login`
+   - Use test credentials: `test@example.com` / `test123`
+   - Note: VS Code Simple Browser is view-only; use external browser for login
 
-3. **Take a screenshot**: Capture the current state of the UI
+3. **Open in Simple Browser**: Use VS Code's internal browser at `http://localhost:5000`
+   - Simple Browser shares session with external browser if same port
+   - For unauthenticated pages (login, register, errors), Simple Browser works directly
 
-4. **Verify visually**:
+4. **Take a screenshot**: Capture the current state of the UI
+
+5. **Verify visually**:
    - Layout renders correctly without overlapping
    - Text is readable and properly aligned
    - Buttons and links are visible and functional
@@ -322,6 +373,8 @@ When modifying templates or frontend files, **always take screenshots** to verif
 - Flash message visibility
 - Missing focus indicators
 - Poor color contrast
+- **Dark mode compatibility**: Check UI in both light and dark themes
+- **Theme switcher**: Verify theme toggle works and persists across page reloads
 
 ---
 
