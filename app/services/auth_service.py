@@ -4,14 +4,15 @@ Authentication service for user management.
 Handles login, registration, password reset, and session management.
 """
 
-from typing import Optional, Tuple
-from datetime import datetime
 import logging
+from datetime import datetime
+from typing import Optional, Tuple
+
 from flask import current_app, request
 
 from app.extensions import db
-from app.models.user import User
 from app.models.audit_log import AuditLog
+from app.models.user import User
 from app.utils.constants import AuditAction, UserRole
 
 logger = logging.getLogger(__name__)
@@ -91,9 +92,7 @@ class AuthService:
         return True, user, "Ingresó correctamente."
 
     @staticmethod
-    def register(
-        email: str, password: str, role: str = UserRole.THERAPIST
-    ) -> Tuple[bool, Optional[User], str]:
+    def register(email: str, password: str, role: str = UserRole.THERAPIST) -> Tuple[bool, Optional[User], str]:
         """
         Register a new user.
 
@@ -145,9 +144,7 @@ class AuthService:
             return False, None, "Error al crear la cuenta. Intente nuevamente."
 
     @staticmethod
-    def reset_password(
-        email: str, new_password: str, security_answer: str
-    ) -> Tuple[bool, str]:
+    def reset_password(email: str, new_password: str, security_answer: str) -> Tuple[bool, str]:
         """
         Reset user password with security question (legacy method).
 
@@ -194,9 +191,7 @@ class AuthService:
             return False, "Error al actualizar la contraseña. Intente nuevamente."
 
     @staticmethod
-    def change_password(
-        user: User, current_password: str, new_password: str
-    ) -> Tuple[bool, str]:
+    def change_password(user: User, current_password: str, new_password: str) -> Tuple[bool, str]:
         """
         Change password for logged-in user.
 

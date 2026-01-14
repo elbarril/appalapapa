@@ -2,11 +2,11 @@
 Person (Patient) model for therapy session management.
 """
 
-from typing import Optional, List
 from datetime import datetime
+from typing import List, Optional
 
 from app.extensions import db
-from app.models.mixins import TimestampMixin, SoftDeleteMixin, AuditMixin
+from app.models.mixins import AuditMixin, SoftDeleteMixin, TimestampMixin
 
 
 class Person(TimestampMixin, SoftDeleteMixin, AuditMixin, db.Model):
@@ -30,9 +30,7 @@ class Person(TimestampMixin, SoftDeleteMixin, AuditMixin, db.Model):
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     # Relationships
-    therapy_sessions = db.relationship(
-        "TherapySession", backref="person", lazy="dynamic", cascade="all, delete-orphan"
-    )
+    therapy_sessions = db.relationship("TherapySession", backref="person", lazy="dynamic", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Person {self.name}>"

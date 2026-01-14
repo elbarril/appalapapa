@@ -3,12 +3,13 @@ User model for authentication and authorization.
 """
 
 from datetime import datetime
-from typing import Optional, List
+from typing import List, Optional
+
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.extensions import db
-from app.models.mixins import TimestampMixin, SoftDeleteMixin
+from app.models.mixins import SoftDeleteMixin, TimestampMixin
 from app.utils.constants import UserRole
 
 
@@ -35,9 +36,7 @@ class User(UserMixin, TimestampMixin, SoftDeleteMixin, db.Model):
     last_login_at = db.Column(db.DateTime, nullable=True)
 
     # Relationships
-    persons = db.relationship(
-        "Person", backref="owner", lazy="dynamic", foreign_keys="Person.created_by_id"
-    )
+    persons = db.relationship("Person", backref="owner", lazy="dynamic", foreign_keys="Person.created_by_id")
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"
@@ -128,9 +127,7 @@ class User(UserMixin, TimestampMixin, SoftDeleteMixin, db.Model):
         return cls.query.filter_by(email=email.lower().strip()).first()
 
     @classmethod
-    def create_user(
-        cls, email: str, password: str, role: str = UserRole.THERAPIST
-    ) -> "User":
+    def create_user(cls, email: str, password: str, role: str = UserRole.THERAPIST) -> "User":
         """
         Create a new user with hashed password.
 

@@ -6,32 +6,31 @@ All forms include CSRF protection and validation.
 
 from flask_wtf import FlaskForm
 from wtforms import (
-    StringField,
-    PasswordField,
-    DecimalField,
-    DateField,
-    SelectField,
-    TextAreaField,
     BooleanField,
+    DateField,
+    DecimalField,
     HiddenField,
+    PasswordField,
+    SelectField,
+    StringField,
+    TextAreaField,
 )
 from wtforms.validators import (
     DataRequired,
     Email,
-    Length,
     EqualTo,
+    Length,
     NumberRange,
     Optional,
     ValidationError,
 )
 
 from app.utils.constants import (
-    MIN_PASSWORD_LENGTH,
     MAX_NAME_LENGTH,
     MAX_PRICE,
+    MIN_PASSWORD_LENGTH,
     MIN_PRICE,
 )
-
 
 # =============================================================================
 # Authentication Forms
@@ -48,9 +47,7 @@ class LoginForm(FlaskForm):
             Email(message="Ingresa un email válido."),
         ],
     )
-    password = PasswordField(
-        "Contraseña", validators=[DataRequired(message="La contraseña es requerida.")]
-    )
+    password = PasswordField("Contraseña", validators=[DataRequired(message="La contraseña es requerida.")])
     remember_me = BooleanField("Recordarme")
 
 
@@ -92,9 +89,7 @@ class RegistrationForm(FlaskForm):
             has_number = any(c.isdigit() for c in password)
 
             if not (has_letter and has_number):
-                raise ValidationError(
-                    "La contraseña debe contener al menos una letra y un número."
-                )
+                raise ValidationError("La contraseña debe contener al menos una letra y un número.")
 
 
 class ResetPasswordRequestForm(FlaskForm):
@@ -222,9 +217,7 @@ class SessionForm(FlaskForm):
         coerce=int,
         validators=[DataRequired(message="Selecciona un paciente.")],
     )
-    session_date = DateField(
-        "Fecha", validators=[DataRequired(message="La fecha es requerida.")]
-    )
+    session_date = DateField("Fecha", validators=[DataRequired(message="La fecha es requerida.")])
     session_price = DecimalField(
         "Precio",
         places=2,
@@ -253,9 +246,7 @@ class SessionForm(FlaskForm):
 class EditSessionForm(FlaskForm):
     """Form for editing an existing therapy session."""
 
-    session_date = DateField(
-        "Fecha", validators=[DataRequired(message="La fecha es requerida.")]
-    )
+    session_date = DateField("Fecha", validators=[DataRequired(message="La fecha es requerida.")])
     session_price = DecimalField(
         "Precio",
         places=2,

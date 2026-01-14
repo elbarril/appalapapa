@@ -2,14 +2,15 @@
 Unit tests for service layer.
 """
 
-import pytest
 from datetime import date, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from app.extensions import db
-from app.models.user import User
 from app.models.person import Person
 from app.models.session import TherapySession
+from app.models.user import User
 from app.services.auth_service import AuthService
 from app.services.patient_service import PatientService
 from app.services.session_service import SessionService
@@ -21,9 +22,7 @@ class TestAuthService:
     def test_authenticate_success(self, app, sample_user):
         """Test successful authentication."""
         with app.app_context():
-            success, user, message = AuthService.authenticate(
-                "test@example.com", "TestPass123"
-            )
+            success, user, message = AuthService.authenticate("test@example.com", "TestPass123")
 
             assert success is True
             assert user is not None
@@ -32,9 +31,7 @@ class TestAuthService:
     def test_authenticate_wrong_password(self, app, sample_user):
         """Test authentication with wrong password."""
         with app.app_context():
-            success, user, message = AuthService.authenticate(
-                "test@example.com", "WrongPassword"
-            )
+            success, user, message = AuthService.authenticate("test@example.com", "WrongPassword")
 
             assert success is False
             assert user is None
@@ -43,9 +40,7 @@ class TestAuthService:
     def test_authenticate_nonexistent_user(self, app):
         """Test authentication with non-existent email."""
         with app.app_context():
-            success, user, message = AuthService.authenticate(
-                "nonexistent@example.com", "password"
-            )
+            success, user, message = AuthService.authenticate("nonexistent@example.com", "password")
 
             assert success is False
             assert user is None
@@ -57,9 +52,7 @@ class TestAuthService:
             user.is_active = False
             db.session.commit()
 
-            success, _, message = AuthService.authenticate(
-                "test@example.com", "TestPass123"
-            )
+            success, _, message = AuthService.authenticate("test@example.com", "TestPass123")
 
             assert success is False
             assert "desactivada" in message.lower()
@@ -70,9 +63,7 @@ class TestAuthService:
             # Set allowed emails in config
             app.config["ALLOWED_EMAILS"] = {"new@example.com"}
 
-            success, user, message = AuthService.register(
-                "new@example.com", "NewPass123"
-            )
+            success, user, message = AuthService.register("new@example.com", "NewPass123")
 
             assert success is True
             assert user is not None
@@ -83,9 +74,7 @@ class TestAuthService:
         with app.app_context():
             app.config["ALLOWED_EMAILS"] = {"allowed@example.com"}
 
-            success, user, message = AuthService.register(
-                "unauthorized@example.com", "password"
-            )
+            success, user, message = AuthService.register("unauthorized@example.com", "password")
 
             assert success is False
             assert "autorizado" in message.lower()
@@ -95,9 +84,7 @@ class TestAuthService:
         with app.app_context():
             app.config["ALLOWED_EMAILS"] = set()  # Allow all
 
-            success, user, message = AuthService.register(
-                "test@example.com", "password"  # Already exists
-            )
+            success, user, message = AuthService.register("test@example.com", "password")  # Already exists
 
             assert success is False
             assert "registrado" in message.lower()
@@ -107,9 +94,7 @@ class TestAuthService:
         with app.app_context():
             user = User.query.get(sample_user.id)
 
-            success, message = AuthService.change_password(
-                user, "TestPass123", "NewPass456"
-            )
+            success, message = AuthService.change_password(user, "TestPass123", "NewPass456")
 
             assert success is True
             assert user.check_password("NewPass456") is True
@@ -119,9 +104,7 @@ class TestAuthService:
         with app.app_context():
             user = User.query.get(sample_user.id)
 
-            success, message = AuthService.change_password(
-                user, "WrongPassword", "NewPass456"
-            )
+            success, message = AuthService.change_password(user, "WrongPassword", "NewPass456")
 
             assert success is False
             assert "incorrecta" in message.lower()
@@ -133,9 +116,7 @@ class TestPatientService:
     def test_create_patient_success(self, app, sample_user):
         """Test successful patient creation."""
         with app.app_context():
-            success, person, message = PatientService.create(
-                name="New Patient", user_id=sample_user.id
-            )
+            success, person, message = PatientService.create(name="New Patient", user_id=sample_user.id)
 
             assert success is True
             assert person is not None
@@ -185,9 +166,7 @@ class TestPatientService:
     def test_delete_patient_soft(self, app, sample_person, sample_user):
         """Test soft deleting a patient."""
         with app.app_context():
-            success, message = PatientService.delete(
-                person_id=sample_person.id, user_id=sample_user.id, soft=True
-            )
+            success, message = PatientService.delete(person_id=sample_person.id, user_id=sample_user.id, soft=True)
 
             assert success is True
 
@@ -308,9 +287,7 @@ class TestSessionService:
     def test_delete_session_soft(self, app, sample_session, sample_user):
         """Test soft deleting a session."""
         with app.app_context():
-            success, message = SessionService.delete(
-                session_id=sample_session.id, user_id=sample_user.id, soft=True
-            )
+            success, message = SessionService.delete(session_id=sample_session.id, user_id=sample_user.id, soft=True)
 
             assert success is True
 

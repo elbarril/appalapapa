@@ -4,15 +4,16 @@ Therapy session service for session management operations.
 Handles creation, update, deletion, and payment tracking of sessions.
 """
 
-from typing import Optional, List, Tuple, Dict, Any
-from datetime import datetime, date, timedelta
 import logging
+from datetime import date, datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
+
 from flask import request
 
 from app.extensions import db
+from app.models.audit_log import AuditLog
 from app.models.person import Person
 from app.models.session import TherapySession
-from app.models.audit_log import AuditLog
 from app.utils.constants import AuditAction
 
 logger = logging.getLogger(__name__)
@@ -172,9 +173,7 @@ class SessionService:
             return False, None, "Error al actualizar la sesión. Intente nuevamente."
 
     @staticmethod
-    def delete(
-        session_id: int, user_id: Optional[int] = None, soft: bool = True
-    ) -> Tuple[bool, str]:
+    def delete(session_id: int, user_id: Optional[int] = None, soft: bool = True) -> Tuple[bool, str]:
         """
         Delete a therapy session.
 
@@ -220,9 +219,7 @@ class SessionService:
             return False, "Error al eliminar la sesión. Intente nuevamente."
 
     @staticmethod
-    def toggle_payment_status(
-        session_id: int, user_id: Optional[int] = None
-    ) -> Tuple[bool, Optional[bool], str]:
+    def toggle_payment_status(session_id: int, user_id: Optional[int] = None) -> Tuple[bool, Optional[bool], str]:
         """
         Toggle payment status of a session.
 
@@ -262,9 +259,7 @@ class SessionService:
             return False, None, "Error al actualizar el estado. Intente nuevamente."
 
     @staticmethod
-    def get_session_with_person(
-        session_id: int, person_id: int
-    ) -> Optional[Dict[str, Any]]:
+    def get_session_with_person(session_id: int, person_id: int) -> Optional[Dict[str, Any]]:
         """
         Get session data along with person info for edit form.
 
@@ -343,9 +338,7 @@ class SessionService:
         """
         return (
             TherapySession.query_active()
-            .order_by(
-                TherapySession.session_date.desc(), TherapySession.created_at.desc()
-            )
+            .order_by(TherapySession.session_date.desc(), TherapySession.created_at.desc())
             .limit(limit)
             .all()
         )

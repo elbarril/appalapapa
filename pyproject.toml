@@ -1,0 +1,32 @@
+# =============================================================================
+# Python Project Configuration
+# =============================================================================
+# Configuration for code formatting, linting, and tools.
+# =============================================================================
+
+[tool.black]
+line-length = 120
+target-version = ['py310', 'py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.venv
+    | venv
+    | __pycache__
+    | migrations
+    | instance
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip = [".git", ".venv", "venv", "__pycache__", "migrations", "instance"]
+known_first_party = ["app"]
+known_third_party = ["flask", "flask_login", "flask_sqlalchemy", "flask_migrate", "flask_wtf", "flask_limiter", "wtforms", "werkzeug", "sqlalchemy", "pytest"]
+
+[tool.flake8]
+max-line-length = 120
+exclude = [".git", ".venv", "venv", "__pycache__", "migrations", "instance"]
+max-complexity = 10

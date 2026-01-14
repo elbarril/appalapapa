@@ -6,7 +6,7 @@ Provides commands for database management and maintenance.
 
 import click
 from flask import current_app
-from flask.cli import with_appcontext, AppGroup
+from flask.cli import AppGroup, with_appcontext
 
 db_cli = AppGroup("db-utils", help="Database utility commands.")
 
@@ -41,11 +41,12 @@ def drop_db(yes):
 @with_appcontext
 def seed_db():
     """Seed the database with sample data for development."""
+    from datetime import date, timedelta
+
     from app.extensions import db
-    from app.models.user import User
     from app.models.person import Person
     from app.models.session import TherapySession
-    from datetime import date, timedelta
+    from app.models.user import User
 
     click.echo("Seeding database...")
 

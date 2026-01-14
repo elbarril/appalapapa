@@ -4,12 +4,12 @@ Patient management routes.
 Handles listing, creating, editing, and deleting patients.
 """
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
 
-from app.validators.forms import PersonForm, DeletePersonForm
 from app.services.patient_service import PatientService
-from app.utils.constants import FlashCategory, FILTERS, ALLOW_DELETE, ALL_FILTER
+from app.utils.constants import ALL_FILTER, ALLOW_DELETE, FILTERS, FlashCategory
+from app.validators.forms import DeletePersonForm, PersonForm
 
 patients_bp = Blueprint("patients", __name__)
 
@@ -80,9 +80,7 @@ def edit_person(person_id):
         else:
             flash(message, FlashCategory.ERROR)
 
-    return render_template(
-        "patients/form_person.html", form=form, person=person, editing=True
-    )
+    return render_template("patients/form_person.html", form=form, person=person, editing=True)
 
 
 @patients_bp.route("/<int:person_id>/delete", methods=["GET", "POST"])
@@ -115,6 +113,4 @@ def remove_person(person_id):
 
         return redirect(url_for("patients.index"))
 
-    return render_template(
-        "patients/delete_person.html", form=form, person_id=person_id, name=person.name
-    )
+    return render_template("patients/delete_person.html", form=form, person_id=person_id, name=person.name)

@@ -2,9 +2,9 @@
 Audit service for tracking and querying audit logs.
 """
 
-from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
 import logging
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
 from app.extensions import db
 from app.models.audit_log import AuditLog
@@ -44,9 +44,7 @@ class AuditService:
         return AuditLog.get_for_user(user_id, limit).all()
 
     @staticmethod
-    def get_record_history(
-        table_name: str, record_id: int, limit: int = 50
-    ) -> List[AuditLog]:
+    def get_record_history(table_name: str, record_id: int, limit: int = 50) -> List[AuditLog]:
         """
         Get audit history for a specific record.
 
@@ -61,9 +59,7 @@ class AuditService:
         return AuditLog.get_for_record(table_name, record_id, limit).all()
 
     @staticmethod
-    def get_login_attempts(
-        user_id: Optional[int] = None, days: int = 7
-    ) -> List[AuditLog]:
+    def get_login_attempts(user_id: Optional[int] = None, days: int = 7) -> List[AuditLog]:
         """
         Get login attempts for security monitoring.
 
@@ -99,9 +95,7 @@ class AuditService:
         """
         since = datetime.utcnow() - timedelta(days=days)
 
-        login_success = AuditLog.query.filter(
-            AuditLog.action == AuditAction.LOGIN, AuditLog.timestamp >= since
-        ).count()
+        login_success = AuditLog.query.filter(AuditLog.action == AuditAction.LOGIN, AuditLog.timestamp >= since).count()
 
         login_failed = AuditLog.query.filter(
             AuditLog.action == AuditAction.LOGIN_FAILED, AuditLog.timestamp >= since

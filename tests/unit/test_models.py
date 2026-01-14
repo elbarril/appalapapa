@@ -2,14 +2,15 @@
 Unit tests for database models.
 """
 
-import pytest
 from datetime import date, datetime, timedelta
+
+import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
-from app.models.user import User
 from app.models.person import Person
 from app.models.session import TherapySession
+from app.models.user import User
 from app.utils.constants import UserRole
 
 
@@ -66,9 +67,7 @@ class TestUserModel:
         """Test user role checking."""
         with app.app_context():
             admin = User.create_user("admin@example.com", "pass", UserRole.ADMIN)
-            therapist = User.create_user(
-                "therapist@example.com", "pass", UserRole.THERAPIST
-            )
+            therapist = User.create_user("therapist@example.com", "pass", UserRole.THERAPIST)
             viewer = User.create_user("viewer@example.com", "pass", UserRole.VIEWER)
 
             assert admin.is_admin is True

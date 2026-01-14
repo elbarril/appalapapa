@@ -5,14 +5,15 @@ A Flask-based web application for managing patient therapy sessions
 with payment tracking, audit logging, and role-based access control.
 """
 
-from flask import Flask
 import logging
 import os
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
+from flask import Flask
+
 from app.config import config
-from app.extensions import db, migrate, login_manager, csrf, limiter
+from app.extensions import csrf, db, limiter, login_manager, migrate
 
 
 def create_app(config_name=None):
@@ -92,11 +93,11 @@ def register_extensions(app):
 
 def register_blueprints(app):
     """Register all application blueprints."""
+    from app.api.v1 import api_v1_bp
     from app.routes.auth import auth_bp
+    from app.routes.main import main_bp
     from app.routes.patients import patients_bp
     from app.routes.sessions import sessions_bp
-    from app.routes.main import main_bp
-    from app.api.v1 import api_v1_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")
@@ -136,8 +137,8 @@ def register_cli_commands(app):
 
 def register_context_processors(app):
     """Register template context processors."""
+    from app.utils.constants import ALLOW_DELETE, FILTERS
     from app.utils.formatters import format_date, format_price
-    from app.utils.constants import FILTERS, ALLOW_DELETE
 
     @app.context_processor
     def utility_processor():
@@ -161,18 +162,14 @@ def configure_logging(app):
 
     # Create file handler with rotation
     log_file = app.config.get("LOG_FILE", "logs/app.log")
-    file_handler = RotatingFileHandler(
-        log_file, maxBytes=10 * 1024 * 1024, backupCount=10  # 10MB
-    )
+    file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=10)  # 10MB
 
     # Set log level
     log_level = getattr(logging, app.config.get("LOG_LEVEL", "INFO"))
     file_handler.setLevel(log_level)
 
     # Create formatter
-    formatter = logging.Formatter(
-        "%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]"
-    )
+    formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]")
     file_handler.setFormatter(formatter)
 
     # Add handler to app logger

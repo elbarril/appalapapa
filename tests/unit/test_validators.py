@@ -2,15 +2,16 @@
 Unit tests for form validators.
 """
 
-import pytest
 from datetime import date
 
+import pytest
+
 from app.validators.forms import (
-    LoginForm,
-    RegistrationForm,
-    PersonForm,
-    SessionForm,
     EditSessionForm,
+    LoginForm,
+    PersonForm,
+    RegistrationForm,
+    SessionForm,
 )
 
 
@@ -20,9 +21,7 @@ class TestLoginForm:
     def test_valid_login_data(self, app):
         """Test form with valid data."""
         with app.app_context():
-            form = LoginForm(
-                data={"email": "test@example.com", "password": "password123"}
-            )
+            form = LoginForm(data={"email": "test@example.com", "password": "password123"})
 
             assert form.validate() is True
 
@@ -139,9 +138,7 @@ class TestPersonForm:
     def test_name_with_notes(self, app):
         """Test form with optional notes."""
         with app.app_context():
-            form = PersonForm(
-                data={"name": "John Doe", "notes": "Some notes about the patient"}
-            )
+            form = PersonForm(data={"name": "John Doe", "notes": "Some notes about the patient"})
 
             assert form.validate() is True
 
@@ -166,9 +163,7 @@ class TestSessionForm:
     def test_missing_person_id(self, app):
         """Test form with missing patient."""
         with app.app_context():
-            form = SessionForm(
-                data={"session_date": date.today(), "session_price": 100.00}
-            )
+            form = SessionForm(data={"session_date": date.today(), "session_price": 100.00})
             # Need to set choices before validating SelectField
             form.person_id.choices = [(1, "Test Patient")]
 
@@ -212,9 +207,7 @@ class TestEditSessionForm:
     def test_valid_edit_data(self, app):
         """Test form with valid data."""
         with app.app_context():
-            form = EditSessionForm(
-                data={"session_date": date.today(), "session_price": 150.00}
-            )
+            form = EditSessionForm(data={"session_date": date.today(), "session_price": 150.00})
 
             assert form.validate() is True
 

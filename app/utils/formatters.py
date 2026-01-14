@@ -4,9 +4,9 @@ Formatting utilities for dates and prices.
 All display formatting should use these functions for consistency.
 """
 
+import locale
 from datetime import datetime
 from typing import Union
-import locale
 
 from app.utils.constants import DATE_FORMAT_DISPLAY, DATE_FORMAT_INPUT
 
@@ -17,9 +17,7 @@ except locale.Error:
     pass  # Use default locale if setting fails
 
 
-def format_date(
-    date_input: Union[str, datetime, None], include_weekday: bool = True
-) -> str:
+def format_date(date_input: Union[str, datetime, None], include_weekday: bool = True) -> str:
     """
     Format a date for display.
 

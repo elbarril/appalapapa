@@ -33,9 +33,7 @@ class Config:
     }
 
     # Session security
-    PERMANENT_SESSION_LIFETIME = timedelta(
-        days=int(os.environ.get("SESSION_LIFETIME_DAYS", 7))
-    )
+    PERMANENT_SESSION_LIFETIME = timedelta(days=int(os.environ.get("SESSION_LIFETIME_DAYS", 7)))
     SESSION_COOKIE_SECURE = True  # HTTPS only
     SESSION_COOKIE_HTTPONLY = True  # No JS access
     SESSION_COOKIE_SAMESITE = "Lax"  # CSRF protection
@@ -67,11 +65,7 @@ class Config:
     ALLOW_DELETE = os.environ.get("ALLOW_DELETE", "true").lower() == "true"
 
     # Allowed emails for registration (comma-separated)
-    ALLOWED_EMAILS = set(
-        email.strip()
-        for email in os.environ.get("ALLOWED_EMAILS", "").split(",")
-        if email.strip()
-    )
+    ALLOWED_EMAILS = set(email.strip() for email in os.environ.get("ALLOWED_EMAILS", "").split(",") if email.strip())
 
     # File uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max
@@ -88,10 +82,7 @@ class DevelopmentConfig(Config):
     TESTING = False
 
     # SQLite for local development
-    SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("DATABASE_URL")
-        or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
 
     # Show SQL queries in console
     SQLALCHEMY_ECHO = True

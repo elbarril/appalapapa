@@ -5,7 +5,7 @@ Used for regulatory compliance and debugging.
 """
 
 from datetime import datetime
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
 
 from app.extensions import db
 from app.utils.constants import AuditAction
@@ -35,9 +35,7 @@ class AuditLog(db.Model):
     __tablename__ = "audit_logs"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(
-        db.Integer, db.ForeignKey("users.id"), nullable=True, index=True
-    )
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True, index=True)
     action = db.Column(db.String(50), nullable=False, index=True)
     table_name = db.Column(db.String(100), nullable=False, index=True)
     record_id = db.Column(db.Integer, nullable=True)
@@ -45,9 +43,7 @@ class AuditLog(db.Model):
     new_values = db.Column(db.JSON, nullable=True)
     ip_address = db.Column(db.String(45), nullable=True)  # IPv6 max length
     user_agent = db.Column(db.String(500), nullable=True)
-    timestamp = db.Column(
-        db.DateTime, default=datetime.utcnow, nullable=False, index=True
-    )
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
 
     # Relationships
     user = db.relationship("User", backref="audit_logs")
@@ -182,9 +178,7 @@ class AuditLog(db.Model):
             Query for audit log entries
         """
         return (
-            cls.query.filter_by(table_name=table_name, record_id=record_id)
-            .order_by(cls.timestamp.desc())
-            .limit(limit)
+            cls.query.filter_by(table_name=table_name, record_id=record_id).order_by(cls.timestamp.desc()).limit(limit)
         )
 
     @classmethod
@@ -199,11 +193,7 @@ class AuditLog(db.Model):
         Returns:
             Query for audit log entries
         """
-        return (
-            cls.query.filter_by(user_id=user_id)
-            .order_by(cls.timestamp.desc())
-            .limit(limit)
-        )
+        return cls.query.filter_by(user_id=user_id).order_by(cls.timestamp.desc()).limit(limit)
 
     def to_dict(self) -> dict:
         """Convert audit log to dictionary."""

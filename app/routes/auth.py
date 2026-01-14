@@ -4,18 +4,18 @@ Authentication routes.
 Handles login, logout, registration, and password reset.
 """
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 
 from app.extensions import limiter
+from app.services.auth_service import AuthService
+from app.utils.constants import AUTH_RATE_LIMIT, FlashCategory
 from app.validators.forms import (
+    ChangePasswordForm,
     LoginForm,
     RegistrationForm,
     ResetPasswordForm,
-    ChangePasswordForm,
 )
-from app.services.auth_service import AuthService
-from app.utils.constants import FlashCategory, AUTH_RATE_LIMIT
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -30,9 +30,7 @@ def register():
     form = RegistrationForm()
 
     if form.validate_on_submit():
-        success, user, message = AuthService.register(
-            email=form.email.data, password=form.password.data
-        )
+        success, user, message = AuthService.register(email=form.email.data, password=form.password.data)
 
         if success:
             flash(message, FlashCategory.SUCCESS)
@@ -53,9 +51,7 @@ def login():
     form = LoginForm()
 
     if form.validate_on_submit():
-        success, user, message = AuthService.authenticate(
-            email=form.email.data, password=form.password.data
-        )
+        success, user, message = AuthService.authenticate(email=form.email.data, password=form.password.data)
 
         if success:
             login_user(user, remember=form.remember_me.data)

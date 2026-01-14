@@ -4,8 +4,9 @@ Security middleware.
 Provides security headers and CORS configuration.
 """
 
-from flask import request, g
 from functools import wraps
+
+from flask import g, request
 
 
 def add_security_headers(response):
@@ -42,9 +43,7 @@ def log_request():
     from flask_login import current_user
 
     user_id = current_user.id if current_user.is_authenticated else "anonymous"
-    current_app.logger.debug(
-        f"Request: {request.method} {request.path} - User: {user_id}"
-    )
+    current_app.logger.debug(f"Request: {request.method} {request.path} - User: {user_id}")
 
 
 def track_request_time():
@@ -65,13 +64,12 @@ def log_request_time(response):
     Call in after_request to log elapsed time.
     """
     import time
+
     from flask import current_app
 
     if hasattr(g, "start_time"):
         elapsed = time.time() - g.start_time
         if elapsed > 1.0:  # Log slow requests (>1 second)
-            current_app.logger.warning(
-                f"Slow request: {request.method} {request.path} - {elapsed:.2f}s"
-            )
+            current_app.logger.warning(f"Slow request: {request.method} {request.path} - {elapsed:.2f}s")
 
     return response

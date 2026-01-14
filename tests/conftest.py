@@ -4,14 +4,15 @@ Pytest configuration and fixtures.
 Provides test fixtures for the entire test suite.
 """
 
-import pytest
 from datetime import date, timedelta
+
+import pytest
 
 from app import create_app
 from app.extensions import db
-from app.models.user import User
 from app.models.person import Person
 from app.models.session import TherapySession
+from app.models.user import User
 
 
 @pytest.fixture(scope="function")
@@ -46,9 +47,7 @@ def runner(app):
 def sample_user(app):
     """Create a sample user for testing."""
     with app.app_context():
-        user = User.create_user(
-            email="test@example.com", password="TestPass123", role="therapist"
-        )
+        user = User.create_user(email="test@example.com", password="TestPass123", role="therapist")
         db.session.add(user)
         db.session.commit()
 
@@ -61,9 +60,7 @@ def sample_user(app):
 def admin_user(app):
     """Create an admin user for testing."""
     with app.app_context():
-        user = User.create_user(
-            email="admin@example.com", password="AdminPass123", role="admin"
-        )
+        user = User.create_user(email="admin@example.com", password="AdminPass123", role="admin")
         db.session.add(user)
         db.session.commit()
         db.session.refresh(user)
@@ -74,9 +71,7 @@ def admin_user(app):
 def sample_person(app, sample_user):
     """Create a sample patient for testing."""
     with app.app_context():
-        person = Person(
-            name="Test Patient", notes="Test notes", created_by_id=sample_user.id
-        )
+        person = Person(name="Test Patient", notes="Test notes", created_by_id=sample_user.id)
         db.session.add(person)
         db.session.commit()
         db.session.refresh(person)

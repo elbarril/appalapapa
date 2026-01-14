@@ -4,7 +4,7 @@ Global error handlers.
 Provides custom error pages and logging for all HTTP errors.
 """
 
-from flask import render_template, request, current_app
+from flask import current_app, render_template, request
 
 
 def handle_400(error):
@@ -15,9 +15,7 @@ def handle_400(error):
 
 def handle_403(error):
     """Handle 403 Forbidden errors."""
-    current_app.logger.warning(
-        f"403 error: {request.url} - User attempted unauthorized access"
-    )
+    current_app.logger.warning(f"403 error: {request.url} - User attempted unauthorized access")
     return render_template("errors/403.html", error=error), 403
 
 

@@ -4,8 +4,8 @@ Integration tests for patient routes.
 
 import pytest
 
-from app.models.person import Person
 from app.extensions import db
+from app.models.person import Person
 
 
 class TestPatientListRoute:
@@ -26,18 +26,14 @@ class TestPatientListRoute:
         assert response.status_code == 200
         assert b"Test Patient" in response.data
 
-    def test_dashboard_filter_pending(
-        self, client, sample_person, sample_session, sample_user, auth
-    ):
+    def test_dashboard_filter_pending(self, client, sample_person, sample_session, sample_user, auth):
         """Test dashboard filtering by pending."""
         auth.login()
         response = client.get("/patients/?show=pending")
 
         assert response.status_code == 200
 
-    def test_dashboard_filter_paid(
-        self, client, sample_person, sample_session, sample_user, auth
-    ):
+    def test_dashboard_filter_paid(self, client, sample_person, sample_session, sample_user, auth):
         """Test dashboard filtering by paid."""
         auth.login()
         response = client.get("/patients/?show=paid")
@@ -59,9 +55,7 @@ class TestAddPatientRoute:
         """Test successful patient creation."""
         auth.login()
 
-        response = client.post(
-            "/patients/add", data={"name": "New Patient"}, follow_redirects=True
-        )
+        response = client.post("/patients/add", data={"name": "New Patient"}, follow_redirects=True)
 
         assert response.status_code == 200
 
@@ -74,18 +68,12 @@ class TestAddPatientRoute:
         """Test patient creation with empty name."""
         auth.login()
 
-        response = client.post(
-            "/patients/add", data={"name": ""}, follow_redirects=True
-        )
+        response = client.post("/patients/add", data={"name": ""}, follow_redirects=True)
 
         # Should show validation error
-        assert (
-            b"requerido" in response.data.lower() or b"error" in response.data.lower()
-        )
+        assert b"requerido" in response.data.lower() or b"error" in response.data.lower()
 
-    def test_add_patient_duplicate_name(
-        self, app, client, sample_person, sample_user, auth
-    ):
+    def test_add_patient_duplicate_name(self, app, client, sample_person, sample_user, auth):
         """Test patient creation with duplicate name."""
         auth.login()
 
@@ -110,15 +98,11 @@ class TestDeletePatientRoute:
         assert response.status_code == 200
         assert b"Test Patient" in response.data
 
-    def test_delete_patient_success(
-        self, app, client, sample_person, sample_user, auth
-    ):
+    def test_delete_patient_success(self, app, client, sample_person, sample_user, auth):
         """Test successful patient deletion."""
         auth.login()
 
-        response = client.post(
-            f"/patients/{sample_person.id}/delete", follow_redirects=True
-        )
+        response = client.post(f"/patients/{sample_person.id}/delete", follow_redirects=True)
 
         assert response.status_code == 200
 

@@ -4,18 +4,18 @@ Session management routes.
 Handles creating, editing, deleting, and payment tracking of therapy sessions.
 """
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
+from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_required
 
-from app.validators.forms import (
-    SessionForm,
-    EditSessionForm,
-    TogglePaymentForm,
-    DeleteSessionForm,
-)
-from app.services.session_service import SessionService
 from app.services.patient_service import PatientService
+from app.services.session_service import SessionService
 from app.utils.constants import FlashCategory
+from app.validators.forms import (
+    DeleteSessionForm,
+    EditSessionForm,
+    SessionForm,
+    TogglePaymentForm,
+)
 
 sessions_bp = Blueprint("sessions", __name__)
 
@@ -122,9 +122,7 @@ def remove_session(session_id):
 @login_required
 def toggle_pending(session_id):
     """Toggle payment status of a session."""
-    success, new_status, message = SessionService.toggle_payment_status(
-        session_id=session_id, user_id=current_user.id
-    )
+    success, new_status, message = SessionService.toggle_payment_status(session_id=session_id, user_id=current_user.id)
 
     if success:
         # Use info category for toggle since it's not an error

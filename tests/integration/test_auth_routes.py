@@ -5,8 +5,8 @@ Integration tests for authentication routes.
 import pytest
 from flask import url_for
 
-from app.models.user import User
 from app.extensions import db
+from app.models.user import User
 
 
 class TestLoginRoute:

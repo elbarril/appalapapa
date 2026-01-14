@@ -4,14 +4,13 @@ REST API v1 Resources.
 JSON API endpoints for patients, sessions, and authentication.
 """
 
-from flask import jsonify, request, current_app
-from flask_login import login_required, current_user
+from flask import current_app, jsonify, request
+from flask_login import current_user, login_required
 
 from app.api.v1 import api_v1_bp
+from app.extensions import limiter
 from app.services.patient_service import PatientService
 from app.services.session_service import SessionService
-from app.extensions import limiter
-
 
 # =============================================================================
 # Health Check
@@ -39,9 +38,7 @@ def list_patients():
         JSON array of patients
     """
     patients = PatientService.get_all_active()
-    return jsonify(
-        {"patients": [p.to_dict() for p in patients], "count": len(patients)}
-    )
+    return jsonify({"patients": [p.to_dict() for p in patients], "count": len(patients)})
 
 
 @api_v1_bp.route("/patients/<int:patient_id>")
@@ -104,9 +101,7 @@ def delete_patient(patient_id):
     Returns:
         Success message or error
     """
-    success, message = PatientService.delete(
-        person_id=patient_id, user_id=current_user.id, soft=True
-    )
+    success, message = PatientService.delete(person_id=patient_id, user_id=current_user.id, soft=True)
 
     if success:
         return jsonify({"message": message})
@@ -134,9 +129,7 @@ def list_sessions(patient_id):
     from app.models.session import TherapySession
 
     sessions = TherapySession.get_by_person(patient_id).all()
-    return jsonify(
-        {"sessions": [s.to_dict() for s in sessions], "count": len(sessions)}
-    )
+    return jsonify({"sessions": [s.to_dict() for s in sessions], "count": len(sessions)})
 
 
 @api_v1_bp.route("/sessions", methods=["POST"])
@@ -197,9 +190,7 @@ def toggle_session(session_id):
     Returns:
         Updated session or error
     """
-    success, new_status, message = SessionService.toggle_payment_status(
-        session_id=session_id, user_id=current_user.id
-    )
+    success, new_status, message = SessionService.toggle_payment_status(session_id=session_id, user_id=current_user.id)
 
     if success:
         return jsonify({"message": message, "pending": new_status})
@@ -219,9 +210,7 @@ def delete_session(session_id):
     Returns:
         Success message or error
     """
-    success, message = SessionService.delete(
-        session_id=session_id, user_id=current_user.id, soft=True
-    )
+    success, message = SessionService.delete(session_id=session_id, user_id=current_user.id, soft=True)
 
     if success:
         return jsonify({"message": message})

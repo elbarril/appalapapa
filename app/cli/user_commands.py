@@ -6,7 +6,7 @@ Provides commands for creating and managing users.
 
 import click
 from flask import current_app
-from flask.cli import with_appcontext, AppGroup
+from flask.cli import AppGroup, with_appcontext
 
 user_cli = AppGroup("user", help="User management commands.")
 
@@ -61,15 +61,9 @@ def list_users():
     click.echo("-" * 80)
 
     for user in users:
-        last_login = (
-            user.last_login_at.strftime("%Y-%m-%d %H:%M")
-            if user.last_login_at
-            else "Never"
-        )
+        last_login = user.last_login_at.strftime("%Y-%m-%d %H:%M") if user.last_login_at else "Never"
         active = "Yes" if user.is_active else "No"
-        click.echo(
-            f"{user.id:<5} {user.email:<30} {user.role:<12} {active:<8} {last_login}"
-        )
+        click.echo(f"{user.id:<5} {user.email:<30} {user.role:<12} {active:<8} {last_login}")
 
 
 @user_cli.command("set-role")

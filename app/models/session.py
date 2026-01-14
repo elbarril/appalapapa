@@ -2,11 +2,11 @@
 Therapy Session model for tracking appointments and payments.
 """
 
-from typing import Optional, List
-from datetime import datetime, date
+from datetime import date, datetime
+from typing import List, Optional
 
 from app.extensions import db
-from app.models.mixins import TimestampMixin, SoftDeleteMixin, AuditMixin
+from app.models.mixins import AuditMixin, SoftDeleteMixin, TimestampMixin
 
 
 class TherapySession(TimestampMixin, SoftDeleteMixin, AuditMixin, db.Model):
@@ -184,9 +184,7 @@ class TherapySession(TimestampMixin, SoftDeleteMixin, AuditMixin, db.Model):
         return {
             "id": self.id,
             "person_id": self.person_id,
-            "session_date": (
-                self.session_date.isoformat() if self.session_date else None
-            ),
+            "session_date": (self.session_date.isoformat() if self.session_date else None),
             "session_price": self.session_price,
             "pending": self.pending,
             "status": self.status_text,

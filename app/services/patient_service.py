@@ -4,17 +4,18 @@ Patient service for patient management operations.
 Handles creation, update, deletion, and querying of patients.
 """
 
-from typing import Optional, List, Tuple, Dict, Any
-from datetime import datetime
 import logging
-from flask import request
 from collections import defaultdict
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple
+
+from flask import request
 
 from app.extensions import db
+from app.models.audit_log import AuditLog
 from app.models.person import Person
 from app.models.session import TherapySession
-from app.models.audit_log import AuditLog
-from app.utils.constants import AuditAction, ALL_FILTER, PENDING_FILTER, PAID_FILTER
+from app.utils.constants import ALL_FILTER, PAID_FILTER, PENDING_FILTER, AuditAction
 from app.utils.formatters import format_date, format_price
 
 logger = logging.getLogger(__name__)
@@ -136,11 +137,7 @@ class PatientService:
         name = name.strip()
 
         # Check for duplicate (excluding current)
-        existing = (
-            Person.query_active()
-            .filter(Person.name == name, Person.id != person_id)
-            .first()
-        )
+        existing = Person.query_active().filter(Person.name == name, Person.id != person_id).first()
         if existing:
             return False, None, "Ya existe otro paciente con ese nombre."
 
@@ -171,9 +168,7 @@ class PatientService:
             return False, None, "Error al actualizar el paciente. Intente nuevamente."
 
     @staticmethod
-    def delete(
-        person_id: int, user_id: Optional[int] = None, soft: bool = True
-    ) -> Tuple[bool, str]:
+    def delete(person_id: int, user_id: Optional[int] = None, soft: bool = True) -> Tuple[bool, str]:
         """
         Delete a patient.
 
