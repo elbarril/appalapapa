@@ -1,18 +1,31 @@
 {% extends "base.html" %}
 
-{% block main %}
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="my-4 text-center">
-                {% if editing %}Editar Paciente{% else %}Añadir Nuevo Paciente{% endif %}
-            </h1>
+{% block title %}{% if editing %}Editar{% else %}Nuevo{% endif %} Paciente - Terapia{% endblock %}
 
-            <form method="post" class="card p-4 shadow-sm">
+{% block main %}
+    <div class="auth-container">
+        <div class="auth-card card fade-in" style="max-width: 500px;">
+            <div class="auth-header">
+                {% if editing %}
+                    <i class="bi bi-person-gear display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
+                    <h2>Editar Paciente</h2>
+                    <p>Actualiza la información del paciente</p>
+                {% else %}
+                    <i class="bi bi-person-plus display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
+                    <h2>Nuevo Paciente</h2>
+                    <p>Registra un nuevo paciente en el sistema</p>
+                {% endif %}
+            </div>
+
+            <form method="post" class="auth-body">
                 {{ form.hidden_tag() }}
                 
                 <div class="mb-3">
-                    <label for="name" class="form-label">Nombre del Paciente</label>
-                    {{ form.name(class="form-control", id="name", placeholder="Nombre completo") }}
+                    <label for="name" class="form-label">
+                        <i class="bi bi-person me-1" aria-hidden="true"></i>
+                        Nombre del Paciente
+                    </label>
+                    {{ form.name(class="form-control", id="name", placeholder="Nombre completo", autocomplete="name") }}
                     {% if form.name.errors %}
                         <div class="invalid-feedback d-block">
                             {% for error in form.name.errors %}{{ error }}{% endfor %}
@@ -21,8 +34,11 @@
                 </div>
 
                 {% if form.notes is defined %}
-                <div class="mb-3">
-                    <label for="notes" class="form-label">Notas (opcional)</label>
+                <div class="mb-4">
+                    <label for="notes" class="form-label">
+                        <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
+                        Notas (opcional)
+                    </label>
                     {{ form.notes(class="form-control", id="notes", rows="3", placeholder="Notas adicionales...") }}
                     {% if form.notes.errors %}
                         <div class="invalid-feedback d-block">
@@ -33,10 +49,14 @@
                 {% endif %}
 
                 <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary py-2">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
                         {% if editing %}Guardar Cambios{% else %}Agregar Paciente{% endif %}
                     </button>
-                    <a href="{{ url_for('patients.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <a href="{{ url_for('patients.index') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-1" aria-hidden="true"></i>
+                        Cancelar
+                    </a>
                 </div>
             </form>
         </div>

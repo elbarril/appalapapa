@@ -395,3 +395,64 @@ class TestStatsAPI:
         response = client.get("/api/v1/stats")
 
         assert response.status_code in [302, 401]
+
+
+class TestDashboardAPI:
+    """Tests for the dashboard API endpoint."""
+
+    def test_get_dashboard_success(self, client, sample_person, sample_session, sample_user, auth):
+        """Test getting dashboard data."""
+        auth.login()
+        response = client.get("/api/v1/dashboard")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "grouped_sessions" in data
+        assert "total" in data
+        assert "current_filter" in data
+        assert "filters" in data
+        assert "allow_delete" in data
+        assert data["current_filter"] == "all"
+        assert len(data["filters"]) == 3
+
+    def test_get_dashboard_with_filter(self, client, sample_person, sample_session, sample_user, auth):
+        """Test getting dashboard data with pending filter."""
+        auth.login()
+        response = client.get("/api/v1/dashboard?show=pending")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["current_filter"] == "pending"
+        # Sample session is pending by default
+        assert data["total"] >= 1
+
+    def test_get_dashboard_paid_filter(self, client, sample_person, sample_user, auth, app):
+        """Test getting dashboard data with paid filter."""
+        # Create a paid session directly
+        from app.models.session import TherapySession
+        from datetime import date
+
+        with app.app_context():
+            paid_session = TherapySession(
+                person_id=sample_person.id,
+                session_date=date.today(),
+                session_price=100.00,
+                pending=False,  # Paid
+                created_by_id=sample_user.id,
+            )
+            db.session.add(paid_session)
+            db.session.commit()
+
+        auth.login()
+        response = client.get("/api/v1/dashboard?show=paid")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["current_filter"] == "paid"
+        assert data["total"] >= 1
+
+    def test_get_dashboard_requires_auth(self, client):
+        """Test that dashboard endpoint requires authentication."""
+        response = client.get("/api/v1/dashboard")
+
+        assert response.status_code in [302, 401]

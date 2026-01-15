@@ -279,6 +279,8 @@ The `static/js/api.js` file dynamically generates HTML that must match template 
 | `updateSessionButtons()` | Session card footer buttons |
 | `removeSessionFromUI()` | Carousel indicator updates |
 | `removePatientFromUI()` | Empty state messages |
+| `renderPatientsList()` | Full patient grid from dashboard API |
+| `renderSessionsCarousel()` | Session carousel per patient |
 
 **When modifying session/patient card templates:**
 1. Update the template HTML structure
@@ -392,6 +394,15 @@ await deleteSession(sessionId);
 const result = await toggleSessionPayment(sessionId);
 ```
 
+#### Dashboard Operations
+```javascript
+// Get dashboard data with filter
+const data = await getDashboardData('all'); // 'all', 'pending', 'paid'
+
+// Apply filter and refresh list dynamically
+await applyFilter('pending'); // Updates URL and re-renders patient list
+```
+
 #### UI Helpers
 ```javascript
 // Show toast notification
@@ -438,7 +449,6 @@ togglePayment(sessionId);
 | `SECRET_KEY` | Flask secret key | `your-secret-key-here` |
 | `FLASK_CONFIG` | Configuration name | `development` |
 | `DATABASE_URL` | Database connection | `sqlite:///instance/database.db` |
-| `ALLOWED_EMAILS` | Allowed registration emails | `user@example.com` |
 | `SENTRY_DSN` | Sentry error tracking (prod) | `https://...` |
 
 ---
@@ -494,11 +504,17 @@ source venv/bin/activate && pytest --cov=app          # With coverage
 
 ## Visual Verification with MCP Chrome DevTools (Frontend Changes)
 
-When modifying templates or frontend files, **always use MCP Chrome DevTools** to verify changes work correctly in the browser. This is the **preferred method** for frontend verification.
+⚠️ **CRITICAL: Test with Chrome DevTools AFTER EVERY SINGLE UI CHANGE before proceeding to the next change.**
 
-### MCP Chrome DevTools Verification Workflow (REQUIRED)
+When modifying templates or frontend files, **always use MCP Chrome DevTools** to verify changes work correctly in the browser. This is **MANDATORY** for frontend verification.
 
-**ALWAYS use these tools when available for any frontend/UI changes:**
+### MCP Chrome DevTools Verification Workflow (REQUIRED FOR EACH CHANGE)
+
+**⚠️ WORKFLOW: Make ONE change → Verify with Chrome → Fix if needed → Proceed to next change**
+
+**DO NOT batch multiple UI changes without verification between each one.**
+
+**For EACH individual frontend modification:**
 
 1. **Navigate to the page**:
    ```
@@ -552,6 +568,10 @@ When modifying templates or frontend files, **always use MCP Chrome DevTools** t
    mcp_chrome-devtoo_hover  → Test hover states
    mcp_chrome-devtoo_fill   → Test form inputs
    ```
+
+9. **ONLY after verification passes, proceed to the next change**
+
+⚠️ **Repeat steps 1-8 for EACH individual UI modification. Never batch multiple changes without verification.**
 
 ### Test Credentials for Development
 
@@ -619,17 +639,23 @@ If MCP Chrome DevTools is unavailable, use VS Code's Simple Browser:
 
 ### Visual Verification Checklist
 
-Before completing any frontend task, verify:
+⚠️ **Apply this checklist AFTER EVERY SINGLE UI CHANGE, not just at the end of the task.**
 
+Before proceeding to the next change, verify:
+
+- [ ] **Screenshot taken**: Captured current state with Chrome DevTools
+- [ ] **Change looks correct**: Visual appearance matches expectation
 - [ ] **Dark mode**: UI renders correctly
 - [ ] **Light mode**: UI renders correctly (click theme toggle)
-- [ ] **Mobile (375px)**: Layout is responsive
+- [ ] **Mobile (375px)**: Layout is responsive (if applicable to change)
 - [ ] **Desktop (1200px+)**: Layout uses available space well
 - [ ] **Buttons**: Full width, equal sizing, visible text + icons
 - [ ] **Text**: Readable, properly aligned, not truncated
 - [ ] **Forms**: Labels visible, inputs styled correctly
 - [ ] **Accessibility**: ARIA labels present, focus indicators visible
 - [ ] **Interactions**: Buttons clickable, modals open correctly
+
+**Only proceed to the next change after verification passes.**
 
 ### Common Issues to Check
 - Navigation arrows overlapping content (carousels)
@@ -645,11 +671,22 @@ Before completing any frontend task, verify:
 
 ---
 
-## Backend Testing Workflow (Backend Changes)
+## Backend Testing Workflow (Backend Changes ONLY)
+
+⚠️ **IMPORTANT: Only run backend tests when backend files are modified.**
+
+**When to run pytest:**
+- ✅ After modifying files in `app/models/`, `app/services/`, `app/routes/`, `app/validators/`, `app/utils/`, `app/middleware/`, `app/api/`
+- ❌ **DO NOT run pytest for frontend-only changes** (templates, CSS, JavaScript)
+
+**If the request is ONLY for frontend/UI changes:**
+- Skip `pytest` entirely
+- Focus on MCP Chrome DevTools visual verification after EACH change
+- Only verify in browser, not with backend tests
 
 When modifying any backend file, **always run tests** to verify:
 
-### Mandatory Testing Steps
+### Mandatory Testing Steps (Backend Only)
 1. **Run full test suite** (always activate venv first):
    ```powershell
    # Windows PowerShell - chain venv activation
@@ -729,6 +766,9 @@ When modifying any backend file, **always run tests** to verify:
 ❌ Skip CHANGELOG.md updates for new features
 ❌ Skip screenshot verification after frontend changes
 ❌ Assume frontend changes work without visual testing
+❌ Batch multiple UI changes without Chrome DevTools verification between each
+❌ Proceed to next UI change without verifying the current one first
+❌ Run pytest for frontend-only changes (waste of time, not relevant)
 ❌ Skip running pytest after backend modifications
 ❌ Ignore test failures and proceed with changes
 ❌ Create UI elements without ARIA labels

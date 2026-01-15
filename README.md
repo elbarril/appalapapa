@@ -361,7 +361,6 @@ DATABASE_URL=sqlite:///instance/database.db  # Dev: SQLite
 # =============================================================================
 # Security Configuration
 # =============================================================================
-ALLOWED_EMAILS=                   # Comma-separated whitelist (empty = allow all)
 SESSION_LIFETIME_DAYS=30          # Session duration
 
 # =============================================================================

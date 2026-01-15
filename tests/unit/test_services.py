@@ -60,30 +60,15 @@ class TestAuthService:
     def test_register_success(self, app):
         """Test successful registration."""
         with app.app_context():
-            # Set allowed emails in config
-            app.config["ALLOWED_EMAILS"] = {"new@example.com"}
-
             success, user, message = AuthService.register("new@example.com", "NewPass123")
 
             assert success is True
             assert user is not None
             assert user.email == "new@example.com"
 
-    def test_register_unauthorized_email(self, app):
-        """Test registration with unauthorized email."""
-        with app.app_context():
-            app.config["ALLOWED_EMAILS"] = {"allowed@example.com"}
-
-            success, user, message = AuthService.register("unauthorized@example.com", "password")
-
-            assert success is False
-            assert "autorizado" in message.lower()
-
     def test_register_duplicate_email(self, app, sample_user):
         """Test registration with existing email."""
         with app.app_context():
-            app.config["ALLOWED_EMAILS"] = set()  # Allow all
-
             success, user, message = AuthService.register("test@example.com", "password")  # Already exists
 
             assert success is False

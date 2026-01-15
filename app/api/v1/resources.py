@@ -11,6 +11,7 @@ from app.api.v1 import api_v1_bp
 from app.extensions import limiter
 from app.services.patient_service import PatientService
 from app.services.session_service import SessionService
+from app.utils.constants import ALL_FILTER, ALLOW_DELETE, FILTERS
 
 # =============================================================================
 # Health Check
@@ -21,6 +22,52 @@ from app.services.session_service import SessionService
 def health():
     """API health check endpoint."""
     return jsonify({"status": "ok", "version": "v1"})
+
+
+# =============================================================================
+# Dashboard API
+# =============================================================================
+
+
+@api_v1_bp.route("/dashboard")
+@login_required
+def get_dashboard():
+    """
+    Get dashboard data with optional filter.
+
+    Query params:
+        - show: Filter type ('all', 'pending', 'paid')
+
+    Returns:
+        JSON with grouped_sessions, filters, allow_delete
+    """
+    show_filter = request.args.get("show", ALL_FILTER)
+    data = PatientService.get_dashboard_data(show_filter)
+
+    return jsonify(
+        {
+            "grouped_sessions": [
+                {
+                    "patient_id": person[0],
+                    "patient_name": person[1],
+                    "sessions": [
+                        {
+                            "id": s[0],
+                            "date": s[1],
+                            "price": s[2],
+                            "pending": s[3],
+                        }
+                        for s in sessions
+                    ],
+                }
+                for person, sessions in data["grouped_sessions"].items()
+            ],
+            "total": data["total"],
+            "current_filter": show_filter,
+            "filters": [{"label": label, "value": value} for label, value in FILTERS],
+            "allow_delete": ALLOW_DELETE,
+        }
+    )
 
 
 # =============================================================================

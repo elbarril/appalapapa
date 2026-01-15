@@ -5,6 +5,65 @@ All notable changes to the Therapy Session Management Application will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-01-15
+
+### Added
+- **Dashboard API Endpoint**: New `/api/v1/dashboard` endpoint for fetching filtered patient/session data
+  - Supports `show` query parameter: `all`, `pending`, `paid`
+  - Returns grouped sessions with patient info, filter metadata, and `allow_delete` flag
+  - Full test coverage with 4 new integration tests
+
+### Changed
+- **JavaScript-based List Filtering**: Filter buttons now use AJAX instead of page reloads
+  - Clicking TODOS/PENDIENTES/PAGADOS filters dynamically refresh the list
+  - URL updates via `history.pushState()` for bookmarkable filters
+  - No page reload required - instant filter switching
+  - Filter state preserved in browser history
+
+### Technical
+- All 134 backend tests pass (including 4 new dashboard API tests)
+- Backend route preserved for initial render and non-JS fallback
+- Removed unused `toTitleCase()` function that incorrectly handled accented characters
+
+## [2.4.0] - 2026-01-14
+
+### Added
+- **Custom Design System**: New `static/css/custom.css` with 580+ lines of styling
+  - CSS custom properties for consistent theming across dark/light modes
+  - Nunito Sans typography from Google Fonts (weights 400, 500, 600, 700)
+  - MLC-inspired color palette: Teal #3F4A49, Beige #DCD9D0, Cream #F5F3EF
+  - Card components, button styles, and form elements
+  - Fade-in animations with staggered delays
+  - Accessibility improvements (focus indicators, skip links)
+
+### Changed
+- **Complete UI Rebrand**: Inspired by Millennial Life Counseling website design
+  - Teal (#3F4A49) navbar and footer with cream/white content areas
+  - Centered auth cards with icon headers (login, register, reset password)
+  - Dashboard with new header design and improved empty state
+  - Form pages with minimalist card-based layouts
+  - Error pages (403, 404, 500) with simple icon + message design
+
+- **Improved Dark Mode Support**: Better theme consistency
+  - Dark mode uses #1a1d1f backgrounds with teal #5a9a97 accents
+  - Theme-adaptive CSS classes for seamless switching
+  - Sun/moon toggle icons with smooth transitions
+
+- **Enhanced Accessibility**:
+  - Skip link "Saltar al contenido principal" for keyboard users
+  - Improved ARIA labels on all interactive elements
+  - Proper heading hierarchy (h1 → h2 → h3)
+  - Visible focus indicators on buttons and links
+
+- **Responsive Design Improvements**:
+  - Mobile-first layouts for all pages
+  - Proper button sizing for touch targets (44x44px minimum)
+  - Hamburger menu on mobile with full navigation
+
+### Technical
+- All 130 backend tests continue to pass
+- No breaking changes to routes, APIs, or database
+
 ## [2.3.0] - 2026-01-14
 
 ### Added

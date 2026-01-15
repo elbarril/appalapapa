@@ -60,9 +60,6 @@ POSTGRES_DB=therapy_db
 # pgAdmin (optional database UI)
 PGADMIN_EMAIL=admin@admin.com
 PGADMIN_PASSWORD=admin
-
-# Email whitelist for registration (comma-separated)
-ALLOWED_EMAILS=test@example.com,your-email@example.com
 ```
 
 ### 2. Docker Compose Configuration

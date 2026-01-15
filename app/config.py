@@ -64,9 +64,6 @@ class Config:
     ITEMS_PER_PAGE = int(os.environ.get("ITEMS_PER_PAGE", 50))
     ALLOW_DELETE = os.environ.get("ALLOW_DELETE", "true").lower() == "true"
 
-    # Allowed emails for registration (comma-separated)
-    ALLOWED_EMAILS = set(email.strip() for email in os.environ.get("ALLOWED_EMAILS", "").split(",") if email.strip())
-
     # File uploads
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max
     UPLOAD_FOLDER = str(BASE_DIR / "uploads")
@@ -124,9 +121,6 @@ class TestingConfig(Config):
     # Test-specific settings
     SERVER_NAME = "localhost"
 
-    # Allow all emails in tests
-    ALLOWED_EMAILS = set()
-
 
 class ProductionConfig(Config):
     """Production configuration with strict security."""
@@ -179,5 +173,5 @@ config = {
 
 def get_config():
     """Get configuration class based on environment."""
-    env = os.environ.get("FLASK_CONFIG") or os.environ.get("FLASK_ENV", "development")
+    env = os.environ.get("FLASK_CONFIG", "development")
     return config.get(env, config["default"])

@@ -1,27 +1,16 @@
 {% extends "base.html" %}
 
+{% block title %}Página No Encontrada - Terapia{% endblock %}
+
 {% block main %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow border-0">
-                <div class="card-body p-5 text-center">
-                    <div class="mb-4">
-                        <span style="font-size: 5rem;">🔍</span>
-                    </div>
-                    <h1 class="display-4 fw-bold text-warning mb-3">404</h1>
-                    <h2 class="h4 mb-3">Página No Encontrada</h2>
-                    <p class="text-muted mb-4">
-                        La página que buscas no existe o ha sido movida.
-                    </p>
-                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                        <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-4">
-                            <strong>Volver al Inicio</strong>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="error-page fade-in">
+    <i class="bi bi-search display-1 text-warning mb-4" aria-hidden="true"></i>
+    <div class="error-code">404</div>
+    <h2 class="h3 mb-3">Página No Encontrada</h2>
+    <p class="error-message">La página que buscas no existe o ha sido movida.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-5">
+        <i class="bi bi-house me-2" aria-hidden="true"></i>
+        Volver al Inicio
+    </a>
 </div>
 {% endblock main %}

@@ -1,27 +1,16 @@
 {% extends "base.html" %}
 
+{% block title %}Acceso Denegado - Terapia{% endblock %}
+
 {% block main %}
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow border-0">
-                <div class="card-body p-5 text-center">
-                    <div class="mb-4">
-                        <span style="font-size: 5rem;">🚫</span>
-                    </div>
-                    <h1 class="display-4 fw-bold text-danger mb-3">403</h1>
-                    <h2 class="h4 mb-3">Acceso Denegado</h2>
-                    <p class="text-muted mb-4">
-                        No tienes permisos para acceder a esta página.
-                    </p>
-                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                        <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-4">
-                            <strong>Volver al Inicio</strong>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="error-page fade-in">
+    <i class="bi bi-shield-lock display-1 text-danger mb-4" aria-hidden="true"></i>
+    <div class="error-code">403</div>
+    <h2 class="h3 mb-3">Acceso Denegado</h2>
+    <p class="error-message">No tienes permisos para acceder a esta página.</p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-5">
+        <i class="bi bi-house me-2" aria-hidden="true"></i>
+        Volver al Inicio
+    </a>
 </div>
 {% endblock main %}

@@ -24,13 +24,13 @@ def create_app(config_name=None):
 
     Args:
         config_name: Configuration to use ('development', 'testing', 'production')
-                    If None, reads from FLASK_CONFIG or FLASK_ENV environment variable.
+                    If None, reads from FLASK_CONFIG environment variable.
 
     Returns:
         Configured Flask application instance.
     """
     if config_name is None:
-        config_name = os.environ.get("FLASK_CONFIG") or os.environ.get("FLASK_ENV", "development")
+        config_name = os.environ.get("FLASK_CONFIG", "development")
 
     # Get the root directory (parent of app package)
     root_path = Path(__file__).parent.parent

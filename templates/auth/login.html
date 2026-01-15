@@ -1,16 +1,25 @@
 {% extends 'base.html' %}
 
-{% block main %}
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="mb-4 text-center">Iniciar sesión</h2>
+{% block title %}Iniciar sesión - Terapia{% endblock %}
 
-            <form method="post" class="card p-4 shadow-sm">
+{% block main %}
+    <div class="auth-container">
+        <div class="auth-card card fade-in">
+            <div class="auth-header">
+                <i class="bi bi-heart-pulse display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
+                <h2>Bienvenido</h2>
+                <p>Ingresa a tu cuenta para continuar</p>
+            </div>
+
+            <form method="post" class="auth-body">
                 {{ form.hidden_tag() }}
                 
                 <div class="mb-3">
-                    <label for="email" class="form-label">Correo electrónico</label>
-                    {{ form.email(class="form-control", id="email", placeholder="tu@email.com") }}
+                    <label for="email" class="form-label">
+                        <i class="bi bi-envelope me-1" aria-hidden="true"></i>
+                        Correo electrónico
+                    </label>
+                    {{ form.email(class="form-control", id="email", placeholder="tu@email.com", autocomplete="email") }}
                     {% if form.email.errors %}
                         <div class="invalid-feedback d-block">
                             {% for error in form.email.errors %}{{ error }}{% endfor %}
@@ -19,8 +28,11 @@
                 </div>
 
                 <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    {{ form.password(class="form-control", id="password") }}
+                    <label for="password" class="form-label">
+                        <i class="bi bi-lock me-1" aria-hidden="true"></i>
+                        Contraseña
+                    </label>
+                    {{ form.password(class="form-control", id="password", autocomplete="current-password") }}
                     {% if form.password.errors %}
                         <div class="invalid-feedback d-block">
                             {% for error in form.password.errors %}{{ error }}{% endfor %}
@@ -28,19 +40,26 @@
                     {% endif %}
                 </div>
 
-                <div class="mb-3 form-check">
+                <div class="mb-4 form-check">
                     {{ form.remember_me(class="form-check-input", id="remember_me") }}
-                    <label class="form-check-label" for="remember_me">Recordarme</label>
+                    <label class="form-check-label" for="remember_me">Recordarme en este dispositivo</label>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Ingresar</button>
-                
-                <div class="mt-3 text-center">
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-link">¿No tienes cuenta? Regístrate</a>
-                    <br>
-                    <a href="{{ url_for('auth.reset_password') }}" class="btn btn-link">¿Olvidaste tu contraseña?</a>
-                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
+                    Ingresar
+                </button>
             </form>
+            
+            <div class="auth-footer">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-cta">
+                    ¿No tienes cuenta? <strong>Regístrate</strong>
+                </a>
+                <br>
+                <a href="{{ url_for('auth.reset_password') }}" class="btn btn-cta small">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
         </div>
     </div>
 {% endblock %}

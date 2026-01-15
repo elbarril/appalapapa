@@ -10,6 +10,6 @@ Or with uWSGI:
 import os
 from app import create_app
 
-# Get configuration from environment variable (FLASK_CONFIG takes priority, then FLASK_ENV)
-config_name = os.environ.get('FLASK_CONFIG') or os.environ.get('FLASK_ENV', 'production')
+# Get configuration from environment variable
+config_name = os.environ.get('FLASK_CONFIG', 'production')
 app = create_app(config_name)

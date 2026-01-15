@@ -535,11 +535,7 @@ function updateSessionButtons(sessionId, pending) {
     const dateElement = sessionCard.querySelector('.session-date');
     const dateText = dateElement ? dateElement.textContent : '';
 
-    // Check if delete is allowed (check if any delete button exists in the page)
-    const allowDelete = document.querySelector('.delete-session-btn') !== null || 
-                        document.querySelector('[onclick*="openDeletePatientModal"]') !== null;
-
-    // Rebuild button group based on pending status
+    // Rebuild button group based on pending status - 3 buttons: Edit, Delete, Toggle
     if (pending) {
         btnGroup.innerHTML = `
             <button type="button"
@@ -550,6 +546,13 @@ function updateSessionButtons(sessionId, pending) {
                 <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
             </button>
             <button type="button"
+               class="btn btn-outline-danger flex-fill delete-session-btn"
+               title="Eliminar sesión"
+               aria-label="Eliminar sesión del ${dateText}"
+               onclick="openDeleteSessionModal(${sessionId}, '${dateText}')">
+                <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+            </button>
+            <button type="button"
                class="btn btn-success flex-fill toggle-payment-btn"
                title="Marcar como pagado"
                aria-label="Marcar sesión del ${dateText} como pagado"
@@ -558,18 +561,6 @@ function updateSessionButtons(sessionId, pending) {
             </button>
         `;
     } else {
-        let deleteButton = '';
-        if (allowDelete) {
-            deleteButton = `
-                <button type="button"
-                   class="btn btn-outline-danger flex-fill delete-session-btn"
-                   title="Eliminar sesión"
-                   aria-label="Eliminar sesión del ${dateText}"
-                   onclick="openDeleteSessionModal(${sessionId}, '${dateText.replace(/'/g, "\\'")}')">
-                    <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
-                </button>
-            `;
-        }
         btnGroup.innerHTML = `
             <button type="button"
                class="btn btn-outline-secondary flex-fill"
@@ -579,13 +570,19 @@ function updateSessionButtons(sessionId, pending) {
                 <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
             </button>
             <button type="button"
-               class="btn btn-outline-warning flex-fill toggle-payment-btn"
+               class="btn btn-outline-danger flex-fill delete-session-btn"
+               title="Eliminar sesión"
+               aria-label="Eliminar sesión del ${dateText}"
+               onclick="openDeleteSessionModal(${sessionId}, '${dateText}')">
+                <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+            </button>
+            <button type="button"
+               class="btn btn-outline-secondary flex-fill toggle-payment-btn"
                title="Marcar como pendiente"
                aria-label="Marcar sesión del ${dateText} como pendiente"
                onclick="togglePayment(${sessionId})">
                 <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Pendiente
             </button>
-            ${deleteButton}
         `;
     }
 }
@@ -701,15 +698,14 @@ function removeSessionFromUI(sessionId) {
             remainingItems[0].classList.add('active');
         }
 
-        // Update carousel indicators wrapper class
-        const indicatorsWrapper = carousel.querySelector('.carousel-indicators-wrapper');
-        if (indicatorsWrapper && remainingItems.length <= 1) {
-            indicatorsWrapper.classList.add('single-slide');
-        }
-
-        // Update indicators
-        const indicatorsContainer = carousel.querySelector('.carousel-indicators');
+        // Update carousel indicators (now at bottom with new class)
+        const indicatorsContainer = carousel.querySelector('.carousel-indicators-bottom');
         if (indicatorsContainer) {
+            // Update single-slide class
+            if (remainingItems.length <= 1) {
+                indicatorsContainer.classList.add('single-slide');
+            }
+            
             // Rebuild indicators
             indicatorsContainer.innerHTML = '';
             remainingItems.forEach((item, index) => {
@@ -718,8 +714,6 @@ function removeSessionFromUI(sessionId) {
                 button.setAttribute('data-bs-target', `#${carousel.id}`);
                 button.setAttribute('data-bs-slide-to', index);
                 button.setAttribute('aria-label', `Sesión ${index + 1}`);
-                button.className = 'bg-secondary';
-                button.style.cssText = 'width: 10px; height: 10px; border-radius: 50%;';
                 if (remainingItems.length <= 1) {
                     button.disabled = true;
                 }
@@ -729,15 +723,6 @@ function removeSessionFromUI(sessionId) {
                 }
                 indicatorsContainer.appendChild(button);
             });
-        }
-
-        // Update carousel controls
-        const carouselControls = carousel.querySelector('.carousel-controls');
-        if (carouselControls) {
-            if (remainingItems.length <= 1) {
-                carouselControls.classList.add('disabled');
-                carouselControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
-            }
         }
     }
 }
@@ -776,4 +761,283 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirmDeleteSessionBtn) {
         confirmDeleteSessionBtn.addEventListener('click', confirmDeleteSession);
     }
+
+    // Initialize all carousels with touch support enabled
+    initializeCarousels();
 });
+
+/**
+ * Initialize all carousels with proper touch support
+ * This ensures swipe/touch works immediately without requiring a click first
+ * Also adds event listeners for indicator updates on slide
+ */
+function initializeCarousels() {
+    const carousels = document.querySelectorAll('.carousel');
+    carousels.forEach(carouselEl => {
+        // Create Bootstrap carousel instance with touch enabled
+        const carousel = new bootstrap.Carousel(carouselEl, {
+            interval: false,  // No auto-slide
+            touch: true,      // Enable touch/swipe
+            wrap: true        // Wrap around at ends
+        });
+        
+        // Update indicators when slide changes
+        carouselEl.addEventListener('slid.bs.carousel', function(event) {
+            updateCarouselIndicators(carouselEl, event.to);
+        });
+    });
+}
+
+/**
+ * Update carousel indicators to reflect current slide
+ * @param {HTMLElement} carouselEl - The carousel element
+ * @param {number} activeIndex - The index of the active slide
+ */
+function updateCarouselIndicators(carouselEl, activeIndex) {
+    const indicators = carouselEl.querySelectorAll('.carousel-indicators-bottom button');
+    indicators.forEach((button, index) => {
+        if (index === activeIndex) {
+            button.classList.add('active');
+            button.setAttribute('aria-current', 'true');
+        } else {
+            button.classList.remove('active');
+            button.removeAttribute('aria-current');
+        }
+    });
+}
+
+// =============================================================================
+// Dashboard API Functions
+// =============================================================================
+
+/**
+ * Get dashboard data with optional filter
+ * @param {string} filter - Filter type ('all', 'pending', 'paid')
+ * @returns {Promise<object>} - Dashboard data
+ */
+async function getDashboardData(filter = 'all') {
+    return apiRequest(`${API_BASE}/dashboard?show=${filter}`);
+}
+
+/**
+ * Apply filter and refresh the patient list
+ * @param {string} filter - Filter to apply ('all', 'pending', 'paid')
+ */
+async function applyFilter(filter) {
+    try {
+        // Update URL without reload
+        const url = new URL(window.location);
+        url.searchParams.set('show', filter);
+        window.history.pushState({}, '', url);
+        
+        // Update active filter button
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.dataset.filter === filter) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Fetch and render data
+        const data = await getDashboardData(filter);
+        renderPatientsList(data);
+    } catch (error) {
+        showToast(error.message || 'Error al cargar los datos', 'error');
+    }
+}
+
+/**
+ * Render the patients list from dashboard data
+ * @param {object} data - Dashboard data from API
+ */
+function renderPatientsList(data) {
+    const container = document.querySelector('.patients-grid-container');
+    if (!container) return;
+    
+    const { grouped_sessions, allow_delete } = data;
+    
+    if (!grouped_sessions || grouped_sessions.length === 0) {
+        container.innerHTML = `
+            <div class="text-center my-5 py-5">
+                <i class="bi bi-people display-1 text-body-secondary mb-3" aria-hidden="true"></i>
+                <h3 class="text-body-secondary">No hay pacientes</h3>
+                <p class="text-body-secondary mb-4">Comienza agregando tu primer paciente.</p>
+                <a href="/patients/add" class="btn btn-primary">
+                    <i class="bi bi-person-plus me-1" aria-hidden="true"></i>
+                    Agregar Paciente
+                </a>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">';
+    
+    grouped_sessions.forEach((patient, index) => {
+        const patientId = patient.patient_id;
+        const patientName = patient.patient_name;
+        const sessions = patient.sessions;
+        const escapedName = escapeHtml(patientName);
+        
+        html += `
+            <div class="col">
+                <div class="card h-100 patient-card fade-in" data-patient-id="${patientId}" style="animation-delay: ${index * 0.05}s">
+                    <!-- Patient header -->
+                    <div class="card-header">
+                        <h5 class="mb-2 patient-name" title="${patientName}">
+                            <i class="bi bi-person-fill me-1 text-mlc-teal" aria-hidden="true"></i>
+                            ${patientName}
+                        </h5>
+                        <div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de paciente">
+                            <button type="button"
+                               class="btn btn-outline-secondary flex-fill" 
+                               title="Editar paciente" 
+                               aria-label="Editar paciente ${patientName}"
+                               onclick="openEditPatientModal(${patientId}, '${escapedName}')">
+                                <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
+                            </button>
+                            ${allow_delete ? `
+                                <button type="button"
+                                   class="btn btn-outline-danger flex-fill" 
+                                   title="Eliminar paciente" 
+                                   aria-label="Eliminar paciente ${patientName}"
+                                   onclick="openDeletePatientModal(${patientId}, '${escapedName}')">
+                                    <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Patient body with sessions carousel -->
+                    <div class="card-body p-2">
+                        ${renderSessionsCarousel(patientId, sessions)}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Re-initialize carousels
+    initializeCarousels();
+}
+
+/**
+ * Render sessions carousel for a patient
+ * @param {number} patientId - Patient ID
+ * @param {Array} sessions - Sessions array
+ * @returns {string} - HTML string
+ */
+function renderSessionsCarousel(patientId, sessions) {
+    if (!sessions || sessions.length === 0) {
+        return `
+            <p class="text-body-secondary text-center my-3">
+                <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
+                No hay sesiones registradas.
+            </p>
+        `;
+    }
+    
+    const singleSlide = sessions.length <= 1 ? 'single-slide' : '';
+    
+    let carouselItems = '';
+    let indicators = '';
+    
+    sessions.forEach((session, index) => {
+        const isFirst = index === 0;
+        const sessionId = session.id;
+        const sessionDate = session.date;
+        const sessionPrice = session.price;
+        const pending = session.pending;
+        const escapedDate = escapeHtml(sessionDate);
+        
+        const badgeClass = pending ? 'text-bg-warning' : 'text-bg-success';
+        const badgeText = pending ? 'PENDIENTE' : 'PAGADO';
+        
+        carouselItems += `
+            <div class="carousel-item ${isFirst ? 'active' : ''}" data-session-pending="${pending ? 'true' : 'false'}">
+                <div class="card mx-auto session-card" data-session-id="${sessionId}">
+                    <div class="card-header d-flex justify-content-between align-items-center py-2">
+                        <small class="text-body-secondary session-date">${sessionDate}</small>
+                        <span class="badge ${badgeClass} session-status">${badgeText}</span>
+                    </div>
+
+                    <div class="card-body py-2">
+                        <p class="card-text mb-0 session-price">${sessionPrice}</p>
+                    </div>
+
+                    <div class="card-footer py-2">
+                        <div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de sesión">
+                            <button type="button"
+                               class="btn btn-outline-secondary flex-fill"
+                               title="Editar sesión"
+                               aria-label="Editar sesión del ${sessionDate}"
+                               onclick="openEditSessionModal(${sessionId}, ${patientId})">
+                                <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+                            </button>
+                            <button type="button"
+                               class="btn btn-outline-danger flex-fill delete-session-btn"
+                               title="Eliminar sesión"
+                               aria-label="Eliminar sesión del ${sessionDate}"
+                               onclick="openDeleteSessionModal(${sessionId}, '${escapedDate}')">
+                                <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+                            </button>
+                            ${pending ? `
+                                <button type="button"
+                                   class="btn btn-success flex-fill toggle-payment-btn"
+                                   title="Marcar como pagado"
+                                   aria-label="Marcar sesión del ${sessionDate} como pagado"
+                                   onclick="togglePayment(${sessionId})">
+                                    <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Pagado
+                                </button>
+                            ` : `
+                                <button type="button"
+                                   class="btn btn-outline-secondary flex-fill toggle-payment-btn"
+                                   title="Marcar como pendiente"
+                                   aria-label="Marcar sesión del ${sessionDate} como pendiente"
+                                   onclick="togglePayment(${sessionId})">
+                                    <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Pendiente
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        indicators += `
+            <button type="button" 
+                    data-bs-target="#carousel-${patientId}" 
+                    data-bs-slide-to="${index}" 
+                    ${isFirst ? 'class="active" aria-current="true"' : ''}
+                    aria-label="Sesión ${index + 1}"
+                    ${sessions.length <= 1 ? 'disabled' : ''}>
+            </button>
+        `;
+    });
+    
+    return `
+        <div id="carousel-${patientId}" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
+            <div class="carousel-inner">
+                ${carouselItems}
+            </div>
+            <div class="carousel-indicators-bottom ${singleSlide}">
+                ${indicators}
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * Escape HTML to prevent XSS
+ * @param {string} str - String to escape
+ * @returns {string} - Escaped string
+ */
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}

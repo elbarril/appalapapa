@@ -216,15 +216,15 @@ Before deploying or recommending production use:
 
 When implementing features or fixes, always provide:
 1. **Working Code**: Tested, linted, follows project conventions
-2. **Tests**: Unit tests for new functionality (pytest)
+2. **Tests**: Unit tests for new functionality (pytest) - **ONLY for backend changes**
 3. **Documentation**: Updated docstrings, README if needed
 4. **Migration Scripts**: If database schema changes
 5. **Security Review**: Note any security implications
 6. **Spanish UI Text**: All user-facing strings in Spanish
 7. **Documentation Updates**: Update CHANGELOG.md and README.md for user-facing changes
-8. **Visual Verification with MCP Chrome DevTools**: For frontend changes, use MCP tools to verify UI in browser
+8. **Visual Verification with MCP Chrome DevTools**: For frontend changes, use MCP tools to verify UI in browser **AFTER EVERY SINGLE CHANGE**
 9. **Accessibility Compliance**: Verify WCAG 2.1 AA compliance for all UI changes
-10. **Backend Test Execution**: Run pytest after any backend modification
+10. **Backend Test Execution**: Run pytest **ONLY after backend modifications** (NOT for frontend-only changes)
 11. **Dark/Light Mode Testing**: Verify UI works correctly in BOTH themes
 
 ### Documentation Update Requirements
@@ -247,9 +247,22 @@ When adding or modifying any feature:
 - **Run Tests**: Always run `pytest` before marking a task complete
 
 ### Visual Verification Workflow (Template/Frontend Changes)
-After modifying any template or frontend file:
+
+⚠️ **CRITICAL: Test EVERY SINGLE UI change with Chrome DevTools BEFORE proceeding to the next change.**
+
+**Workflow for EACH individual frontend modification:**
+1. Make ONE change to a template, CSS, or JS file
+2. **IMMEDIATELY verify with MCP Chrome DevTools** before making the next change:
+   - `mcp_chrome-devtoo_new_page` → Navigate to the page
+   - `mcp_chrome-devtoo_take_screenshot` → Capture UI state
+   - Verify the change looks correct
+3. If the change has issues, fix them and screenshot again
+4. Only AFTER verification passes, proceed to the next change
+5. Repeat for each subsequent change
+
+**Full verification checklist (for each change):**
 1. Ensure the Flask development server is running (`flask run` or `python run.py`)
-2. **Use MCP Chrome DevTools** (preferred method when available):
+2. **Use MCP Chrome DevTools** (MANDATORY - not optional):
    - `mcp_chrome-devtoo_new_page` → Navigate to the page
    - `mcp_chrome-devtoo_fill_form` + `mcp_chrome-devtoo_click` → Login if needed
    - `mcp_chrome-devtoo_take_screenshot` → Capture UI state
@@ -266,9 +279,23 @@ After modifying any template or frontend file:
    - Desktop (1200px+ width)
 5. **Check accessibility**: Verify ARIA labels, keyboard navigation, color contrast
 6. If errors are found, fix them and **take another screenshot** to confirm the fix
-7. Only mark the task complete after visual verification passes in BOTH themes
+7. Only proceed to the next change after visual verification passes
 
-### Backend Testing Workflow (Backend Changes)
+**⚠️ DO NOT batch multiple UI changes without verification between each one.**
+
+### Backend Testing Workflow (Backend Changes ONLY)
+
+⚠️ **IMPORTANT: Only run backend tests when backend files are modified.**
+
+**When to run pytest:**
+- ✅ After modifying files in `app/models/`, `app/services/`, `app/routes/`, `app/validators/`, `app/utils/`, `app/middleware/`, `app/api/`
+- ❌ **DO NOT run pytest for frontend-only changes** (templates, CSS, JavaScript)
+
+**If the request is ONLY for frontend/UI changes:**
+- Skip `pytest` entirely
+- Focus on MCP Chrome DevTools visual verification
+- Only verify in browser, not with backend tests
+
 After modifying any backend file (models, services, routes, validators, utils):
 1. **Run the test suite**: Execute `pytest` to verify no regressions
 2. **Check specific tests**: Run tests related to the modified component
@@ -302,7 +329,7 @@ Before starting any task:
 
 ### Post-Implementation Verification
 
-**For Backend Changes:**
+**For Backend Changes (ONLY when backend files are modified):**
 1. **Activate venv first**, then run pytest: `.\venv\Scripts\Activate.ps1; pytest`
 2. For unit tests only: `.\venv\Scripts\Activate.ps1; pytest tests/unit/`
 3. For integration tests: `.\venv\Scripts\Activate.ps1; pytest tests/integration/`
@@ -311,9 +338,14 @@ Before starting any task:
 
 **IMPORTANT**: Always chain venv activation with the command using `;` to ensure the correct Python environment is used.
 
-**For Frontend/Template Changes:**
+⚠️ **DO NOT run pytest for frontend-only changes (templates, CSS, JS files).**
+
+**For Frontend/Template Changes (verify EACH individual change):**
+
+**⚠️ CRITICAL: Verify with Chrome DevTools AFTER EVERY SINGLE UI CHANGE before making the next one.**
+
 1. Start the Flask development server (`.\venv\Scripts\Activate.ps1; flask run` or `.\venv\Scripts\Activate.ps1; python run.py`)
-2. **Use MCP Chrome DevTools** (PREFERRED - when available):
+2. **Use MCP Chrome DevTools** (MANDATORY - not optional):
    - `mcp_chrome-devtoo_new_page` → Navigate to `http://localhost:5000/`
    - `mcp_chrome-devtoo_take_snapshot` → Get page structure
    - `mcp_chrome-devtoo_fill_form` + `mcp_chrome-devtoo_click` → Login if needed
@@ -328,7 +360,10 @@ Before starting any task:
 4. Verify accessibility (keyboard nav, screen reader, contrast)
 5. Check responsive design: mobile (375px), tablet (768px), desktop (1200px+)
 6. If issues found: fix, then take new screenshot to confirm
-7. Only complete after visual verification passes in BOTH themes
+7. **ONLY proceed to the next change after this change is verified**
+8. Repeat for EACH subsequent UI modification
+
+**⚠️ NEVER batch multiple UI changes without Chrome DevTools verification between each.**
 
 **Fallback: VS Code Simple Browser** (if MCP unavailable):
 - Simple Browser is view-only (cannot fill forms or click buttons)

@@ -109,12 +109,6 @@ class AuthService:
 
         email = email.lower().strip()
 
-        # Check allowed emails
-        allowed_emails = current_app.config.get("ALLOWED_EMAILS", set())
-        if allowed_emails and email not in allowed_emails:
-            logger.warning(f"Registration attempt with unauthorized email: {email}")
-            return False, None, "Este email no está autorizado para registrarse."
-
         # Check if email already exists
         existing_user = User.get_by_email(email)
         if existing_user:

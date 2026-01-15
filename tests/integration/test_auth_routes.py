@@ -86,74 +86,48 @@ class TestRegisterRoute:
 
         assert response.status_code == 200
 
-    def test_register_success(self, app, client):
+    def test_register_success(self, client):
         """Test successful registration."""
-        with app.app_context():
-            app.config["ALLOWED_EMAILS"] = {"new@example.com"}
+        response = client.post(
+            "/auth/register",
+            data={
+                "email": "new@example.com",
+                "password": "SecurePass1",
+                "confirm_password": "SecurePass1",
+            },
+            follow_redirects=True,
+        )
 
-            response = client.post(
-                "/auth/register",
-                data={
-                    "email": "new@example.com",
-                    "password": "SecurePass1",
-                    "confirm_password": "SecurePass1",
-                },
-                follow_redirects=True,
-            )
+        # Should redirect to login with success message
+        assert b"xito" in response.data or response.status_code == 200
 
-            # Should redirect to login with success message
-            assert b"xito" in response.data or response.status_code == 200
-
-    def test_register_unauthorized_email(self, app, client):
-        """Test registration with unauthorized email."""
-        with app.app_context():
-            app.config["ALLOWED_EMAILS"] = {"allowed@example.com"}
-
-            response = client.post(
-                "/auth/register",
-                data={
-                    "email": "unauthorized@example.com",
-                    "password": "SecurePass1",
-                    "confirm_password": "SecurePass1",
-                },
-                follow_redirects=True,
-            )
-
-            assert b"autorizado" in response.data.lower()
-
-    def test_register_duplicate_email(self, client, sample_user, app):
+    def test_register_duplicate_email(self, client, sample_user):
         """Test registration with existing email."""
-        with app.app_context():
-            app.config["ALLOWED_EMAILS"] = set()  # Allow all
+        response = client.post(
+            "/auth/register",
+            data={
+                "email": "test@example.com",  # Already exists
+                "password": "SecurePass1",
+                "confirm_password": "SecurePass1",
+            },
+            follow_redirects=True,
+        )
 
-            response = client.post(
-                "/auth/register",
-                data={
-                    "email": "test@example.com",  # Already exists
-                    "password": "SecurePass1",
-                    "confirm_password": "SecurePass1",
-                },
-                follow_redirects=True,
-            )
+        assert b"registrado" in response.data.lower()
 
-            assert b"registrado" in response.data.lower()
-
-    def test_register_password_mismatch(self, app, client):
+    def test_register_password_mismatch(self, client):
         """Test registration with mismatched passwords."""
-        with app.app_context():
-            app.config["ALLOWED_EMAILS"] = set()
+        response = client.post(
+            "/auth/register",
+            data={
+                "email": "new@example.com",
+                "password": "SecurePass1",
+                "confirm_password": "DifferentPass1",
+            },
+            follow_redirects=True,
+        )
 
-            response = client.post(
-                "/auth/register",
-                data={
-                    "email": "new@example.com",
-                    "password": "SecurePass1",
-                    "confirm_password": "DifferentPass1",
-                },
-                follow_redirects=True,
-            )
-
-            assert b"coincidir" in response.data.lower()
+        assert b"coincidir" in response.data.lower()
 
 
 class TestProtectedRoutes:
