@@ -401,13 +401,68 @@ source venv/bin/activate && pytest --cov=app          # With coverage
 
 ---
 
-## Visual Verification with Screenshots (Frontend Changes)
+## Visual Verification with MCP Chrome DevTools (Frontend Changes)
 
-When modifying templates or frontend files, **always take screenshots** to verify:
+When modifying templates or frontend files, **always use MCP Chrome DevTools** to verify changes work correctly in the browser. This is the **preferred method** for frontend verification.
+
+### MCP Chrome DevTools Verification Workflow (REQUIRED)
+
+**ALWAYS use these tools when available for any frontend/UI changes:**
+
+1. **Navigate to the page**:
+   ```
+   mcp_chrome-devtoo_new_page → url: "http://localhost:5000/"
+   ```
+
+2. **Login if needed** (for authenticated pages):
+   ```
+   mcp_chrome-devtoo_take_snapshot  → Get current page elements
+   mcp_chrome-devtoo_fill_form      → Fill login form with test credentials
+   mcp_chrome-devtoo_click          → Click login button
+   ```
+   - Test credentials: `test@example.com` / `test123`
+
+3. **Take a snapshot** to understand page structure:
+   ```
+   mcp_chrome-devtoo_take_snapshot
+   ```
+
+4. **Take a screenshot** to verify visual appearance:
+   ```
+   mcp_chrome-devtoo_take_screenshot
+   ```
+
+5. **Test CSS changes live** before modifying templates:
+   ```
+   mcp_chrome-devtoo_evaluate_script → Inject CSS/JS to test changes
+   ```
+
+6. **Test both themes** (MANDATORY):
+   - Click the theme toggle button to switch between dark/light mode
+   - Take screenshots in **BOTH** modes to verify consistency
+   ```
+   mcp_chrome-devtoo_click → uid of theme toggle button
+   mcp_chrome-devtoo_take_screenshot
+   ```
+
+7. **Test responsive design**:
+   ```
+   mcp_chrome-devtoo_resize_page → width: 375, height: 667  (mobile)
+   mcp_chrome-devtoo_take_screenshot
+   mcp_chrome-devtoo_resize_page → width: 768, height: 1024 (tablet)
+   mcp_chrome-devtoo_take_screenshot
+   mcp_chrome-devtoo_resize_page → width: 1200, height: 800 (desktop)
+   mcp_chrome-devtoo_take_screenshot
+   ```
+
+8. **Verify interactions work**:
+   ```
+   mcp_chrome-devtoo_click  → Test buttons, links
+   mcp_chrome-devtoo_hover  → Test hover states
+   mcp_chrome-devtoo_fill   → Test form inputs
+   ```
 
 ### Test Credentials for Development
-
-To access authenticated pages for visual verification, use:
 
 | Email | Password | Role | Notes |
 |-------|----------|------|-------|
@@ -423,53 +478,67 @@ To access authenticated pages for visual verification, use:
 source venv/bin/activate && flask db-utils seed
 ```
 
-### Screenshot Verification Workflow
-1. **Start the server** (if not running):
+### Dark Mode / Light Mode Testing (MANDATORY)
+
+**Every frontend change MUST be verified in both themes:**
+
+1. **Default is dark mode** (`data-bs-theme="dark"`)
+2. **Test in dark mode first**, take screenshot
+3. **Click theme toggle** (sun/moon icon in navbar)
+4. **Test in light mode**, take screenshot
+5. **Verify both screenshots** show correct styling
+
+**Theme-Aware CSS Guidelines:**
+```html
+<!-- ✅ DO: Use Bootstrap theme-adaptive classes -->
+<div class="bg-body">           <!-- Adapts to theme -->
+<div class="text-body">          <!-- Adapts to theme -->
+<div class="border-secondary">   <!-- Adapts to theme -->
+<small class="text-body-secondary">  <!-- Adapts to theme -->
+
+<!-- ❌ DON'T: Use hardcoded colors -->
+<div class="bg-light">           <!-- Breaks in dark mode -->
+<div class="bg-dark">            <!-- Breaks in light mode -->
+<span style="color: #333;">      <!-- Won't adapt -->
+```
+
+**Button Consistency Across Themes:**
+| Action | Class | Works in Both Themes |
+|--------|-------|---------------------|
+| Edit | `btn-outline-secondary` | ✅ |
+| Success/Confirm | `btn-success` | ✅ |
+| Warning/Pending | `btn-outline-warning` | ✅ |
+| Danger/Delete | `btn-outline-danger` | ✅ |
+| Primary action | `btn-primary` | ✅ |
+
+### Fallback: VS Code Simple Browser
+
+If MCP Chrome DevTools is unavailable, use VS Code's Simple Browser:
+
+1. **Start the server**:
    ```powershell
-   # Windows PowerShell
    .\venv\Scripts\Activate.ps1; flask run
-   # or
-   .\venv\Scripts\Activate.ps1; python run.py
-   ```
-   ```bash
-   # macOS/Linux
-   source venv/bin/activate && flask run
    ```
 
-2. **Login first** (for authenticated pages):
-   - Open browser at `http://localhost:5000/auth/login`
-   - Use test credentials: `test@example.com` / `test123`
-   - Note: VS Code Simple Browser is view-only; use external browser for login
+2. **Open Simple Browser**: `http://localhost:5000`
+   - Note: Simple Browser is view-only (cannot fill forms)
+   - Login via external browser first for authenticated pages
 
-3. **Open in Simple Browser**: Use VS Code's internal browser at `http://localhost:5000`
-   - Simple Browser shares session with external browser if same port
-   - For unauthenticated pages (login, register, errors), Simple Browser works directly
+3. **Take screenshots** using VS Code's screenshot capabilities
 
-4. **Take a screenshot**: Capture the current state of the UI
+### Visual Verification Checklist
 
-5. **Verify visually**:
-   - Layout renders correctly without overlapping
-   - Text is readable and properly aligned
-   - Buttons and links are visible and functional
-   - Forms display correctly with labels
+Before completing any frontend task, verify:
 
-5. **Check accessibility**:
-   - Keyboard navigation works (Tab, Enter, Escape)
-   - Focus indicators are visible
-   - Color contrast is sufficient
-   - ARIA labels are present on interactive elements
-
-6. **Test responsive design**: Check at different viewport widths:
-   - Mobile: ~375px
-   - Tablet: ~768px  
-   - Desktop: ~1200px+
-
-7. **If errors found**: 
-   - Fix the issue
-   - **Take another screenshot** to confirm the fix
-   - Repeat until no issues remain
-
-8. **Complete**: Only mark task done after screenshot verification passes
+- [ ] **Dark mode**: UI renders correctly
+- [ ] **Light mode**: UI renders correctly (click theme toggle)
+- [ ] **Mobile (375px)**: Layout is responsive
+- [ ] **Desktop (1200px+)**: Layout uses available space well
+- [ ] **Buttons**: Full width, equal sizing, visible text + icons
+- [ ] **Text**: Readable, properly aligned, not truncated
+- [ ] **Forms**: Labels visible, inputs styled correctly
+- [ ] **Accessibility**: ARIA labels present, focus indicators visible
+- [ ] **Interactions**: Buttons clickable, modals open correctly
 
 ### Common Issues to Check
 - Navigation arrows overlapping content (carousels)
@@ -479,8 +548,9 @@ source venv/bin/activate && flask db-utils seed
 - Flash message visibility
 - Missing focus indicators
 - Poor color contrast
-- **Dark mode compatibility**: Check UI in both light and dark themes
-- **Theme switcher**: Verify theme toggle works and persists across page reloads
+- **Dark mode compatibility**: Colors adapt correctly
+- **Light mode compatibility**: Colors adapt correctly
+- **Theme switcher**: Toggle works and persists across page reloads
 
 ---
 

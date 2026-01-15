@@ -222,9 +222,10 @@ When implementing features or fixes, always provide:
 5. **Security Review**: Note any security implications
 6. **Spanish UI Text**: All user-facing strings in Spanish
 7. **Documentation Updates**: Update CHANGELOG.md and README.md for user-facing changes
-8. **Visual Verification with Screenshots**: For frontend changes, take screenshots to verify UI
+8. **Visual Verification with MCP Chrome DevTools**: For frontend changes, use MCP tools to verify UI in browser
 9. **Accessibility Compliance**: Verify WCAG 2.1 AA compliance for all UI changes
 10. **Backend Test Execution**: Run pytest after any backend modification
+11. **Dark/Light Mode Testing**: Verify UI works correctly in BOTH themes
 
 ### Documentation Update Requirements
 When adding or modifying features:
@@ -248,13 +249,24 @@ When adding or modifying any feature:
 ### Visual Verification Workflow (Template/Frontend Changes)
 After modifying any template or frontend file:
 1. Ensure the Flask development server is running (`flask run` or `python run.py`)
-2. Open the affected page in VS Code's internal Simple Browser (http://localhost:5000)
-3. **Take a screenshot** of the updated UI for verification
-4. Verify the UI renders correctly across different screen sizes
+2. **Use MCP Chrome DevTools** (preferred method when available):
+   - `mcp_chrome-devtoo_new_page` → Navigate to the page
+   - `mcp_chrome-devtoo_fill_form` + `mcp_chrome-devtoo_click` → Login if needed
+   - `mcp_chrome-devtoo_take_screenshot` → Capture UI state
+   - `mcp_chrome-devtoo_evaluate_script` → Test CSS/JS changes live before editing files
+   - `mcp_chrome-devtoo_resize_page` → Test responsive design
+3. **Test BOTH themes** (MANDATORY):
+   - Take screenshot in dark mode (default)
+   - Click theme toggle button
+   - Take screenshot in light mode
+   - Verify UI consistency across both modes
+4. **Test responsive design**:
+   - Mobile (375px width)
+   - Tablet (768px width)
+   - Desktop (1200px+ width)
 5. **Check accessibility**: Verify ARIA labels, keyboard navigation, color contrast
-6. Check for layout issues, overlapping elements, or broken functionality
-7. If errors are found, fix them and **take another screenshot** to confirm the fix
-8. Only mark the task complete after visual verification passes
+6. If errors are found, fix them and **take another screenshot** to confirm the fix
+7. Only mark the task complete after visual verification passes in BOTH themes
 
 ### Backend Testing Workflow (Backend Changes)
 After modifying any backend file (models, services, routes, validators, utils):
@@ -273,6 +285,7 @@ After modifying any backend file (models, services, routes, validators, utils):
 - **Database Tools**: SQLite Browser, pg_dump/restore
 - **Version Control**: Git (commit, branch, merge, rebase)
 - **Debugging**: Python debugger (pdb), Flask debug toolbar
+- **MCP Chrome DevTools**: Browser automation for frontend verification
 
 ---
 
@@ -300,17 +313,25 @@ Before starting any task:
 
 **For Frontend/Template Changes:**
 1. Start the Flask development server (`.\venv\Scripts\Activate.ps1; flask run` or `.\venv\Scripts\Activate.ps1; python run.py`)
-2. **For authenticated pages**: Login via external browser first (see test credentials below)
-3. Open the page in Simple Browser (shares session with external browser)
-4. **Take a screenshot** of the rendered page
-5. Verify accessibility (keyboard nav, screen reader, contrast)
-6. Check responsive design at mobile/tablet/desktop sizes
-7. **Check dark mode**: Verify UI works in both light and dark themes
-8. If issues found: fix, then take new screenshot to confirm
-9. Only complete after screenshot verification passes
+2. **Use MCP Chrome DevTools** (PREFERRED - when available):
+   - `mcp_chrome-devtoo_new_page` → Navigate to `http://localhost:5000/`
+   - `mcp_chrome-devtoo_take_snapshot` → Get page structure
+   - `mcp_chrome-devtoo_fill_form` + `mcp_chrome-devtoo_click` → Login if needed
+   - `mcp_chrome-devtoo_take_screenshot` → Capture visual state
+   - `mcp_chrome-devtoo_evaluate_script` → Test CSS/JS changes live
+   - `mcp_chrome-devtoo_resize_page` → Test responsive design
+3. **Test BOTH themes** (MANDATORY for all UI changes):
+   - Take screenshot in **dark mode** (default)
+   - Click theme toggle (sun/moon icon)
+   - Take screenshot in **light mode**
+   - Verify consistency across both themes
+4. Verify accessibility (keyboard nav, screen reader, contrast)
+5. Check responsive design: mobile (375px), tablet (768px), desktop (1200px+)
+6. If issues found: fix, then take new screenshot to confirm
+7. Only complete after visual verification passes in BOTH themes
 
-**Note on Simple Browser Limitations:**
-- VS Code Simple Browser is view-only (cannot fill forms or click buttons)
+**Fallback: VS Code Simple Browser** (if MCP unavailable):
+- Simple Browser is view-only (cannot fill forms or click buttons)
 - For pages requiring login, authenticate in an external browser first
 - Simple Browser will share the session cookie if using same localhost port
 - For unauthenticated pages (login, register, error pages), Simple Browser works directly

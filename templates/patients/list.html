@@ -7,19 +7,18 @@
     
     <div>
         <!-- Filters -->
-        <div class="mb-3 btn-group" role="group" aria-label="Filtros de sesiones">
+        <div class="btn-group" role="group" aria-label="Filtros de sesiones">
             {% for label, filter in filters %}
-                <a class="btn btn-sm btn-outline-light {% if show == filter or (not show and loop.index == 1) %}active{% endif %}" 
+                <a class="btn btn-sm btn-outline-secondary {% if show == filter or (not show and loop.index == 1) %}active{% endif %}" 
                    href="{{ url_for('patients.index') }}?show={{ filter }}">
                     <strong>{{ label|upper }}</strong>
                 </a>
             {% endfor %}
         </div>
-        <hr>
 
         {% if grouped_sessions %}
             <!-- Grid layout: max 3 patients per row -->
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mt-2">
             {% for person, sessions in grouped_sessions.items() %}
                 <div class="col">
                     <div class="card h-100 shadow-sm" data-patient-id="{{ person[0] }}">
@@ -78,58 +77,52 @@
                                         <div class="carousel-item {% if loop.first %}active{% endif %}">
                                             <div class="card mx-auto" data-session-id="{{ id }}">
                                                 <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                                    <small class="text-body-secondary">Sesión {{ loop.index }}/{{ sessions|length }}</small>
+                                                    <small class="text-body-secondary">{{ date|title }}</small>
                                                     {% if not pending %}
-                                                        <span class="badge bg-success session-status">PAGADO</span>
+                                                        <span class="badge text-bg-success session-status">PAGADO</span>
                                                     {% else %}
-                                                        <span class="badge bg-danger session-status">PENDIENTE</span>
+                                                        <span class="badge text-bg-warning session-status">PENDIENTE</span>
                                                     {% endif %}
                                                 </div>
+
                                                 <div class="card-body py-2">
-                                                    <p class="card-text mb-1 session-date">
-                                                        <strong>Fecha:</strong> {{ date|title }}
-                                                    </p>
                                                     <p class="card-text mb-0 session-price">
-                                                        <strong>Precio:</strong> 
                                                         {{ "%.2f"|format(price) if price is number else price }}
                                                     </p>
                                                 </div>
+
                                                 <div class="card-footer py-2">
-                                                    <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de sesión">
+                                                    <div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de sesión">
                                                         <button type="button"
-                                                           class="btn btn-outline-secondary"
+                                                           class="btn btn-outline-secondary flex-fill"
                                                            title="Editar sesión"
                                                            aria-label="Editar sesión del {{ date|title }}"
                                                            onclick="openEditSessionModal({{ id }}, {{ person[0] }})">
-                                                            <i class="bi bi-pencil-square" aria-hidden="true"></i>
-                                                            <span class="visually-hidden">Editar</span>
+                                                            <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
                                                         </button>
                                                         {% if pending %}
                                                             <button type="button"
-                                                               class="btn btn-success toggle-payment-btn"
+                                                               class="btn btn-success flex-fill toggle-payment-btn"
                                                                title="Marcar como pagado"
                                                                aria-label="Marcar sesión del {{ date|title }} como pagado"
                                                                onclick="togglePayment({{ id }})">
-                                                                <i class="bi bi-check-circle" aria-hidden="true"></i>
-                                                                <span class="visually-hidden">Pagado</span>
+                                                                <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Pagado
                                                             </button>
                                                         {% else %}
                                                             <button type="button"
-                                                               class="btn btn-outline-warning toggle-payment-btn"
+                                                               class="btn btn-outline-warning flex-fill toggle-payment-btn"
                                                                title="Marcar como pendiente"
                                                                aria-label="Marcar sesión del {{ date|title }} como pendiente"
                                                                onclick="togglePayment({{ id }})">
-                                                                <i class="bi bi-clock-history" aria-hidden="true"></i>
-                                                                <span class="visually-hidden">Pendiente</span>
+                                                                <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Pendiente
                                                             </button>
                                                             {% if allow_delete %}
                                                                 <button type="button"
-                                                                   class="btn btn-outline-danger delete-session-btn"
+                                                                   class="btn btn-outline-danger flex-fill delete-session-btn"
                                                                    title="Eliminar sesión"
                                                                    aria-label="Eliminar sesión del {{ date|title }}"
                                                                    onclick="openDeleteSessionModal({{ id }}, '{{ date|e }}')">
-                                                                    <i class="bi bi-trash" aria-hidden="true"></i>
-                                                                    <span class="visually-hidden">Eliminar</span>
+                                                                    <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
                                                                 </button>
                                                             {% endif %}
                                                         {% endif %}

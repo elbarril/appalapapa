@@ -98,11 +98,9 @@
                             
                             <!-- Theme Switcher -->
                             <button type="button" class="theme-switcher nav-link ms-2" 
-                                    id="themeSwitcher" 
-                                    aria-label="Cambiar tema de color"
-                                    title="Cambiar tema">
+                                    aria-label="Toggle theme" id="theme-switcher-button">
                                 <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
-                                <i class="bi bi-moon-fill theme-icon-dark" aria-hidden="true"></i>
+                                <i class="bi bi-moon-stars-fill theme-icon-dark" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
@@ -126,7 +124,6 @@
         </main>
 
         <footer class="container mt-5 mb-3 text-center text-muted">
-            <hr>
             <small>&copy; {{ now().year if now is defined else 2026 }} Terapia - Sistema de Gestión</small>
         </footer>
 
@@ -134,7 +131,7 @@
         <script>
             // Theme Switcher Functionality
             (function() {
-                const themeSwitcher = document.getElementById('themeSwitcher');
+                const themeSwitcher = document.getElementById('theme-switcher-button');
                 
                 function setTheme(theme) {
                     document.documentElement.setAttribute('data-bs-theme', theme);
