@@ -5,6 +5,27 @@ All notable changes to the Therapy Session Management Application will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2026-01-14
+
+### Fixed
+- **Docker Build Issues**: Fixed production Docker image build failures
+  - Added missing `templates/` and `static/` directories to production stage
+  - Removed non-existent `migrations/` folder reference from Dockerfile
+  - Changed healthcheck from `curl` to Python `urllib` (avoids extra package install)
+  - Added `logs/` directory creation in production image
+  - Created `.dockerignore` to optimize build context and reduce image size
+  
+- **Configuration Consistency**: Fixed environment variable handling
+  - Unified `FLASK_CONFIG` and `FLASK_ENV` support across all entry points
+  - `wsgi.py`, `run.py`, and `create_app()` now consistently check both variables
+  - Added SQLite fallback in production config for container testing scenarios
+  
+- **Docker Compose Production**: Improved production deployment configuration
+  - Fixed `DATABASE_URL` to properly connect to PostgreSQL service using service name
+  - Uses environment variable interpolation for database credentials
+
+---
+
 ## [2.2.0] - 2026-01-14
 
 ### Added

@@ -134,8 +134,8 @@ class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
 
-    # PostgreSQL required in production
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    # PostgreSQL required in production, fallback to SQLite for container testing
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
 
     # Connection pooling for production
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -179,5 +179,5 @@ config = {
 
 def get_config():
     """Get configuration class based on environment."""
-    env = os.environ.get("FLASK_ENV", "development")
+    env = os.environ.get("FLASK_CONFIG") or os.environ.get("FLASK_ENV", "development")
     return config.get(env, config["default"])

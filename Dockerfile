@@ -79,16 +79,21 @@ COPY --from=builder /app/wheels /wheels
 # Install production dependencies only
 RUN pip install --no-cache /wheels/*
 
-# Copy only necessary files
+# Copy application files (all necessary for Flask app)
 COPY app/ app/
-COPY migrations/ migrations/
+COPY templates/ templates/
+COPY static/ static/
 COPY run.py wsgi.py ./
+
+# Copy migrations only if they exist (optional)
+# Note: If using Flask-Migrate, uncomment next line when migrations folder exists
+# COPY migrations/ migrations/
 
 # Set ownership
 RUN chown -R appuser:appgroup /app
 
-# Create instance directory for SQLite (if used)
-RUN mkdir -p instance && chown appuser:appgroup instance
+# Create instance directory for SQLite (if used) and logs directory
+RUN mkdir -p instance logs && chown -R appuser:appgroup instance logs
 
 # Switch to non-root user
 USER appuser
@@ -101,9 +106,9 @@ ENV FLASK_PORT=8000
 # Expose production port
 EXPOSE 8000
 
-# Health check
+# Health check using Python instead of curl for lighter image
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
 
 # Production command using gunicorn
 CMD ["gunicorn", "wsgi:app", \

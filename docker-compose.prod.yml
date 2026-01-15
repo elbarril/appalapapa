@@ -19,7 +19,8 @@ services:
       - FLASK_DEBUG=False
       - FLASK_HOST=0.0.0.0
       - FLASK_PORT=8000
-      - DATABASE_URL=${DATABASE_URL}
+      # Use PostgreSQL in production (connects to 'db' service)
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-therapy_user}:${POSTGRES_PASSWORD:-therapy_pass}@db:5432/${POSTGRES_DB:-therapy_db}
     restart: always
     deploy:
       resources:
