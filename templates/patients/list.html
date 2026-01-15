@@ -1,11 +1,91 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+    /* Layered background design: Page (lightest) → Patient cards → Session cards (darkest) */
+    
+    /* Page background - lightest layer */
+    [data-bs-theme="dark"] .patients-container {
+        background-color: #2d3238;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+    [data-bs-theme="light"] .patients-container {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    /* Patient cards - middle layer */
+    [data-bs-theme="dark"] .patient-card {
+        background-color: #212529 !important;
+        border-color: #495057 !important;
+    }
+    [data-bs-theme="light"] .patient-card {
+        background-color: #ffffff !important;
+        border-color: #dee2e6 !important;
+    }
+    
+    /* Session cards - darkest layer */
+    [data-bs-theme="dark"] .session-card {
+        background-color: #16191c !important;
+        border-color: #343a40 !important;
+    }
+    [data-bs-theme="light"] .session-card {
+        background-color: #e9ecef !important;
+        border-color: #ced4da !important;
+    }
+    
+    /* Session card header */
+    [data-bs-theme="dark"] .session-card .card-header {
+        background-color: #1a1d21 !important;
+        border-color: #343a40 !important;
+    }
+    [data-bs-theme="light"] .session-card .card-header {
+        background-color: #dee2e6 !important;
+        border-color: #ced4da !important;
+    }
+    
+    /* Session card footer */
+    [data-bs-theme="dark"] .session-card .card-footer {
+        background-color: #1a1d21 !important;
+        border-color: #343a40 !important;
+    }
+    [data-bs-theme="light"] .session-card .card-footer {
+        background-color: #dee2e6 !important;
+        border-color: #ced4da !important;
+    }
+    
+    /* Carousel controls - always visible */
+    .carousel-controls {
+        opacity: 1 !important;
+    }
+    .carousel-controls.disabled {
+        opacity: 0.4 !important;
+        pointer-events: none;
+    }
+    .carousel-controls .btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    
+    /* Carousel indicators - always visible */
+    .carousel-indicators-wrapper {
+        min-height: 20px;
+    }
+    .carousel-indicators-wrapper.single-slide .carousel-indicators button {
+        opacity: 0.4;
+        pointer-events: none;
+    }
+</style>
+{% endblock extra_css %}
+
 {% block main %}
     <div class="d-flex justify-content-between align-items-center my-4">
         <h1 class="display-5">Pacientes con Sesiones</h1>
     </div>
     
-    <div>
+    <div class="patients-container">
         <!-- Filters -->
         <div class="btn-group" role="group" aria-label="Filtros de sesiones">
             {% for label, filter in filters %}
@@ -21,7 +101,7 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 mt-2">
             {% for person, sessions in grouped_sessions.items() %}
                 <div class="col">
-                    <div class="card h-100 shadow-sm" data-patient-id="{{ person[0] }}">
+                    <div class="card h-100 shadow-sm patient-card" data-patient-id="{{ person[0] }}">
                         <!-- Patient header -->
                         <div class="card-header border-bottom">
                             <div class="d-flex justify-content-between align-items-center gap-2">
@@ -34,8 +114,7 @@
                                        title="Editar paciente" 
                                        aria-label="Editar paciente {{ person[1]|title }}"
                                        onclick="openEditPatientModal({{ person[0] }}, '{{ person[1]|e }}')">
-                                        <i class="bi bi-pencil" aria-hidden="true"></i>
-                                        <span class="visually-hidden">Editar</span>
+                                        <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
                                     </button>
                                     {% if allow_delete %}
                                         <button type="button"
@@ -43,8 +122,7 @@
                                            title="Eliminar paciente" 
                                            aria-label="Eliminar paciente {{ person[1]|title }}"
                                            onclick="openDeletePatientModal({{ person[0] }}, '{{ person[1]|e }}')">
-                                            <i class="bi bi-trash" aria-hidden="true"></i>
-                                            <span class="visually-hidden">Eliminar</span>
+                                            <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
                                         </button>
                                     {% endif %}
                                 </div>
@@ -56,28 +134,29 @@
                             {% if sessions %}
                                 <!-- Carousel for session cards -->
                                 <div id="carousel-{{ person[0] }}" class="carousel slide" data-bs-ride="false">
-                                    <!-- Carousel indicators -->
-                                    {% if sessions|length > 1 %}
-                                    <div class="carousel-indicators position-relative mb-2" style="bottom: 0;">
-                                        {% for session in sessions %}
-                                        <button type="button" 
-                                                data-bs-target="#carousel-{{ person[0] }}" 
-                                                data-bs-slide-to="{{ loop.index0 }}" 
-                                                {% if loop.first %}class="active bg-secondary" aria-current="true"{% else %}class="bg-secondary"{% endif %}
-                                                aria-label="Sesión {{ loop.index }}"
-                                                style="width: 10px; height: 10px; border-radius: 50%;">
-                                        </button>
-                                        {% endfor %}
+                                    <!-- Carousel indicators - always visible -->
+                                    <div class="carousel-indicators-wrapper {% if sessions|length <= 1 %}single-slide{% endif %}">
+                                        <div class="carousel-indicators position-relative mb-2" style="bottom: 0;">
+                                            {% for session in sessions %}
+                                            <button type="button" 
+                                                    data-bs-target="#carousel-{{ person[0] }}" 
+                                                    data-bs-slide-to="{{ loop.index0 }}" 
+                                                    {% if loop.first %}class="active bg-secondary" aria-current="true"{% else %}class="bg-secondary"{% endif %}
+                                                    aria-label="Sesión {{ loop.index }}"
+                                                    {% if sessions|length <= 1 %}disabled{% endif %}
+                                                    style="width: 10px; height: 10px; border-radius: 50%;">
+                                            </button>
+                                            {% endfor %}
+                                        </div>
                                     </div>
-                                    {% endif %}
 
                                     <!-- Carousel slides -->
                                     <div class="carousel-inner">
                                         {% for id, date, price, pending in sessions %}
-                                        <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                            <div class="card mx-auto" data-session-id="{{ id }}">
+                                        <div class="carousel-item {% if loop.first %}active{% endif %}" data-session-pending="{{ 'true' if pending else 'false' }}">
+                                            <div class="card mx-auto session-card" data-session-id="{{ id }}">
                                                 <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                                    <small class="text-body-secondary">{{ date|title }}</small>
+                                                    <small class="text-body-secondary session-date">{{ date }}</small>
                                                     {% if not pending %}
                                                         <span class="badge text-bg-success session-status">PAGADO</span>
                                                     {% else %}
@@ -87,7 +166,7 @@
 
                                                 <div class="card-body py-2">
                                                     <p class="card-text mb-0 session-price">
-                                                        {{ "%.2f"|format(price) if price is number else price }}
+                                                        {{ price }}
                                                     </p>
                                                 </div>
 
@@ -133,15 +212,15 @@
                                         {% endfor %}
                                     </div>
 
-                                    <!-- Carousel controls -->
-                                    {% if sessions|length > 1 %}
-                                    <div class="d-flex justify-content-center gap-3 mt-2">
+                                    <!-- Carousel controls - always visible -->
+                                    <div class="carousel-controls d-flex justify-content-center gap-3 mt-2 {% if sessions|length <= 1 %}disabled{% endif %}">
                                         <button class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" 
                                                 type="button" 
                                                 data-bs-target="#carousel-{{ person[0] }}" 
                                                 data-bs-slide="prev"
                                                 style="width: 2rem; height: 2rem;"
-                                                aria-label="Sesión anterior de {{ person[1]|title }}">
+                                                aria-label="Sesión anterior de {{ person[1]|title }}"
+                                                {% if sessions|length <= 1 %}disabled{% endif %}>
                                             <i class="bi bi-chevron-left" aria-hidden="true"></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center" 
@@ -149,11 +228,11 @@
                                                 data-bs-target="#carousel-{{ person[0] }}" 
                                                 data-bs-slide="next"
                                                 style="width: 2rem; height: 2rem;"
-                                                aria-label="Siguiente sesión de {{ person[1]|title }}">
+                                                aria-label="Siguiente sesión de {{ person[1]|title }}"
+                                                {% if sessions|length <= 1 %}disabled{% endif %}>
                                             <i class="bi bi-chevron-right" aria-hidden="true"></i>
                                         </button>
                                     </div>
-                                    {% endif %}
                                 </div>
                             {% else %}
                                 <p class="text-muted text-center my-3">No hay sesiones registradas.</p>

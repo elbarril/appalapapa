@@ -212,7 +212,98 @@ def create_patient(name: str) -> Person:
     pass
 ```
 
-### 6. Template Organization
+### 6. Date Formatting (Always Spanish)
+All dates must be formatted in Spanish for display. **Never rely on system locale**.
+
+**Backend (Python)**:
+```python
+# ✅ Use format_date from app.utils.formatters
+from app.utils.formatters import format_date
+
+# Returns: "Lunes 15/01/2024"
+formatted = format_date(session.session_date)
+```
+
+**Frontend (JavaScript)**:
+```javascript
+// ✅ Use formatDisplayDate from api.js
+// Returns: "Lunes 15/01/2024"
+const formatted = formatDisplayDate('2024-01-15');
+```
+
+**NEVER use**:
+- `strftime('%A')` - depends on system locale
+- `toLocaleDateString()` without explicit Spanish weekday lookup
+- Any locale-dependent date formatting
+
+### 7. Constants Management
+All magic numbers, strings, and reusable values MUST be defined in `app/utils/constants.py`.
+
+```python
+# ✅ CORRECT - Define constants in constants.py
+# In app/utils/constants.py:
+SPANISH_DAYS = ["Lunes", "Martes", ...]
+MAX_PRICE = 1_000_000
+
+# In other files, import from constants:
+from app.utils.constants import SPANISH_DAYS, MAX_PRICE
+
+# ❌ AVOID - Defining constants in other files
+# Don't define reusable constants in formatters.py, services, etc.
+```
+
+**What belongs in constants.py**:
+- Feature flags (ALLOW_DELETE, etc.)
+- Filter values and labels
+- Pagination settings
+- Rate limiting values
+- Audit action types
+- User roles
+- Payment status values
+- Flash message categories
+- Validation limits (min/max values)
+- Date format strings
+- Spanish day/month names
+- Any value used in multiple files
+
+### 8. Template and JavaScript Synchronization (CRITICAL)
+The `static/js/api.js` file dynamically generates HTML that must match template structure.
+
+**⚠️ ALWAYS check `api.js` when modifying these templates:**
+- `templates/patients/list.html` - Session cards, patient cards, carousels
+- Any template with AJAX/dynamic content updates
+
+**Functions in `api.js` that generate HTML:**
+| Function | Generates HTML for |
+|----------|-------------------|
+| `updateSessionButtons()` | Session card footer buttons |
+| `removeSessionFromUI()` | Carousel indicator updates |
+| `removePatientFromUI()` | Empty state messages |
+
+**When modifying session/patient card templates:**
+1. Update the template HTML structure
+2. **Immediately update corresponding `api.js` functions**
+3. Ensure CSS classes match between template and JS
+4. Verify button labels, icons, and aria-labels match
+5. Test both server-rendered and JS-updated states
+
+**Example sync points:**
+```html
+<!-- Template (list.html) -->
+<button class="btn btn-success flex-fill toggle-payment-btn">
+    <i class="bi bi-check-circle me-1"></i>Pagado
+</button>
+```
+```javascript
+// api.js - must match exactly
+btnGroup.innerHTML = `
+    <button class="btn btn-success flex-fill toggle-payment-btn">
+        <i class="bi bi-check-circle me-1"></i>Pagado
+    </button>
+`;
+```
+
+### 9. Template Organization
 ```
 templates/
 ├── base.html           # Base template (extends nothing)
@@ -645,3 +736,7 @@ When modifying any backend file, **always run tests** to verify:
 ❌ Skip keyboard navigation testing
 ❌ Create cluttered, complex UI layouts
 ❌ Add decorative elements that don't serve function
+❌ Define constants outside `app/utils/constants.py`
+❌ Use locale-dependent date formatting (strftime %A, toLocaleDateString)
+❌ Modify template HTML structure without updating `api.js`
+❌ Hardcode Spanish day/month names in multiple files

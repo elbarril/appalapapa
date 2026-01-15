@@ -186,28 +186,39 @@ function showToast(message, type = 'info') {
 }
 
 /**
- * Format a date string for display
+ * Format a date string for display in Spanish
  * @param {string} dateStr - Date in YYYY-MM-DD format
- * @returns {string} - Formatted date string
+ * @returns {string} - Formatted date string in Spanish (e.g., "Lunes 15/01/2024")
  */
 function formatDisplayDate(dateStr) {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T00:00:00');
-    return date.toLocaleDateString('es-ES', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    
+    // Spanish day names (Monday=0 in our array, but getDay() returns 0=Sunday)
+    const spanishDays = [
+        'Domingo', 'Lunes', 'Martes', 'Miércoles', 
+        'Jueves', 'Viernes', 'Sábado'
+    ];
+    
+    const dayName = spanishDays[date.getDay()];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${dayName} ${day}/${month}/${year}`;
 }
 
 /**
- * Format a price for display
+ * Format a price for display (matching backend format)
  * @param {number} price - Price value
- * @returns {string} - Formatted price string
+ * @returns {string} - Formatted price string (e.g., "$1,234.56")
  */
 function formatPrice(price) {
-    return parseFloat(price).toFixed(2);
+    const numPrice = parseFloat(price);
+    return '$' + numPrice.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 }
 
 // =============================================================================
@@ -422,32 +433,41 @@ function updateSessionInUI(sessionId, session) {
     const sessionCard = document.querySelector(`[data-session-id="${sessionId}"]`);
     if (!sessionCard) return;
 
-    // Update date
-    const dateElement = sessionCard.querySelector('.session-date');
-    if (dateElement) {
-        dateElement.innerHTML = `<strong>Fecha:</strong> ${formatDisplayDate(session.session_date)}`;
+    // Update carousel item's pending status data attribute
+    const carouselItem = sessionCard.closest('.carousel-item');
+    if (carouselItem) {
+        carouselItem.dataset.sessionPending = session.pending ? 'true' : 'false';
     }
 
-    // Update price
+    // Update date (using .session-date class)
+    const dateElement = sessionCard.querySelector('.session-date');
+    if (dateElement) {
+        dateElement.textContent = formatDisplayDate(session.session_date);
+    }
+
+    // Update price (using .session-price class)
     const priceElement = sessionCard.querySelector('.session-price');
     if (priceElement) {
-        priceElement.innerHTML = `<strong>Precio:</strong> ${formatPrice(session.session_price)}`;
+        priceElement.textContent = formatPrice(session.session_price);
     }
 
     // Update status badge
     const badgeElement = sessionCard.querySelector('.session-status');
     if (badgeElement) {
         if (session.pending) {
-            badgeElement.className = 'badge bg-danger session-status';
+            badgeElement.className = 'badge text-bg-warning session-status';
             badgeElement.textContent = 'PENDIENTE';
         } else {
-            badgeElement.className = 'badge bg-success session-status';
+            badgeElement.className = 'badge text-bg-success session-status';
             badgeElement.textContent = 'PAGADO';
         }
     }
 
-    // Update toggle button
-    updateToggleButton(sessionId, session.pending);
+    // Update toggle button and footer buttons
+    updateSessionButtons(sessionId, session.pending);
+
+    // Check if we need to remove this session from filtered view
+    handleFilteredSessionUpdate(sessionId, session.pending);
 }
 
 /**
@@ -462,20 +482,29 @@ async function togglePayment(sessionId) {
         // Update UI
         const sessionCard = document.querySelector(`[data-session-id="${sessionId}"]`);
         if (sessionCard) {
+            // Update carousel item's pending status data attribute
+            const carouselItem = sessionCard.closest('.carousel-item');
+            if (carouselItem) {
+                carouselItem.dataset.sessionPending = result.pending ? 'true' : 'false';
+            }
+
             // Update status badge
             const badgeElement = sessionCard.querySelector('.session-status');
             if (badgeElement) {
                 if (result.pending) {
-                    badgeElement.className = 'badge bg-danger session-status';
+                    badgeElement.className = 'badge text-bg-warning session-status';
                     badgeElement.textContent = 'PENDIENTE';
                 } else {
-                    badgeElement.className = 'badge bg-success session-status';
+                    badgeElement.className = 'badge text-bg-success session-status';
                     badgeElement.textContent = 'PAGADO';
                 }
             }
 
-            // Update toggle button and delete visibility
-            updateToggleButton(sessionId, result.pending);
+            // Update toggle button and footer buttons
+            updateSessionButtons(sessionId, result.pending);
+
+            // Check if we need to remove this session from filtered view
+            handleFilteredSessionUpdate(sessionId, result.pending);
         }
     } catch (error) {
         showToast(error.message, 'error');
@@ -483,34 +512,112 @@ async function togglePayment(sessionId) {
 }
 
 /**
- * Update toggle button appearance based on pending status
+ * Update session buttons appearance based on pending status
+ * Rebuilds the button group to match the template structure
  * @param {number} sessionId - Session ID
  * @param {boolean} pending - Whether session is pending
  */
-function updateToggleButton(sessionId, pending) {
+function updateSessionButtons(sessionId, pending) {
     const sessionCard = document.querySelector(`[data-session-id="${sessionId}"]`);
     if (!sessionCard) return;
 
-    const toggleBtn = sessionCard.querySelector('.toggle-payment-btn');
-    const deleteBtn = sessionCard.querySelector('.delete-session-btn');
+    const cardFooter = sessionCard.querySelector('.card-footer');
+    if (!cardFooter) return;
 
-    if (toggleBtn) {
-        if (pending) {
-            toggleBtn.className = 'btn btn-success toggle-payment-btn';
-            toggleBtn.title = 'Marcar como pagado';
-            toggleBtn.setAttribute('aria-label', 'Marcar como pagado');
-            toggleBtn.innerHTML = '<i class="bi bi-check-circle" aria-hidden="true"></i><span class="visually-hidden">Pagado</span>';
-        } else {
-            toggleBtn.className = 'btn btn-outline-warning toggle-payment-btn';
-            toggleBtn.title = 'Marcar como pendiente';
-            toggleBtn.setAttribute('aria-label', 'Marcar como pendiente');
-            toggleBtn.innerHTML = '<i class="bi bi-clock-history" aria-hidden="true"></i><span class="visually-hidden">Pendiente</span>';
+    const btnGroup = cardFooter.querySelector('.btn-group');
+    if (!btnGroup) return;
+
+    // Get patient ID from the parent card
+    const patientCard = sessionCard.closest('[data-patient-id]');
+    const personId = patientCard ? patientCard.dataset.patientId : '';
+
+    // Get current date from session card for aria labels
+    const dateElement = sessionCard.querySelector('.session-date');
+    const dateText = dateElement ? dateElement.textContent : '';
+
+    // Check if delete is allowed (check if any delete button exists in the page)
+    const allowDelete = document.querySelector('.delete-session-btn') !== null || 
+                        document.querySelector('[onclick*="openDeletePatientModal"]') !== null;
+
+    // Rebuild button group based on pending status
+    if (pending) {
+        btnGroup.innerHTML = `
+            <button type="button"
+               class="btn btn-outline-secondary flex-fill"
+               title="Editar sesión"
+               aria-label="Editar sesión del ${dateText}"
+               onclick="openEditSessionModal(${sessionId}, ${personId})">
+                <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+            </button>
+            <button type="button"
+               class="btn btn-success flex-fill toggle-payment-btn"
+               title="Marcar como pagado"
+               aria-label="Marcar sesión del ${dateText} como pagado"
+               onclick="togglePayment(${sessionId})">
+                <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Pagado
+            </button>
+        `;
+    } else {
+        let deleteButton = '';
+        if (allowDelete) {
+            deleteButton = `
+                <button type="button"
+                   class="btn btn-outline-danger flex-fill delete-session-btn"
+                   title="Eliminar sesión"
+                   aria-label="Eliminar sesión del ${dateText}"
+                   onclick="openDeleteSessionModal(${sessionId}, '${dateText.replace(/'/g, "\\'")}')">
+                    <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+                </button>
+            `;
         }
+        btnGroup.innerHTML = `
+            <button type="button"
+               class="btn btn-outline-secondary flex-fill"
+               title="Editar sesión"
+               aria-label="Editar sesión del ${dateText}"
+               onclick="openEditSessionModal(${sessionId}, ${personId})">
+                <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+            </button>
+            <button type="button"
+               class="btn btn-outline-warning flex-fill toggle-payment-btn"
+               title="Marcar como pendiente"
+               aria-label="Marcar sesión del ${dateText} como pendiente"
+               onclick="togglePayment(${sessionId})">
+                <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Pendiente
+            </button>
+            ${deleteButton}
+        `;
     }
+}
 
-    // Show/hide delete button based on pending status
-    if (deleteBtn) {
-        deleteBtn.style.display = pending ? 'none' : '';
+/**
+ * Get current filter from URL
+ * @returns {string} - Current filter ('all', 'pending', 'paid')
+ */
+function getCurrentFilter() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('show') || 'all';
+}
+
+/**
+ * Handle session removal from filtered view when payment status changes
+ * @param {number} sessionId - Session ID
+ * @param {boolean} pending - Whether session is now pending
+ */
+function handleFilteredSessionUpdate(sessionId, pending) {
+    const currentFilter = getCurrentFilter();
+    
+    // If filter is 'all', no need to remove anything
+    if (currentFilter === 'all') return;
+    
+    // If filtering by 'pending' and session is now paid (not pending), remove it
+    // If filtering by 'paid' and session is now pending, remove it
+    const shouldRemove = 
+        (currentFilter === 'pending' && !pending) ||
+        (currentFilter === 'paid' && pending);
+    
+    if (shouldRemove) {
+        removeSessionFromUI(sessionId);
     }
 }
 
@@ -561,17 +668,25 @@ function removeSessionFromUI(sessionId) {
 
     const carouselItem = sessionCard.closest('.carousel-item');
     const carousel = carouselItem?.closest('.carousel');
+    const patientCard = sessionCard.closest('[data-patient-id]');
 
     if (!carousel) return;
 
     const carouselInner = carousel.querySelector('.carousel-inner');
     const allItems = carouselInner.querySelectorAll('.carousel-item');
+    const currentFilter = getCurrentFilter();
 
     if (allItems.length <= 1) {
-        // Last session - show "no sessions" message
-        const cardBody = carousel.closest('.card-body');
-        if (cardBody) {
-            cardBody.innerHTML = '<p class="text-muted text-center my-3">No hay sesiones registradas.</p>';
+        // Last session in this patient's card
+        if (currentFilter !== 'all') {
+            // When filtering, remove the entire patient card since they have no more matching sessions
+            removePatientFromUI(patientCard?.dataset?.patientId);
+        } else {
+            // In "all" view, show "no sessions" message
+            const cardBody = carousel.closest('.card-body');
+            if (cardBody) {
+                cardBody.innerHTML = '<p class="text-muted text-center my-3">No hay sesiones registradas.</p>';
+            }
         }
     } else {
         // More than one session - just remove this one and adjust carousel
@@ -586,41 +701,44 @@ function removeSessionFromUI(sessionId) {
             remainingItems[0].classList.add('active');
         }
 
+        // Update carousel indicators wrapper class
+        const indicatorsWrapper = carousel.querySelector('.carousel-indicators-wrapper');
+        if (indicatorsWrapper && remainingItems.length <= 1) {
+            indicatorsWrapper.classList.add('single-slide');
+        }
+
         // Update indicators
         const indicatorsContainer = carousel.querySelector('.carousel-indicators');
         if (indicatorsContainer) {
-            if (remainingItems.length <= 1) {
-                indicatorsContainer.remove();
-                // Also remove navigation buttons if only one session left
-                const navButtons = carousel.querySelector('.d-flex.justify-content-center.gap-3');
-                if (navButtons) navButtons.remove();
-            } else {
-                // Rebuild indicators
-                indicatorsContainer.innerHTML = '';
-                remainingItems.forEach((item, index) => {
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.setAttribute('data-bs-target', `#${carousel.id}`);
-                    button.setAttribute('data-bs-slide-to', index);
-                    button.setAttribute('aria-label', `Sesión ${index + 1}`);
-                    button.className = 'bg-secondary';
-                    button.style.cssText = 'width: 10px; height: 10px; border-radius: 50%;';
-                    if (item.classList.contains('active')) {
-                        button.classList.add('active');
-                        button.setAttribute('aria-current', 'true');
-                    }
-                    indicatorsContainer.appendChild(button);
-                });
-            }
+            // Rebuild indicators
+            indicatorsContainer.innerHTML = '';
+            remainingItems.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.setAttribute('data-bs-target', `#${carousel.id}`);
+                button.setAttribute('data-bs-slide-to', index);
+                button.setAttribute('aria-label', `Sesión ${index + 1}`);
+                button.className = 'bg-secondary';
+                button.style.cssText = 'width: 10px; height: 10px; border-radius: 50%;';
+                if (remainingItems.length <= 1) {
+                    button.disabled = true;
+                }
+                if (item.classList.contains('active')) {
+                    button.classList.add('active');
+                    button.setAttribute('aria-current', 'true');
+                }
+                indicatorsContainer.appendChild(button);
+            });
         }
 
-        // Update session counter text in remaining items
-        remainingItems.forEach((item, index) => {
-            const counterText = item.querySelector('.text-body-secondary');
-            if (counterText) {
-                counterText.textContent = `Sesión ${index + 1}/${remainingItems.length}`;
+        // Update carousel controls
+        const carouselControls = carousel.querySelector('.carousel-controls');
+        if (carouselControls) {
+            if (remainingItems.length <= 1) {
+                carouselControls.classList.add('disabled');
+                carouselControls.querySelectorAll('button').forEach(btn => btn.disabled = true);
             }
-        });
+        }
     }
 }
 

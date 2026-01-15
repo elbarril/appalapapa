@@ -2,24 +2,18 @@
 Formatting utilities for dates and prices.
 
 All display formatting should use these functions for consistency.
+All date formatting uses explicit Spanish names to ensure consistency across systems.
 """
 
-import locale
 from datetime import datetime
 from typing import Union
 
-from app.utils.constants import DATE_FORMAT_DISPLAY, DATE_FORMAT_INPUT
-
-# Try to set locale for proper date formatting
-try:
-    locale.setlocale(locale.LC_TIME, "")
-except locale.Error:
-    pass  # Use default locale if setting fails
+from app.utils.constants import DATE_FORMAT_INPUT, SPANISH_DAYS, SPANISH_MONTHS
 
 
 def format_date(date_input: Union[str, datetime, None], include_weekday: bool = True) -> str:
     """
-    Format a date for display.
+    Format a date for display in Spanish.
 
     Args:
         date_input: Date as string (YYYY-MM-DD) or datetime object
@@ -40,7 +34,8 @@ def format_date(date_input: Union[str, datetime, None], include_weekday: bool = 
         date_obj = date_input
 
     if include_weekday:
-        return date_obj.strftime(DATE_FORMAT_DISPLAY).capitalize()
+        weekday = SPANISH_DAYS[date_obj.weekday()]
+        return f"{weekday} {date_obj.strftime('%d/%m/%Y')}"
     else:
         return date_obj.strftime("%d/%m/%Y")
 

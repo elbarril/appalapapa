@@ -107,3 +107,31 @@ MIN_PRICE = 0.01  # Minimum session price
 DATE_FORMAT_INPUT = "%Y-%m-%d"
 DATE_FORMAT_DISPLAY = "%A %d/%m/%Y"
 DATETIME_FORMAT_DISPLAY = "%d/%m/%Y %H:%M"
+
+# Spanish day and month names (used explicitly for cross-platform consistency)
+# Monday = 0, Sunday = 6 (matches Python's weekday())
+SPANISH_DAYS = [
+    "Lunes",
+    "Martes",
+    "Miércoles",
+    "Jueves",
+    "Viernes",
+    "Sábado",
+    "Domingo",
+]
+
+# January = 0, December = 11 (for array indexing with month - 1)
+SPANISH_MONTHS = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+]
