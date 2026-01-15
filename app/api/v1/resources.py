@@ -89,6 +89,41 @@ def create_patient():
         return jsonify({"error": message}), 400
 
 
+@api_v1_bp.route("/patients/<int:patient_id>", methods=["PUT"])
+@login_required
+@limiter.limit("30 per minute")
+def update_patient(patient_id):
+    """
+    Update an existing patient.
+
+    Args:
+        patient_id: Patient ID
+
+    Request body:
+        - name: Patient name (required)
+        - notes: Optional notes
+
+    Returns:
+        JSON patient object or error
+    """
+    data = request.get_json()
+
+    if not data or "name" not in data:
+        return jsonify({"error": "El nombre es requerido"}), 400
+
+    success, patient, message = PatientService.update(
+        person_id=patient_id,
+        name=data["name"],
+        user_id=current_user.id,
+        notes=data.get("notes"),
+    )
+
+    if success:
+        return jsonify(patient.to_dict())
+    else:
+        return jsonify({"error": message}), 400
+
+
 @api_v1_bp.route("/patients/<int:patient_id>", methods=["DELETE"])
 @login_required
 def delete_patient(patient_id):
@@ -194,6 +229,73 @@ def toggle_session(session_id):
 
     if success:
         return jsonify({"message": message, "pending": new_status})
+    else:
+        return jsonify({"error": message}), 400
+
+
+@api_v1_bp.route("/sessions/<int:session_id>")
+@login_required
+def get_session(session_id):
+    """
+    Get a single session.
+
+    Args:
+        session_id: Session ID
+
+    Returns:
+        JSON session object or 404
+    """
+    session = SessionService.get_by_id(session_id)
+    if not session:
+        return jsonify({"error": "Sesión no encontrada"}), 404
+
+    return jsonify(session.to_dict())
+
+
+@api_v1_bp.route("/sessions/<int:session_id>", methods=["PUT"])
+@login_required
+@limiter.limit("30 per minute")
+def update_session(session_id):
+    """
+    Update an existing session.
+
+    Args:
+        session_id: Session ID
+
+    Request body:
+        - session_date: Date YYYY-MM-DD (required)
+        - session_price: Price (required)
+        - pending: Payment status
+        - notes: Optional notes
+
+    Returns:
+        JSON session object or error
+    """
+    from datetime import datetime
+
+    data = request.get_json()
+
+    required_fields = ["session_date", "session_price"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"{field} es requerido"}), 400
+
+    try:
+        session_date = datetime.strptime(data["session_date"], "%Y-%m-%d").date()
+    except ValueError:
+        return jsonify({"error": "Formato de fecha inválido. Use YYYY-MM-DD"}), 400
+
+    success, session, message = SessionService.update(
+        session_id=session_id,
+        session_date=session_date,
+        session_price=float(data["session_price"]),
+        user_id=current_user.id,
+        pending=data.get("pending"),
+        notes=data.get("notes"),
+    )
+
+    if success:
+        return jsonify(session.to_dict())
     else:
         return jsonify({"error": message}), 400
 

@@ -4,6 +4,27 @@ applyTo: '**'
 
 # Agent Profile & Required Expertise
 
+## ⚠️ CRITICAL: First Steps for Every New Request
+
+**ALWAYS read project documentation before starting any task:**
+
+1. **Check README.md and CHANGELOG.md** for recent changes, current feature state, and project overview
+
+2. **Reference specific sections based on request scope**:
+   | Request Type | Sections to Review |
+   |--------------|-------------------|
+   | Backend changes (models, services, routes) | Architecture, Coding Conventions, Backend Testing Workflow |
+   | Frontend/template changes | Template Organization, Visual Verification Workflow, Dark Mode Guidelines |
+   | API development | Key Files Reference, JavaScript API Client |
+   | Testing | Testing Commands, Test File Organization |
+   | Database changes | Database Schema, CLI Commands |
+   | Security concerns | Security Engineering, Security Anti-Patterns |
+   | New features | Expected Deliverables, Documentation Update Requirements |
+
+This ensures consistency with project conventions and prevents duplicate work.
+
+---
+
 ## Primary Role
 You are a **Senior Full-Stack Python Engineer** with specialized expertise in Flask web applications, security-first development, and healthcare/therapy management systems. You combine deep technical knowledge with practical production experience.
 
@@ -211,6 +232,19 @@ When adding or modifying features:
 - **README.md**: Update features list if new user-facing functionality is added
 - Keep documentation in sync with actual implementation
 
+### Test Update Requirements
+When adding or modifying any feature:
+- **New Features**: Always create corresponding tests in the appropriate test file
+  - API endpoints → `tests/integration/test_api.py`
+  - Routes → `tests/integration/test_*_routes.py`
+  - Models → `tests/unit/test_models.py`
+  - Services → `tests/unit/test_services.py`
+  - Validators/Forms → `tests/unit/test_validators.py`
+- **Modified Features**: Update existing tests to reflect changes
+- **Bug Fixes**: Add regression tests to prevent the bug from recurring
+- **Test Coverage**: Aim for >80% coverage on new code
+- **Run Tests**: Always run `pytest` before marking a task complete
+
 ### Visual Verification Workflow (Template/Frontend Changes)
 After modifying any template or frontend file:
 1. Ensure the Flask development server is running (`flask run` or `python run.py`)
@@ -256,14 +290,16 @@ Before starting any task:
 ### Post-Implementation Verification
 
 **For Backend Changes:**
-1. Run `pytest` to execute the full test suite
-2. Run `pytest tests/unit/` for unit tests if only services/models changed
-3. Run `pytest tests/integration/` for route/API changes
+1. **Activate venv first**, then run pytest: `.\venv\Scripts\Activate.ps1; pytest`
+2. For unit tests only: `.\venv\Scripts\Activate.ps1; pytest tests/unit/`
+3. For integration tests: `.\venv\Scripts\Activate.ps1; pytest tests/integration/`
 4. Verify no test failures before marking complete
 5. Add new tests if coverage is missing
 
+**IMPORTANT**: Always chain venv activation with the command using `;` to ensure the correct Python environment is used.
+
 **For Frontend/Template Changes:**
-1. Start the Flask development server
+1. Start the Flask development server (`.\venv\Scripts\Activate.ps1; flask run` or `.\venv\Scripts\Activate.ps1; python run.py`)
 2. **For authenticated pages**: Login via external browser first (see test credentials below)
 3. Open the page in Simple Browser (shares session with external browser)
 4. **Take a screenshot** of the rendered page

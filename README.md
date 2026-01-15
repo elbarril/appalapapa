@@ -38,6 +38,7 @@
 - 📊 **Dashboard**: Filter and view sessions by status (all/pending/paid)
 - 🎠 **Session Cards Slider**: Navigate sessions with Bootstrap 5 Carousel cards
 - 📈 **Statistics API**: Get financial summaries and session counts
+- ⚡ **AJAX Operations**: Edit, delete, and toggle without page refresh
 
 ### Security & Privacy
 - 🔐 **Secure Authentication**: Password hashing with Werkzeug
@@ -148,6 +149,11 @@ appalapapa/
 │       ├── 404.html
 │       └── 500.html
 ├── static/                      # Static assets (CSS, JS)
+│   ├── css/
+│   │   └── bootstrap.min.css
+│   └── js/
+│       ├── bootstrap.bundle.min.js
+│       └── api.js              # JavaScript API client
 ├── .github/                     # GitHub configs
 │   ├── instructions/
 │   └── workflows/
@@ -416,10 +422,11 @@ DELETE /api/v1/patients/{id}      # Delete patient (soft)
 
 ```http
 GET /api/v1/patients/{id}/sessions  # List patient sessions
+GET /api/v1/sessions/{id}             # Get session details
 POST /api/v1/sessions               # Create session
 PUT /api/v1/sessions/{id}           # Update session
 DELETE /api/v1/sessions/{id}        # Delete session (soft)
-PATCH /api/v1/sessions/{id}/toggle  # Toggle payment status
+POST /api/v1/sessions/{id}/toggle   # Toggle payment status
 ```
 
 #### Statistics

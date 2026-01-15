@@ -250,13 +250,93 @@ templates/
 | `app/models/*.py` | SQLAlchemy models with mixins |
 | `app/services/*.py` | Business logic (auth, patient, session) |
 | `app/routes/*.py` | View blueprints |
+| `app/api/v1/resources.py` | REST API endpoints |
 | `app/validators/forms.py` | Flask-WTF form definitions |
 | `templates/base.html` | Base template with navigation |
 | `templates/auth/*.html` | Authentication templates (login, register) |
 | `templates/patients/*.html` | Patient management templates |
 | `templates/sessions/*.html` | Session management templates |
 | `templates/errors/*.html` | Error pages (403, 404, 500) |
+| `static/js/api.js` | JavaScript API client for AJAX operations |
 | `tests/conftest.py` | Pytest fixtures |
+| `tests/integration/test_api.py` | API endpoint tests |
+
+---
+
+## JavaScript API Client (`static/js/api.js`)
+
+The application uses a JavaScript API client for CRUD operations without page refresh.
+
+### Available Functions
+
+#### Patient Operations
+```javascript
+// Get a patient by ID
+const patient = await getPatient(patientId);
+
+// Update a patient
+const updated = await updatePatient(patientId, { name, notes });
+
+// Delete a patient (soft delete)
+await deletePatient(patientId);
+```
+
+#### Session Operations
+```javascript
+// Get a session by ID
+const session = await getSession(sessionId);
+
+// Update a session
+const updated = await updateSession(sessionId, { 
+    session_date, 
+    session_price, 
+    pending, 
+    notes 
+});
+
+// Delete a session (soft delete)
+await deleteSession(sessionId);
+
+// Toggle payment status
+const result = await toggleSessionPayment(sessionId);
+```
+
+#### UI Helpers
+```javascript
+// Show toast notification
+showToast(message, type);  // type: 'success', 'error', 'warning', 'info'
+
+// Format date for display
+const formatted = formatDisplayDate('2026-01-14');
+
+// Format price
+const price = formatPrice(150.00);
+```
+
+### Modal Functions (Used in list.html)
+```javascript
+// Open edit patient modal
+openEditPatientModal(patientId, patientName);
+
+// Open delete patient confirmation
+openDeletePatientModal(patientId, patientName);
+
+// Open edit session modal
+openEditSessionModal(sessionId, personId);
+
+// Open delete session confirmation
+openDeleteSessionModal(sessionId, sessionDate);
+
+// Toggle payment status
+togglePayment(sessionId);
+```
+
+### Adding to Templates
+```html
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+{% endblock extra_js %}
+```
 
 ---
 
@@ -274,34 +354,50 @@ templates/
 
 ## CLI Commands
 
-```bash
-# Database
-flask db init-db          # Initialize tables
-flask db seed             # Seed sample data
-flask db backup           # Backup database
+**IMPORTANT**: Always activate the virtual environment before running Flask commands.
+
+```powershell
+# Windows PowerShell - Always activate venv first, then run command
+.\venv\Scripts\Activate.ps1; flask db init-db          # Initialize tables
+.\venv\Scripts\Activate.ps1; flask db seed             # Seed sample data
+.\venv\Scripts\Activate.ps1; flask db backup           # Backup database
 
 # Users
-flask user create EMAIL   # Create new user
-flask user list           # List all users
-flask user set-role EMAIL ROLE
+.\venv\Scripts\Activate.ps1; flask user create EMAIL   # Create new user
+.\venv\Scripts\Activate.ps1; flask user list           # List all users
+.\venv\Scripts\Activate.ps1; flask user set-role EMAIL ROLE
+```
+
+```bash
+# macOS/Linux - Always activate venv first
+source venv/bin/activate && flask db init-db
+source venv/bin/activate && flask db seed
+# etc.
 ```
 
 ---
 
 ## Testing Commands
 
-```bash
-# Activate virtual environment first
-venv\Scripts\activate     # Windows
-source venv/bin/activate  # macOS/Linux
+**CRITICAL**: Always activate virtual environment BEFORE running pytest. Chain commands to avoid failures.
 
-# Run tests
-pytest                    # All tests
-pytest -v                 # Verbose
-pytest --cov=app          # With coverage
-pytest tests/unit/        # Unit tests only
-pytest tests/integration/ # Integration tests only
+```powershell
+# Windows PowerShell - Chain venv activation with pytest
+.\venv\Scripts\Activate.ps1; pytest                    # All tests
+.\venv\Scripts\Activate.ps1; pytest -v                 # Verbose
+.\venv\Scripts\Activate.ps1; pytest --cov=app          # With coverage
+.\venv\Scripts\Activate.ps1; pytest tests/unit/        # Unit tests only
+.\venv\Scripts\Activate.ps1; pytest tests/integration/ # Integration tests only
 ```
+
+```bash
+# macOS/Linux
+source venv/bin/activate && pytest                    # All tests
+source venv/bin/activate && pytest -v                 # Verbose
+source venv/bin/activate && pytest --cov=app          # With coverage
+```
+
+**Why chain commands?** Running `pytest` without activating venv first will fail because the dependencies are not available in the system Python.
 
 ---
 
@@ -318,16 +414,26 @@ To access authenticated pages for visual verification, use:
 | `test@example.com` | `test123` | admin | Created by `flask db-utils seed` |
 
 **Setup test user** (if not exists):
+```powershell
+# Windows
+.\venv\Scripts\Activate.ps1; flask db-utils seed
+```
 ```bash
-flask db-utils seed
+# macOS/Linux
+source venv/bin/activate && flask db-utils seed
 ```
 
 ### Screenshot Verification Workflow
 1. **Start the server** (if not running):
-   ```bash
-   flask run
+   ```powershell
+   # Windows PowerShell
+   .\venv\Scripts\Activate.ps1; flask run
    # or
-   python run.py
+   .\venv\Scripts\Activate.ps1; python run.py
+   ```
+   ```bash
+   # macOS/Linux
+   source venv/bin/activate && flask run
    ```
 
 2. **Login first** (for authenticated pages):
@@ -383,24 +489,29 @@ flask db-utils seed
 When modifying any backend file, **always run tests** to verify:
 
 ### Mandatory Testing Steps
-1. **Run full test suite**:
+1. **Run full test suite** (always activate venv first):
+   ```powershell
+   # Windows PowerShell - chain venv activation
+   .\venv\Scripts\Activate.ps1; pytest
+   ```
    ```bash
-   pytest
+   # macOS/Linux
+   source venv/bin/activate && pytest
    ```
 
 2. **Run specific test category** based on change:
-   ```bash
+   ```powershell
    # For model changes
-   pytest tests/unit/test_models.py -v
+   .\venv\Scripts\Activate.ps1; pytest tests/unit/test_models.py -v
    
    # For service changes
-   pytest tests/unit/test_services.py -v
+   .\venv\Scripts\Activate.ps1; pytest tests/unit/test_services.py -v
    
    # For route changes
-   pytest tests/integration/ -v
+   .\venv\Scripts\Activate.ps1; pytest tests/integration/ -v
    
    # For form/validator changes
-   pytest tests/unit/test_validators.py -v
+   .\venv\Scripts\Activate.ps1; pytest tests/unit/test_validators.py -v
    ```
 
 3. **Check for failures**: All tests must pass before marking complete
@@ -408,8 +519,8 @@ When modifying any backend file, **always run tests** to verify:
 4. **Add new tests**: If new functionality lacks test coverage, write tests
 
 5. **Run with coverage** (optional but recommended):
-   ```bash
-   pytest --cov=app --cov-report=term-missing
+   ```powershell
+   .\venv\Scripts\Activate.ps1; pytest --cov=app --cov-report=term-missing
    ```
 
 ### When to Run Tests
@@ -420,6 +531,25 @@ When modifying any backend file, **always run tests** to verify:
 - ✅ After modifying any file in `app/utils/`
 - ✅ After modifying any file in `app/middleware/`
 - ✅ After modifying any file in `app/api/`
+
+### Test File Organization
+| Component Modified | Test File |
+|--------------------|-----------|
+| API endpoints (`app/api/`) | `tests/integration/test_api.py` |
+| Patient routes | `tests/integration/test_patient_routes.py` |
+| Session routes | `tests/integration/test_session_routes.py` |
+| Auth routes | `tests/integration/test_auth_routes.py` |
+| Models | `tests/unit/test_models.py` |
+| Services | `tests/unit/test_services.py` |
+| Validators/Forms | `tests/unit/test_validators.py` |
+
+### When to Add New Tests
+- ✅ New API endpoint added → Add test in `test_api.py`
+- ✅ New route added → Add test in appropriate route test file
+- ✅ New service method → Add test in `test_services.py`
+- ✅ New model method → Add test in `test_models.py`
+- ✅ Bug fixed → Add regression test to prevent recurrence
+- ✅ Feature modified → Update existing tests to reflect changes
 
 ---
 

@@ -22,29 +22,31 @@
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
             {% for person, sessions in grouped_sessions.items() %}
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm" data-patient-id="{{ person[0] }}">
                         <!-- Patient header -->
                         <div class="card-header border-bottom">
                             <div class="d-flex justify-content-between align-items-center gap-2">
-                                <h5 class="mb-0 text-truncate flex-grow-1" title="{{ person[1]|title }}">
+                                <h5 class="mb-0 text-truncate flex-grow-1 patient-name" title="{{ person[1]|title }}">
                                     {{ person[1]|title }}
                                 </h5>
                                 <div class="btn-group btn-group-sm flex-shrink-0" role="group" aria-label="Acciones de paciente">
-                                    <a href="{{ url_for('patients.edit_person', person_id=person[0]) }}" 
+                                    <button type="button"
                                        class="btn btn-outline-secondary" 
                                        title="Editar paciente" 
-                                       aria-label="Editar paciente {{ person[1]|title }}">
+                                       aria-label="Editar paciente {{ person[1]|title }}"
+                                       onclick="openEditPatientModal({{ person[0] }}, '{{ person[1]|e }}')">
                                         <i class="bi bi-pencil" aria-hidden="true"></i>
                                         <span class="visually-hidden">Editar</span>
-                                    </a>
+                                    </button>
                                     {% if allow_delete %}
-                                        <a href="{{ url_for('patients.remove_person', person_id=person[0]) }}" 
+                                        <button type="button"
                                            class="btn btn-outline-danger" 
                                            title="Eliminar paciente" 
-                                           aria-label="Eliminar paciente {{ person[1]|title }}">
+                                           aria-label="Eliminar paciente {{ person[1]|title }}"
+                                           onclick="openDeletePatientModal({{ person[0] }}, '{{ person[1]|e }}')">
                                             <i class="bi bi-trash" aria-hidden="true"></i>
                                             <span class="visually-hidden">Eliminar</span>
-                                        </a>
+                                        </button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -74,57 +76,61 @@
                                     <div class="carousel-inner">
                                         {% for id, date, price, pending in sessions %}
                                         <div class="carousel-item {% if loop.first %}active{% endif %}">
-                                            <div class="card mx-auto">
+                                            <div class="card mx-auto" data-session-id="{{ id }}">
                                                 <div class="card-header d-flex justify-content-between align-items-center py-2">
                                                     <small class="text-body-secondary">Sesión {{ loop.index }}/{{ sessions|length }}</small>
                                                     {% if not pending %}
-                                                        <span class="badge bg-success">PAGADO</span>
+                                                        <span class="badge bg-success session-status">PAGADO</span>
                                                     {% else %}
-                                                        <span class="badge bg-danger">PENDIENTE</span>
+                                                        <span class="badge bg-danger session-status">PENDIENTE</span>
                                                     {% endif %}
                                                 </div>
                                                 <div class="card-body py-2">
-                                                    <p class="card-text mb-1">
+                                                    <p class="card-text mb-1 session-date">
                                                         <strong>Fecha:</strong> {{ date|title }}
                                                     </p>
-                                                    <p class="card-text mb-0">
+                                                    <p class="card-text mb-0 session-price">
                                                         <strong>Precio:</strong> 
                                                         {{ "%.2f"|format(price) if price is number else price }}
                                                     </p>
                                                 </div>
                                                 <div class="card-footer py-2">
                                                     <div class="btn-group btn-group-sm" role="group" aria-label="Acciones de sesión">
-                                                        <a href="{{ url_for('sessions.update_session', session_id=id, person_id=person[0]) }}" 
+                                                        <button type="button"
                                                            class="btn btn-outline-secondary"
                                                            title="Editar sesión"
-                                                           aria-label="Editar sesión del {{ date|title }}">
+                                                           aria-label="Editar sesión del {{ date|title }}"
+                                                           onclick="openEditSessionModal({{ id }}, {{ person[0] }})">
                                                             <i class="bi bi-pencil-square" aria-hidden="true"></i>
                                                             <span class="visually-hidden">Editar</span>
-                                                        </a>
+                                                        </button>
                                                         {% if pending %}
-                                                            <a href="{{ url_for('sessions.toggle_pending', session_id=id) }}" 
-                                                               class="btn btn-success"
+                                                            <button type="button"
+                                                               class="btn btn-success toggle-payment-btn"
                                                                title="Marcar como pagado"
-                                                               aria-label="Marcar sesión del {{ date|title }} como pagado">
+                                                               aria-label="Marcar sesión del {{ date|title }} como pagado"
+                                                               onclick="togglePayment({{ id }})">
                                                                 <i class="bi bi-check-circle" aria-hidden="true"></i>
                                                                 <span class="visually-hidden">Pagado</span>
-                                                            </a>
+                                                            </button>
                                                         {% else %}
-                                                            <a href="{{ url_for('sessions.toggle_pending', session_id=id) }}" 
-                                                               class="btn btn-outline-warning"
+                                                            <button type="button"
+                                                               class="btn btn-outline-warning toggle-payment-btn"
                                                                title="Marcar como pendiente"
-                                                               aria-label="Marcar sesión del {{ date|title }} como pendiente">
+                                                               aria-label="Marcar sesión del {{ date|title }} como pendiente"
+                                                               onclick="togglePayment({{ id }})">
                                                                 <i class="bi bi-clock-history" aria-hidden="true"></i>
                                                                 <span class="visually-hidden">Pendiente</span>
-                                                            </a>
+                                                            </button>
                                                             {% if allow_delete %}
-                                                                <a href="{{ url_for('sessions.remove_session', session_id=id) }}" 
-                                                                   class="btn btn-outline-danger"
+                                                                <button type="button"
+                                                                   class="btn btn-outline-danger delete-session-btn"
                                                                    title="Eliminar sesión"
-                                                                   aria-label="Eliminar sesión del {{ date|title }}">
+                                                                   aria-label="Eliminar sesión del {{ date|title }}"
+                                                                   onclick="openDeleteSessionModal({{ id }}, '{{ date|e }}')">
                                                                     <i class="bi bi-trash" aria-hidden="true"></i>
                                                                     <span class="visually-hidden">Eliminar</span>
-                                                                </a>
+                                                                </button>
                                                             {% endif %}
                                                         {% endif %}
                                                     </div>
@@ -170,4 +176,120 @@
             </div>
         {% endif %}
     </div>
+
+    <!-- Edit Patient Modal -->
+    <div class="modal fade" id="editPatientModal" tabindex="-1" aria-labelledby="editPatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editPatientModalLabel">Editar Paciente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <form id="editPatientForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editPatientId">
+                        <div class="mb-3">
+                            <label for="editPatientName" class="form-label">Nombre del Paciente</label>
+                            <input type="text" class="form-control" id="editPatientName" required 
+                                   placeholder="Nombre completo" maxlength="100">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPatientNotes" class="form-label">Notas (opcional)</label>
+                            <textarea class="form-control" id="editPatientNotes" rows="3" 
+                                      placeholder="Notas adicionales..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Patient Modal -->
+    <div class="modal fade" id="deletePatientModal" tabindex="-1" aria-labelledby="deletePatientModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePatientModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="deletePatientId">
+                    <p>¿Estás seguro de que deseas eliminar al paciente <strong id="deletePatientName"></strong>?</p>
+                    <p class="text-danger"><small>Esta acción eliminará también todas las sesiones asociadas.</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeletePatientBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Session Modal -->
+    <div class="modal fade" id="editSessionModal" tabindex="-1" aria-labelledby="editSessionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editSessionModalLabel">Editar Sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <form id="editSessionForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="editSessionId">
+                        <input type="hidden" id="editSessionPersonId">
+                        <div class="mb-3">
+                            <label for="editSessionDate" class="form-label">Fecha de la Sesión</label>
+                            <input type="date" class="form-control" id="editSessionDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSessionPrice" class="form-label">Precio de la Sesión ($)</label>
+                            <input type="number" class="form-control" id="editSessionPrice" required 
+                                   step="0.01" min="0.01" placeholder="0.00">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="editSessionPending">
+                            <label class="form-check-label" for="editSessionPending">Pago pendiente</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editSessionNotes" class="form-label">Notas (opcional)</label>
+                            <textarea class="form-control" id="editSessionNotes" rows="2" 
+                                      placeholder="Notas adicionales..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Session Modal -->
+    <div class="modal fade" id="deleteSessionModal" tabindex="-1" aria-labelledby="deleteSessionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteSessionModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="deleteSessionId">
+                    <p>¿Estás seguro de que deseas eliminar la sesión del <strong id="deleteSessionDate"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteSessionBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock main %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+{% endblock extra_js %}

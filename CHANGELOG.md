@@ -5,6 +5,55 @@ All notable changes to the Therapy Session Management Application will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-01-14
+
+### Added
+- **JavaScript API Client**: New `static/js/api.js` module for AJAX-based CRUD operations
+  - Patient operations: `getPatient()`, `updatePatient()`, `deletePatient()`
+  - Session operations: `getSession()`, `updateSession()`, `deleteSession()`, `toggleSessionPayment()`
+  - UI helpers: `showToast()`, `formatDisplayDate()`, `formatPrice()`
+  - Modal management functions for edit/delete operations
+  - Toast notifications for real-time user feedback
+
+- **REST API Enhancements**: Extended API v1 with new endpoints
+  - `GET /api/v1/sessions/{id}` - Get single session details
+  - `PUT /api/v1/patients/{id}` - Update patient via API
+  - `PUT /api/v1/sessions/{id}` - Update session via API
+
+- **API Integration Tests**: Comprehensive test coverage for all API endpoints
+  - New `tests/integration/test_api.py` with 30+ test cases
+  - Tests for patients API (list, get, create, update, delete)
+  - Tests for sessions API (list, get, create, update, delete, toggle)
+  - Tests for stats API and authentication requirements
+
+### Changed
+- **Dashboard Actions Without Page Refresh**: All patient and session actions now use JavaScript API
+  - Edit patient: Opens modal, saves via API, updates UI instantly
+  - Delete patient: Confirmation modal, deletes via API, removes card from UI
+  - Edit session: Opens modal with session data, saves via API, updates carousel
+  - Delete session: Confirmation modal, deletes via API, updates carousel
+  - Toggle payment: Instant status toggle via API with visual feedback
+  - Toast notifications replace flash messages for AJAX operations
+
+- **Template Structure**: Updated `templates/patients/list.html`
+  - Action buttons now use `onclick` handlers instead of `href` links
+  - Added Bootstrap modals for edit/delete operations (patients and sessions)
+  - Includes `api.js` script via `extra_js` block
+  - Data attributes (`data-patient-id`, `data-session-id`) for JS targeting
+
+### Documentation
+- **Testing Requirements**: Added mandatory testing documentation
+  - Test file organization mapping (which tests for which component)
+  - Requirements to add tests for new features/modifications
+  - Run `pytest` before marking any task complete
+  
+- **JavaScript API Documentation**: Added to project instructions
+  - Available functions and their usage
+  - Modal functions for UI interactions
+  - How to include in templates
+
+---
+
 ## [2.2.1] - 2026-01-14
 
 ### Fixed
