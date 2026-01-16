@@ -1,0 +1,105 @@
+{#
+  Button Component Macros
+  
+  Reusable button macros for forms and actions.
+  
+  Usage:
+    {% from 'macros/_buttons.html' import submit_button, cancel_button, button_group %}
+#}
+
+{#
+  Render a primary submit button
+  
+  @param text - Button text
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param full_width - Whether button should be full width (default: true)
+  @param size - Button size: 'sm', 'lg', or '' for default
+#}
+{% macro submit_button(text, icon=None, full_width=true, size='') %}
+<button type="submit" class="btn btn-primary {% if size %}btn-{{ size }}{% endif %} {% if full_width %}w-100{% endif %} py-2">
+    {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+    {{ text }}
+</button>
+{% endmacro %}
+
+{#
+  Render a cancel link styled as button
+  
+  @param url - URL to navigate to
+  @param text - Button text (default: 'Cancelar')
+  @param icon - Bootstrap icon class without 'bi-' prefix (default: 'x-lg')
+  @param full_width - Whether button should be full width (default: true)
+#}
+{% macro cancel_button(url, text='Cancelar', icon='x-lg', full_width=true) %}
+<a href="{{ url }}" class="btn btn-outline-secondary {% if full_width %}w-100{% endif %}">
+    <i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>
+    {{ text }}
+</a>
+{% endmacro %}
+
+{#
+  Render a button with icon
+  
+  @param type - Button type: 'button', 'submit', 'reset'
+  @param text - Button text
+  @param icon - Bootstrap icon class without 'bi-' prefix
+  @param variant - Bootstrap variant: 'primary', 'secondary', 'danger', 'success', etc.
+  @param outline - Whether to use outline style (default: false)
+  @param size - Button size: 'sm', 'lg', or '' for default
+  @param extra_attrs - Additional HTML attributes as dict
+#}
+{% macro icon_button(type='button', text='', icon=None, variant='secondary', outline=false, size='', extra_attrs={}) %}
+<button type="{{ type }}" 
+        class="btn btn-{% if outline %}outline-{% endif %}{{ variant }} {% if size %}btn-{{ size }}{% endif %}"
+        {% for attr, value in extra_attrs.items() %}{{ attr }}="{{ value }}"{% endfor %}>
+    {% if icon %}<i class="bi bi-{{ icon }} {% if text %}me-1{% endif %}" aria-hidden="true"></i>{% endif %}
+    {{ text }}
+</button>
+{% endmacro %}
+
+{#
+  Render a link styled as button
+  
+  @param url - URL to navigate to
+  @param text - Button text
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param variant - Bootstrap variant (default: 'primary')
+  @param outline - Whether to use outline style (default: false)
+  @param size - Button size: 'sm', 'lg', or '' for default
+#}
+{% macro link_button(url, text, icon=None, variant='primary', outline=false, size='') %}
+<a href="{{ url }}" class="btn btn-{% if outline %}outline-{% endif %}{{ variant }} {% if size %}btn-{{ size }}{% endif %}">
+    {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+    {{ text }}
+</a>
+{% endmacro %}
+
+{#
+  Render a form button group (submit + cancel)
+  
+  @param submit_text - Text for submit button
+  @param submit_icon - Icon for submit button
+  @param cancel_url - URL for cancel button
+  @param cancel_text - Text for cancel button (default: 'Cancelar')
+#}
+{% macro form_buttons(submit_text, submit_icon='check-lg', cancel_url=None, cancel_text='Cancelar') %}
+<div class="d-grid gap-2">
+    {{ submit_button(submit_text, icon=submit_icon) }}
+    {% if cancel_url %}
+        {{ cancel_button(cancel_url, text=cancel_text) }}
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a CTA (Call to Action) link for auth footers
+  
+  @param url - URL to navigate to
+  @param text - Link text (can include HTML for strong tags)
+  @param small - Whether to use smaller styling (default: false)
+#}
+{% macro cta_link(url, text, small=false) %}
+<a href="{{ url }}" class="btn btn-cta {% if small %}small{% endif %}">
+    {{ text|safe }}
+</a>
+{% endmacro %}

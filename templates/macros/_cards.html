@@ -1,0 +1,258 @@
+{#
+  Card Component Macros
+  
+  Reusable card macros for patient cards, session cards, and auth containers.
+  
+  Usage:
+    {% from 'macros/_cards.html' import patient_card, session_card %}
+    {% from 'macros/_cards.html' import auth_card %}
+#}
+
+{#
+  Render a session card inside a carousel item
+  
+  @param session_id - Session ID
+  @param patient_id - Parent patient ID
+  @param date - Formatted date string
+  @param price - Formatted price string
+  @param pending - Whether payment is pending
+#}
+{% macro session_card(session_id, patient_id, date, price, pending) %}
+<div class="card mx-auto session-card" data-session-id="{{ session_id }}">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <small class="text-body-secondary session-date">{{ date }}</small>
+        {% if pending %}
+            <span class="badge text-bg-warning session-status">PENDIENTE</span>
+        {% else %}
+            <span class="badge text-bg-success session-status">PAGADO</span>
+        {% endif %}
+    </div>
+
+    <div class="card-body py-2">
+        <p class="card-text mb-0 session-price">{{ price }}</p>
+    </div>
+
+    <div class="card-footer py-2">
+        {{ _session_actions(session_id, patient_id, date, pending) }}
+    </div>
+</div>
+{% endmacro %}
+
+{# Private: Session action buttons #}
+{% macro _session_actions(session_id, patient_id, date, pending) %}
+<div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de sesión">
+    <button type="button"
+            class="btn btn-outline-secondary flex-fill"
+            title="Editar sesión"
+            aria-label="Editar sesión del {{ date|title }}"
+            onclick="openEditSessionModal({{ session_id }}, {{ patient_id }})">
+        <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
+    </button>
+    <button type="button"
+            class="btn btn-outline-danger flex-fill delete-session-btn"
+            title="Eliminar sesión"
+            aria-label="Eliminar sesión del {{ date|title }}"
+            onclick="openDeleteSessionModal({{ session_id }}, '{{ date|e }}')">
+        <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+    </button>
+    {% if pending %}
+    <button type="button"
+            class="btn btn-success flex-fill toggle-payment-btn"
+            title="Marcar como pagado"
+            aria-label="Marcar sesión del {{ date|title }} como pagado"
+            onclick="togglePayment({{ session_id }})">
+        <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Pagado
+    </button>
+    {% else %}
+    <button type="button"
+            class="btn btn-outline-secondary flex-fill toggle-payment-btn"
+            title="Marcar como pendiente"
+            aria-label="Marcar sesión del {{ date|title }} como pendiente"
+            onclick="togglePayment({{ session_id }})">
+        <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Pendiente
+    </button>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render sessions carousel for a patient
+  
+  @param patient_id - Patient ID (for carousel ID)
+  @param patient_name - Patient name (for aria-label)
+  @param sessions - List of sessions [(id, date, price, pending), ...]
+#}
+{% macro sessions_carousel(patient_id, patient_name, sessions) %}
+<div id="carousel-{{ patient_id }}" 
+     class="carousel slide" 
+     data-bs-ride="false" 
+     data-bs-touch="true"
+     role="region"
+     aria-roledescription="carrusel"
+     aria-label="Sesiones de {{ patient_name|title }}"
+     tabindex="0">
+    
+    <!-- Carousel slides -->
+    <div class="carousel-inner">
+        {% for id, date, price, pending in sessions %}
+        <div class="carousel-item {% if loop.first %}active{% endif %}" 
+             data-session-pending="{{ 'true' if pending else 'false' }}">
+            {{ session_card(id, patient_id, date, price, pending) }}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Carousel indicators at bottom -->
+    <div class="carousel-indicators-bottom {% if sessions|length <= 1 %}single-slide{% endif %}">
+        {% for session in sessions %}
+        <button type="button" 
+                data-bs-target="#carousel-{{ patient_id }}" 
+                data-bs-slide-to="{{ loop.index0 }}" 
+                {% if loop.first %}class="active" aria-current="true"{% endif %}
+                aria-label="Sesión {{ loop.index }}"
+                {% if sessions|length <= 1 %}disabled{% endif %}>
+        </button>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render patient header with edit/delete buttons
+  
+  @param patient_id - Patient ID
+  @param patient_name - Patient name
+  @param allow_delete - Whether to show delete button
+#}
+{% macro _patient_header(patient_id, patient_name, allow_delete) %}
+<div class="card-header">
+    <h5 class="mb-2 patient-name" title="{{ patient_name|title }}">
+        <i class="bi bi-person-fill me-1 text-mlc-teal" aria-hidden="true"></i>
+        {{ patient_name|title }}
+    </h5>
+    <div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de paciente">
+        <button type="button"
+                class="btn btn-outline-secondary flex-fill" 
+                title="Editar paciente" 
+                aria-label="Editar paciente {{ patient_name|title }}"
+                onclick="openEditPatientModal({{ patient_id }}, '{{ patient_name|e }}')">
+            <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
+        </button>
+        {% if allow_delete %}
+        <button type="button"
+                class="btn btn-outline-danger flex-fill" 
+                title="Eliminar paciente" 
+                aria-label="Eliminar paciente {{ patient_name|title }}"
+                onclick="openDeletePatientModal({{ patient_id }}, '{{ patient_name|e }}')">
+            <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render a complete patient card with header and sessions carousel
+  
+  @param patient_id - Patient ID
+  @param patient_name - Patient name
+  @param sessions - List of sessions [(id, date, price, pending), ...]
+  @param allow_delete - Whether to show delete button (default: true)
+  @param animation_delay - CSS animation delay in seconds (default: 0)
+#}
+{% macro patient_card(patient_id, patient_name, sessions, allow_delete=true, animation_delay=0) %}
+<div class="col">
+    <div class="card h-100 patient-card fade-in" 
+         data-patient-id="{{ patient_id }}" 
+         style="animation-delay: {{ animation_delay }}s">
+        
+        {{ _patient_header(patient_id, patient_name, allow_delete) }}
+        
+        <div class="card-body p-2">
+            {% if sessions %}
+                {{ sessions_carousel(patient_id, patient_name, sessions) }}
+            {% else %}
+                <p class="text-body-secondary text-center my-3">
+                    <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
+                    No hay sesiones registradas.
+                </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render an auth card container (for login, register, etc.)
+  Wraps caller content in standard auth styling.
+  
+  @param icon - Bootstrap icon class without 'bi-' prefix
+  @param title - Card title
+  @param subtitle - Card subtitle/description
+  @param max_width - Maximum width (default: '420px')
+  
+  Usage:
+    {% call auth_card('heart-pulse', 'Bienvenido', 'Ingresa a tu cuenta') %}
+      <form>...</form>
+    {% endcall %}
+#}
+{% macro auth_card(icon, title, subtitle, max_width='420px') %}
+<div class="auth-container">
+    <div class="auth-card card fade-in" style="max-width: {{ max_width }};">
+        <div class="auth-header">
+            <i class="bi bi-{{ icon }} display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
+            <h2>{{ title }}</h2>
+            <p>{{ subtitle }}</p>
+        </div>
+        <div class="auth-body">
+            {{ caller() }}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render auth card footer with links
+  
+  @param links - List of link tuples [(url, text, is_strong), ...]
+#}
+{% macro auth_footer(links) %}
+<div class="auth-footer">
+    {% for url, text, is_strong in links %}
+        {% if is_strong %}
+            <a href="{{ url }}" class="btn btn-cta">
+                {{ text|safe }}
+            </a>
+        {% else %}
+            <a href="{{ url }}" class="btn btn-cta small">
+                {{ text|safe }}
+            </a>
+        {% endif %}
+        {% if not loop.last %}<br>{% endif %}
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{#
+  Render an empty state message when no data is available
+  
+  @param icon - Bootstrap icon class without 'bi-' prefix
+  @param title - Title text
+  @param message - Description message
+  @param action_url - URL for action button (optional)
+  @param action_text - Text for action button (optional)
+  @param action_icon - Icon for action button (optional)
+#}
+{% macro empty_state(icon, title, message, action_url=None, action_text=None, action_icon=None) %}
+<div class="text-center my-5 py-5">
+    <i class="bi bi-{{ icon }} display-1 text-body-secondary mb-3" aria-hidden="true"></i>
+    <h3 class="text-body-secondary">{{ title }}</h3>
+    <p class="text-body-secondary mb-4">{{ message }}</p>
+    {% if action_url and action_text %}
+    <a href="{{ action_url }}" class="btn btn-primary">
+        {% if action_icon %}<i class="bi bi-{{ action_icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ action_text }}
+    </a>
+    {% endif %}
+</div>
+{% endmacro %}

@@ -1,0 +1,67 @@
+{#
+  Navigation Bar Partial
+  
+  Contains the main navigation bar for the application.
+  Extracted from base.html for modularity.
+#}
+<nav class="navbar navbar-expand-lg shadow-sm" role="navigation" aria-label="Navegación principal">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.index') }}">
+            <i class="bi bi-heart-pulse me-2" aria-hidden="true"></i>
+            <span>Terapia</span>
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
+                aria-expanded="false" aria-label="Alternar navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <div class="navbar-nav align-items-center">
+                {% if current_user.is_authenticated %}
+                    <span class="navbar-text me-3">
+                        <i class="bi bi-person-circle me-1" aria-hidden="true"></i>
+                        <strong>{{ current_user.email.split('@')[0] }}</strong>
+                    </span>
+
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-plus-circle me-1" aria-hidden="true"></i>
+                            Añadir
+                        </a>
+
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <a class="dropdown-item" href="{{ url_for('patients.add_person') }}">
+                                <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Paciente
+                            </a>
+                            <a class="dropdown-item" href="{{ url_for('sessions.add_session') }}">
+                                <i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Sesión
+                            </a>
+                        </div>
+                    </div>
+
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                        <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>Salir
+                    </a>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">
+                        <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>Iniciar sesión
+                    </a>
+                    <a class="nav-link" href="{{ url_for('auth.register') }}">
+                        <i class="bi bi-person-add me-1" aria-hidden="true"></i>Registrarse
+                    </a>
+                {% endif %}
+                
+                <!-- Theme Switcher -->
+                <button type="button" class="theme-switcher ms-2" 
+                        aria-label="Cambiar tema" id="theme-switcher-button"
+                        title="Cambiar tema">
+                    <i class="bi bi-sun-fill theme-icon-light" aria-hidden="true"></i>
+                    <i class="bi bi-moon-stars-fill theme-icon-dark" aria-hidden="true"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>

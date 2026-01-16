@@ -1,0 +1,47 @@
+/*
+ * Error Pages
+ * 403, 404, 500 error page styling
+ */
+
+/* ===========================================
+   ERROR PAGE LAYOUT
+   =========================================== */
+.error-page {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-xxl);
+}
+
+/* ===========================================
+   ERROR CODE
+   =========================================== */
+.error-code {
+    font-size: 6rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--mlc-teal);
+    line-height: 1;
+    margin-bottom: var(--spacing-md);
+}
+
+[data-bs-theme="dark"] .error-code {
+    color: #5a9a97;
+}
+
+@media (max-width: 768px) {
+    .error-code {
+        font-size: 4rem;
+    }
+}
+
+/* ===========================================
+   ERROR MESSAGE
+   =========================================== */
+.error-message {
+    font-size: var(--font-size-2xl); /* 24px */
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-xl);
+}

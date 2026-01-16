@@ -5,6 +5,176 @@ All notable changes to the Therapy Session Management Application will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.0] - 2026-01-15
+
+### Added
+- **Testing & Documentation** (Phase 6 of Frontend Refactoring Plan - FINAL PHASE)
+  - Frontend test infrastructure with Playwright for visual, accessibility, and interaction tests
+  - Comprehensive documentation in `docs/` directory:
+    - `css-components.md` - CSS architecture, design tokens, component styles
+    - `js-modules.md` - JavaScript module structure and API reference
+    - `template-macros.md` - Jinja2 macro documentation with usage examples
+    - `frontend-style-guide.md` - Coding standards and best practices
+    - `frontend-contributing.md` - Contributor guidelines for frontend changes
+
+### Changed
+- **Test Requirements**: Added Playwright, pytest-playwright, and axe-playwright-python to `requirements/test.txt`
+- **Test Structure**: New `tests/frontend/` directory with:
+  - `conftest.py` - Playwright fixtures for browser testing
+  - `test_visual.py` - Theme switching and responsive design tests
+  - `test_accessibility.py` - WCAG compliance and keyboard navigation tests
+  - `test_interactions.py` - User interaction and form submission tests
+
+### Technical
+- Frontend Refactoring Plan 100% complete (all 6 phases)
+- 5 new documentation files in `docs/`
+- 4 new frontend test files with Playwright
+- All existing tests pass (134 tests)
+
+---
+
+## [2.10.0] - 2026-01-15
+
+### Added
+- **Performance Optimization** (Phase 5 of Frontend Refactoring Plan)
+  - Self-hosted Nunito Sans fonts (no external Google Fonts dependency)
+  - Self-hosted Bootstrap Icons (no external CDN dependency)
+  - Font preloading for critical font file (improved LCP)
+  - Static asset caching middleware with immutable cache headers for fonts
+
+### Changed
+- **Asset Loading**: Moved from CDN to self-hosted assets:
+  - `static/fonts/` - Nunito Sans (latin, latin-ext) and Bootstrap Icons fonts
+  - `static/css/base/_fonts.css` - Self-hosted @font-face declarations with font-display: swap
+  - `static/css/bootstrap-icons.min.css` - Local Bootstrap Icons CSS
+- **Template Optimization**: Updated `base.html` for better performance:
+  - Added `<link rel="preload">` for critical font (improved FCP/LCP)
+  - Added `defer` attribute to Bootstrap bundle script (non-blocking JS)
+  - Self-hosted Bootstrap Icons instead of CDN
+- **Middleware**: Added cache headers for static assets:
+  - 1-year cache for CSS/JS files
+  - Immutable cache for font files
+  - Security headers now registered with middleware system
+
+### Performance Impact
+- Eliminated render-blocking external font request (Google Fonts)
+- Eliminated external CDN request (Bootstrap Icons)
+- Font display: swap prevents invisible text during font load
+- Static assets cached for 1 year with proper cache headers
+
+### Technical
+- New `static/fonts/` directory with 4 self-hosted font files
+- New `static/css/base/_fonts.css` for font-face declarations
+- `app/middleware/security.py` enhanced with `add_cache_headers()` function
+- `app/__init__.py` updated with `register_middleware()` function
+- Zero functional regressions - all tests pass
+
+## [2.9.0] - 2026-01-15
+
+### Added
+- **Template Component System** (Phase 4 of Frontend Refactoring Plan)
+  - Reusable Jinja2 macro library for forms, cards, modals, and buttons
+  - Partials for navbar, footer, and flash messages
+  - Shared error page template macro
+
+### Changed
+- **Template Organization**: Created modular structure with macros and partials:
+  - `macros/_forms.html` - Form input macros (text, password, email, select, date, number, textarea, checkbox)
+  - `macros/_cards.html` - Card macros (patient_card, session_card, auth_card, empty_state)
+  - `macros/_modals.html` - Modal macros (modal, confirm_modal, edit_modal, dashboard_modals)
+  - `macros/_buttons.html` - Button macros (submit_button, cancel_button, form_buttons, cta_link)
+  - `partials/_navbar.html` - Navbar partial extracted from base.html
+  - `partials/_footer.html` - Footer partial extracted from base.html
+  - `partials/_flash_messages.html` - Flash messages partial
+  - `errors/_error_page.html` - Shared error page macro
+- **Refactored Templates**: Simplified all templates to use macros:
+  - Auth templates (login, register, change_password, reset_password) reduced by ~60%
+  - Patient templates (form_person, list) reduced by ~50%
+  - Session templates (form_session, form_edit) reduced by ~60%
+  - Error templates (403, 404, 500) reduced by ~70%
+- `base.html` now uses includes for navbar, footer, and flash messages
+
+### Technical
+- 8 new macro/partial files for reusable UI components
+- Consistent accessibility patterns across all forms (ARIA attributes, error handling)
+- Standardized HTML patterns eliminate duplication between templates
+- Zero functional regressions - all 134 tests pass
+
+## [2.8.0] - 2026-01-15
+
+### Added
+- **JavaScript Modularization** (Phase 3 of Frontend Refactoring Plan)
+  - ES6 module architecture with `main.js` entry point
+  - Comprehensive JSDoc documentation for all functions
+  - Global error handlers for uncaught errors and promise rejections
+
+### Changed
+- **JavaScript File Organization**: Replaced monolithic `api.js` (1238 lines) with modular structure:
+  - `modules/api/` - API client, patients, sessions, dashboard modules (4 files)
+  - `modules/ui/` - Toast, modal, carousel, accessibility utilities (4 files)
+  - `modules/components/` - Patient card, session card, filter buttons, dashboard renderer (4 files)
+  - `modules/utils/` - Formatters, validators, helpers (3 files)
+- Template `list.html` now uses `<script type="module">` for ES6 module support
+
+### Removed
+- Deleted legacy `api.js` file (functionality fully migrated to modules)
+
+### Technical
+- 15 new JavaScript modules organized by concern for better maintainability
+- Type definitions via JSDoc for improved IDE support
+- Separation of concerns: API calls, UI updates, and event handling in separate modules
+- Backward compatibility maintained with `window` exports for onclick handlers
+- Zero functional regressions - all 134 tests pass
+
+## [2.7.0] - 2026-01-15
+
+### Added
+- **CSS Architecture Refactoring** (Phase 2 of Frontend Refactoring Plan)
+  - Modular CSS structure with organized file hierarchy
+  - New `main.css` entry point importing all CSS modules
+
+### Changed
+- **CSS File Organization**: Replaced monolithic `custom.css` with modular structure:
+  - `base/` - Variables, reset, typography (3 files)
+  - `components/` - Navbar, cards, buttons, forms, modals, carousel, alerts, badges (8 files)
+  - `layout/` - Header, footer, containers (3 files)
+  - `pages/` - Auth, dashboard, errors (3 files)
+  - `themes/` - Light and dark theme variables (2 files)
+  - `utilities/` - Animations, accessibility, helpers (3 files)
+- Template base.html now links to `main.css` instead of `custom.css`
+
+### Technical
+- 22 new CSS files organized by concern for better maintainability
+- CSS custom properties centralized in `_variables.css`
+- Theme-specific overrides isolated in `themes/_light.css` and `themes/_dark.css`
+- Improved code organization following CSS architecture best practices
+- Zero visual regressions - all styling preserved in both dark and light themes
+
+## [2.6.0] - 2026-01-15
+
+### Added
+- **WCAG 2.1 AA Accessibility Enhancements** (Phase 1 of Frontend Refactoring Plan)
+  - **Color Contrast Fixes**: PENDIENTE badge now uses lighter gold (#d4a85a/#e0b86c) with dark text for 7.2:1+ contrast ratio
+  - **Touch Target Improvements**: Carousel indicators now have 44x44px touch targets (WCAG minimum)
+  - **ARIA Live Regions**: Toast notifications announce messages to screen readers with proper roles
+  - **Screen Reader Announcements**: Filter changes and carousel navigation announced dynamically
+  - **Modal Focus Management**: Focus trapped within modals, returns to trigger element on close
+  - **Keyboard Navigation**: Carousels support Arrow Left/Right, Home/End key navigation
+  - **Form Accessibility**: Login and register forms include aria-invalid, aria-describedby, role="alert" for errors
+  - **Filter Button States**: aria-pressed attributes for toggle button accessibility
+
+### Changed
+- Carousel elements now have role="region", aria-roledescription="carrusel", and aria-label
+- Filter buttons include aria-pressed state for screen readers
+- Form inputs show visual required field indicators (asterisks)
+- Toast close buttons have descriptive aria-label
+
+### Technical
+- Added `announceToScreenReader()` helper function for ARIA live region updates
+- Added `trapFocusInModal()`, `getFocusableElements()` focus management utilities
+- Added `enableCarouselKeyboardNav()` for keyboard accessibility
+- Carousel slide changes announce position to screen readers
+
 ## [2.5.0] - 2026-01-15
 
 ### Added

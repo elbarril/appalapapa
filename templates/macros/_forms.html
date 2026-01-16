@@ -1,0 +1,292 @@
+{#
+  Form Component Macros
+  
+  Reusable form input macros with accessibility support and error handling.
+  All macros support WTForms field objects.
+  
+  Usage:
+    {% from 'macros/_forms.html' import text_input, password_input, select_input %}
+#}
+
+{#
+  Render a text input field with label and error handling
+  
+  @param field - WTForms field object
+  @param label - Label text (optional, uses field.label if not provided)
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param placeholder - Placeholder text (optional)
+  @param autocomplete - Autocomplete attribute (optional)
+  @param extra_classes - Additional CSS classes (optional)
+  @param required - Whether field is required (optional, default false)
+  @param maxlength - Maximum character length (optional)
+#}
+{% macro text_input(field, label=None, icon=None, placeholder='', autocomplete=None, extra_classes='', required=false, maxlength=None) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-control " ~ extra_classes ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        placeholder=placeholder,
+        autocomplete=autocomplete,
+        maxlength=maxlength,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a password input field with lock icon
+  
+  @param field - WTForms field object
+  @param label - Label text (optional)
+  @param autocomplete - Autocomplete attribute (default: 'current-password')
+  @param required - Whether field is required (optional, default false)
+  @param help_text - Help text to display below input (optional)
+#}
+{% macro password_input(field, label=None, autocomplete='current-password', required=false, help_text=None) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        <i class="bi bi-lock me-1" aria-hidden="true"></i>
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {% set describedby = [] %}
+    {% if help_text %}{% set _ = describedby.append(field.id ~ '-help') %}{% endif %}
+    {% if field.errors %}{% set _ = describedby.append(field.id ~ '-error') %}{% endif %}
+    {{ field(
+        class="form-control" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        autocomplete=autocomplete,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': describedby|join(' ') if describedby else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+    {% if help_text %}
+        <small id="{{ field.id }}-help" class="form-text text-body-secondary">{{ help_text }}</small>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a confirm password input field
+  
+  @param field - WTForms field object
+  @param label - Label text (optional)
+  @param autocomplete - Autocomplete attribute (default: 'new-password')
+  @param required - Whether field is required (optional, default false)
+#}
+{% macro confirm_password_input(field, label=None, autocomplete='new-password', required=false) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        <i class="bi bi-lock-fill me-1" aria-hidden="true"></i>
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-control" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        autocomplete=autocomplete,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a select dropdown
+  
+  @param field - WTForms SelectField
+  @param label - Label text (optional)
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param required - Whether field is required (optional, default false)
+#}
+{% macro select_input(field, label=None, icon=None, required=false) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-select" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a textarea
+  
+  @param field - WTForms TextAreaField
+  @param label - Label text (optional)
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param rows - Number of rows (default: 3)
+  @param placeholder - Placeholder text (optional)
+  @param required - Whether field is required (optional, default false)
+#}
+{% macro textarea_input(field, label=None, icon=None, rows=3, placeholder='', required=false) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-control" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        rows=rows,
+        placeholder=placeholder,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a checkbox
+  
+  @param field - WTForms BooleanField
+  @param label - Label text (optional)
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+#}
+{% macro checkbox_input(field, label=None, icon=None) %}
+<div class="mb-3 form-check">
+    {{ field(class="form-check-input", id=field.id) }}
+    <label class="form-check-label" for="{{ field.id }}">
+        {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ label or field.label.text }}
+    </label>
+</div>
+{% endmacro %}
+
+{#
+  Render a date input
+  
+  @param field - WTForms DateField
+  @param label - Label text (optional)
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param required - Whether field is required (optional, default false)
+#}
+{% macro date_input(field, label=None, icon=None, required=false) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-control" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render a number input
+  
+  @param field - WTForms DecimalField or IntegerField
+  @param label - Label text (optional)
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param step - Step increment (default: '0.01')
+  @param min - Minimum value (default: '0')
+  @param required - Whether field is required (optional, default false)
+#}
+{% macro number_input(field, label=None, icon=None, step='0.01', min='0', required=false) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        {% if icon %}<i class="bi bi-{{ icon }} me-1" aria-hidden="true"></i>{% endif %}
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-control" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        step=step,
+        min=min,
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{#
+  Render email input field with envelope icon
+  
+  @param field - WTForms field object
+  @param label - Label text (optional)
+  @param placeholder - Placeholder text (optional, default: 'tu@email.com')
+  @param required - Whether field is required (optional, default false)
+#}
+{% macro email_input(field, label=None, placeholder='tu@email.com', required=false) %}
+<div class="mb-3">
+    <label for="{{ field.id }}" class="form-label">
+        <i class="bi bi-envelope me-1" aria-hidden="true"></i>
+        {{ label or field.label.text }}
+        {% if required %}<span class="text-danger" aria-hidden="true">*</span>{% endif %}
+    </label>
+    {{ field(
+        class="form-control" ~ (" is-invalid" if field.errors else ""),
+        id=field.id,
+        placeholder=placeholder,
+        autocomplete='email',
+        **{'aria-required': 'true' if required else None,
+           'aria-invalid': 'true' if field.errors else 'false',
+           'aria-describedby': field.id ~ '-error' if field.errors else None}
+    ) }}
+    {% if field.errors %}
+        <div id="{{ field.id }}-error" class="invalid-feedback d-block" role="alert">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endmacro %}

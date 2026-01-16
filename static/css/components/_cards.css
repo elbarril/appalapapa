@@ -1,0 +1,138 @@
+/*
+ * Cards Component
+ * Patient cards and session cards with hover effects
+ */
+
+/* ===========================================
+   BASE CARD
+   =========================================== */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-normal);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.card-header {
+    background-color: var(--card-header-bg);
+    border-bottom: 1px solid var(--card-border);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.card-body {
+    padding: var(--spacing-lg);
+}
+
+.card-footer {
+    background-color: var(--card-header-bg);
+    border-top: 1px solid var(--card-border);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+/* ===========================================
+   PATIENT CARD
+   =========================================== */
+.patient-card {
+    background-color: var(--card-bg);
+    border-color: var(--card-border);
+    transition: var(--transition-normal);
+    overflow: hidden;
+}
+
+.patient-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Patient card header */
+.patient-card .card-header {
+    padding: var(--spacing-md);
+}
+
+.patient-card .card-header .d-flex {
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+/* Patient name - prominent display */
+.patient-card .patient-name {
+    white-space: normal;
+    word-wrap: break-word;
+    overflow: visible;
+    text-overflow: unset;
+    min-width: 100%;
+    flex-basis: 100%;
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-lg); /* 18px - prominent patient names */
+    margin-bottom: var(--spacing-xs);
+}
+
+.patient-card .btn-group {
+    width: 100%;
+    justify-content: flex-start;
+}
+
+/* Patient action buttons - accessible size */
+.patient-card > .card-header .btn-group .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs); /* 14px - minimum accessible */
+}
+
+/* ===========================================
+   SESSION CARD
+   =========================================== */
+.session-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+}
+
+.session-card .card-header {
+    background-color: var(--bs-secondary-bg);
+    border-bottom: 1px solid var(--card-border);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.session-card .card-body {
+    padding: var(--spacing-sm) var(--spacing-md);
+    flex-grow: 1;
+}
+
+/* Session price - prominent display */
+.session-card .session-price {
+    font-size: var(--font-size-xl); /* 20px - important financial info */
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+}
+
+/* Session date - accessible but secondary */
+.session-card .session-date {
+    font-size: var(--font-size-xs); /* 14px - minimum accessible */
+}
+
+.session-card .card-footer {
+    background-color: transparent;
+    border-top: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-top: auto;
+}
+
+/* Session action buttons */
+.session-card .btn-group {
+    display: flex;
+}
+
+.session-card .btn-group .btn {
+    flex: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: var(--font-size-xs); /* 14px - minimum accessible */
+    white-space: nowrap;
+}

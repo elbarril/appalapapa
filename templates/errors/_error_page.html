@@ -1,0 +1,58 @@
+{#
+  Shared Error Page Template
+  
+  A macro-based template for error pages (403, 404, 500, etc.)
+  
+  Usage in error templates:
+    {% extends "base.html" %}
+    {% from 'errors/_error_page.html' import error_page %}
+    
+    {% block title %}Page Not Found - Terapia{% endblock %}
+    
+    {% block main %}
+      {{ error_page(
+          code='404',
+          icon='search',
+          icon_color='text-warning',
+          title='Página No Encontrada',
+          message='La página que buscas no existe o ha sido movida.'
+      ) }}
+    {% endblock %}
+#}
+
+{#
+  Render an error page
+  
+  @param code - HTTP error code (e.g., '404', '500')
+  @param icon - Bootstrap icon class without 'bi-' prefix
+  @param icon_color - Icon color class (e.g., 'text-warning', 'text-danger')
+  @param title - Error title
+  @param message - Error description
+  @param show_retry - Whether to show retry button (default: false)
+  @param show_home - Whether to show home button (default: true)
+#}
+{% macro error_page(code, icon, icon_color, title, message, show_retry=false, show_home=true) %}
+<div class="error-page fade-in">
+    <i class="bi bi-{{ icon }} display-1 {{ icon_color }} mb-4" aria-hidden="true"></i>
+    <div class="error-code">{{ code }}</div>
+    <h2 class="h3 mb-3">{{ title }}</h2>
+    <p class="error-message">{{ message }}</p>
+    
+    {% if show_retry or show_home %}
+    <div class="d-flex gap-3 justify-content-center flex-wrap">
+        {% if show_home %}
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-{% if show_retry %}4{% else %}5{% endif %}">
+            <i class="bi bi-house me-2" aria-hidden="true"></i>
+            Volver al Inicio
+        </a>
+        {% endif %}
+        {% if show_retry %}
+        <button onclick="location.reload()" class="btn btn-outline-secondary btn-lg px-4">
+            <i class="bi bi-arrow-clockwise me-2" aria-hidden="true"></i>
+            Reintentar
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}

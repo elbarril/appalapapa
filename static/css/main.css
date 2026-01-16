@@ -1,0 +1,71 @@
+/*
+ * Main CSS Entry Point
+ * Therapy Session Management App
+ * 
+ * Design: Warm teal, beige, cream (MLC-inspired)
+ * Typography: Nunito Sans (self-hosted)
+ * Framework: Bootstrap 5
+ * 
+ * This file imports all modular CSS files in the correct order.
+ * For best performance in production, consider using a CSS bundler.
+ * 
+ * Performance Optimizations (v2.10.0):
+ * - Self-hosted fonts (no external Google Fonts)
+ * - Self-hosted Bootstrap Icons
+ * - font-display: swap for better LCP
+ */
+
+/* ===========================================
+   0. SELF-HOSTED FONTS (must be first)
+   =========================================== */
+@import url('./base/_fonts.css');
+
+/* ===========================================
+   1. VARIABLES (must be before other files)
+   =========================================== */
+@import url('./base/_variables.css');
+
+/* ===========================================
+   2. THEMES (define CSS custom properties)
+   =========================================== */
+@import url('./themes/_light.css');
+@import url('./themes/_dark.css');
+
+/* ===========================================
+   3. BASE STYLES
+   =========================================== */
+@import url('./base/_reset.css');
+@import url('./base/_typography.css');
+
+/* ===========================================
+   4. LAYOUT
+   =========================================== */
+@import url('./layout/_header.css');
+@import url('./layout/_footer.css');
+@import url('./layout/_containers.css');
+
+/* ===========================================
+   5. COMPONENTS (alphabetical)
+   =========================================== */
+@import url('./components/_alerts.css');
+@import url('./components/_badges.css');
+@import url('./components/_buttons.css');
+@import url('./components/_cards.css');
+@import url('./components/_carousel.css');
+@import url('./components/_forms.css');
+@import url('./components/_modals.css');
+@import url('./components/_navbar.css');
+
+/* ===========================================
+   6. PAGES
+   =========================================== */
+@import url('./pages/_auth.css');
+@import url('./pages/_dashboard.css');
+@import url('./pages/_errors.css');
+
+/* ===========================================
+   7. UTILITIES (last for override capability)
+   =========================================== */
+@import url('./utilities/_accessibility.css');
+@import url('./utilities/_animations.css');
+@import url('./utilities/_helpers.css');

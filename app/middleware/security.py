@@ -1,7 +1,7 @@
 """
 Security middleware.
 
-Provides security headers and CORS configuration.
+Provides security headers, CORS configuration, and static asset caching.
 """
 
 from functools import wraps
@@ -29,6 +29,27 @@ def add_security_headers(response):
 
     # Content Security Policy (customize as needed)
     # response.headers['Content-Security-Policy'] = "default-src 'self'"
+
+    return response
+
+
+def add_cache_headers(response):
+    """
+    Add cache control headers for static assets.
+
+    Call this in app factory: app.after_request(add_cache_headers)
+
+    Performance optimization:
+    - Static assets (fonts, css, js) cached for 1 year
+    - HTML pages are not cached
+    """
+    if request.path.startswith('/static/'):
+        # Cache static assets for 1 year (immutable when versioned)
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+
+        # Font files get immutable directive (they don't change)
+        if '/fonts/' in request.path:
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
 
     return response
 

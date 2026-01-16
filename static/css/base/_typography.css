@@ -1,0 +1,70 @@
+/*
+ * Typography Styles
+ * WCAG 2.1 AA Compliant - Minimum 14px text
+ */
+
+/* ===========================================
+   HEADINGS
+   =========================================== */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    color: var(--text-primary);
+}
+
+/* Heading Scale - Harmonious */
+h1, .h1 { font-size: var(--font-size-5xl); }  /* 40px */
+h2, .h2 { font-size: var(--font-size-4xl); }  /* 32px */
+h3, .h3 { font-size: var(--font-size-2xl); }  /* 24px */
+h4, .h4 { font-size: var(--font-size-xl); }   /* 20px */
+h5, .h5 { font-size: var(--font-size-lg); }   /* 18px */
+h6, .h6 { font-size: var(--font-size-base); } /* 16px */
+
+/* ===========================================
+   BODY TEXT
+   =========================================== */
+p {
+    font-size: var(--font-size-base);
+    color: var(--text-secondary);
+}
+
+/* ===========================================
+   SMALL TEXT - Minimum 14px
+   =========================================== */
+small, .small, .text-small {
+    font-size: var(--font-size-xs); /* 14px minimum */
+}
+
+/* Secondary text - slightly smaller but accessible */
+.text-secondary-size {
+    font-size: var(--font-size-sm); /* 15px */
+}
+
+/* ===========================================
+   DISPLAY HEADINGS
+   =========================================== */
+.display-5 {
+    font-weight: var(--font-weight-semibold);
+}
+
+/* ===========================================
+   TEXT UTILITIES - Accessible Sizes
+   =========================================== */
+.text-body-secondary,
+.text-muted {
+    font-size: var(--font-size-xs); /* 14px minimum */
+}
+
+/* ===========================================
+   RESPONSIVE TYPOGRAPHY
+   =========================================== */
+@media (max-width: 768px) {
+    /* Maintain hierarchy with smaller scale */
+    h1, .h1 { font-size: var(--font-size-4xl); }  /* 32px */
+    h2, .h2 { font-size: var(--font-size-2xl); }  /* 24px */
+    h3, .h3 { font-size: var(--font-size-xl); }   /* 20px */
+    h4, .h4 { font-size: var(--font-size-lg); }   /* 18px */
+    h5, .h5 { font-size: var(--font-size-base); } /* 16px */
+}

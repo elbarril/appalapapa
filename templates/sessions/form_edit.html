@@ -1,76 +1,27 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% from 'macros/_forms.html' import date_input, number_input, checkbox_input, textarea_input %}
+{% from 'macros/_cards.html' import auth_card %}
+{% from 'macros/_buttons.html' import form_buttons %}
 
 {% block title %}Editar Sesión - Terapia{% endblock %}
 
 {% block main %}
-    <div class="auth-container">
-        <div class="auth-card card fade-in" style="max-width: 500px;">
-            <div class="auth-header">
-                <i class="bi bi-calendar-check display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
-                <h2>Editar Sesión</h2>
-                <p>Sesión de <strong>{{ name|title }}</strong></p>
-            </div>
+    {% call auth_card('calendar-check', 'Editar Sesión', 'Sesión de <strong>' ~ name|title ~ '</strong>', max_width='500px') %}
+        <form method="post">
+            {{ form.hidden_tag() }}
+            
+            {{ date_input(form.session_date, label='Fecha de la Sesión', icon='calendar-date') }}
+            {{ number_input(form.session_price, label='Precio de la Sesión', icon='currency-dollar', step='0.01', min='0') }}
+            
+            {% if form.pending is defined %}
+                {{ checkbox_input(form.pending, label='Pago pendiente', icon='clock-history') }}
+            {% endif %}
+            
+            {% if form.notes is defined %}
+                {{ textarea_input(form.notes, label='Notas (opcional)', icon='journal-text', rows=2) }}
+            {% endif %}
 
-            <form method="post" class="auth-body">
-                {{ form.hidden_tag() }}
-                
-                <div class="mb-3">
-                    <label for="session_date" class="form-label">
-                        <i class="bi bi-calendar-date me-1" aria-hidden="true"></i>
-                        Fecha de la Sesión
-                    </label>
-                    {{ form.session_date(class="form-control", id="session_date") }}
-                    {% if form.session_date.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.session_date.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                
-                <div class="mb-3">
-                    <label for="session_price" class="form-label">
-                        <i class="bi bi-currency-dollar me-1" aria-hidden="true"></i>
-                        Precio de la Sesión
-                    </label>
-                    {{ form.session_price(class="form-control", id="session_price", step="0.01", min="0") }}
-                    {% if form.session_price.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.session_price.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                {% if form.pending is defined %}
-                <div class="mb-3 form-check">
-                    {{ form.pending(class="form-check-input", id="pending") }}
-                    <label class="form-check-label" for="pending">
-                        <i class="bi bi-clock-history me-1" aria-hidden="true"></i>
-                        Pago pendiente
-                    </label>
-                </div>
-                {% endif %}
-
-                {% if form.notes is defined %}
-                <div class="mb-4">
-                    <label for="notes" class="form-label">
-                        <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
-                        Notas (opcional)
-                    </label>
-                    {{ form.notes(class="form-control", id="notes", rows="2") }}
-                </div>
-                {% endif %}
-                
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary py-2">
-                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
-                        Guardar Cambios
-                    </button>
-                    <a href="{{ url_for('patients.index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-lg me-1" aria-hidden="true"></i>
-                        Cancelar
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
+            {{ form_buttons('Guardar Cambios', submit_icon='check-lg', cancel_url=url_for('patients.index')) }}
+        </form>
+    {% endcall %}
 {% endblock main %}

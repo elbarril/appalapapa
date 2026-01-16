@@ -1,16 +1,14 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% from 'errors/_error_page.html' import error_page %}
 
 {% block title %}Acceso Denegado - Terapia{% endblock %}
 
 {% block main %}
-<div class="error-page fade-in">
-    <i class="bi bi-shield-lock display-1 text-danger mb-4" aria-hidden="true"></i>
-    <div class="error-code">403</div>
-    <h2 class="h3 mb-3">Acceso Denegado</h2>
-    <p class="error-message">No tienes permisos para acceder a esta página.</p>
-    <a href="{{ url_for('main.index') }}" class="btn btn-primary btn-lg px-5">
-        <i class="bi bi-house me-2" aria-hidden="true"></i>
-        Volver al Inicio
-    </a>
-</div>
+{{ error_page(
+    code='403',
+    icon='shield-lock',
+    icon_color='text-danger',
+    title='Acceso Denegado',
+    message='No tienes permisos para acceder a esta página.'
+) }}
 {% endblock main %}

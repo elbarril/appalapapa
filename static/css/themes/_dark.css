@@ -1,0 +1,33 @@
+/*
+ * Dark Theme
+ * Bootstrap and custom overrides for dark mode
+ */
+
+/* ===========================================
+   DARK THEME VARIABLES
+   =========================================== */
+[data-bs-theme="dark"] {
+    /* Bootstrap overrides for dark theme */
+    --bs-body-bg: #1a1d1f;
+    --bs-body-color: #e5e5e5;
+    --bs-primary: #5a9a97;
+    --bs-primary-rgb: 90, 154, 151;
+    --bs-secondary-bg: #2d3235;
+    --bs-tertiary-bg: #252a2d;
+    --bs-card-bg: #212529;
+    --bs-border-color: #3d4447;
+    
+    /* Custom dark theme colors */
+    --page-bg: #1a1d1f;
+    --card-bg: #212529;
+    --card-border: #3d4447;
+    --card-header-bg: #2a2e32;
+    --text-primary: #e5e5e5;
+    --text-secondary: #adb5bd;
+    --text-muted: #868e96;
+    --nav-bg: #212529;
+    --nav-text: #e5e5e5;
+    --input-bg: #2d3235;
+    --input-border: #3d4447;
+    --input-focus-border: #5a9a97;
+}

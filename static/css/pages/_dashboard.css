@@ -1,0 +1,18 @@
+/*
+ * Dashboard Page
+ * Patients list and dashboard-specific styles
+ */
+
+/* ===========================================
+   DASHBOARD HEADER
+   =========================================== */
+.dashboard-header p {
+    font-size: var(--font-size-base); /* 16px */
+}
+
+/* ===========================================
+   EMPTY STATE MESSAGES
+   =========================================== */
+.text-center p.text-body-secondary {
+    font-size: var(--font-size-base); /* 16px - important messages */
+}

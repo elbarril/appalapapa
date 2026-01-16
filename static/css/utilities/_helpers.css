@@ -1,0 +1,22 @@
+/*
+ * Helper Utilities
+ * Utility classes for common patterns
+ */
+
+/* ===========================================
+   TEXT UTILITIES
+   =========================================== */
+.text-mlc-teal { color: var(--mlc-teal) !important; }
+.text-mlc-beige { color: var(--mlc-beige) !important; }
+
+/* ===========================================
+   BACKGROUND UTILITIES
+   =========================================== */
+.bg-mlc-teal { background-color: var(--mlc-teal) !important; }
+.bg-mlc-beige { background-color: var(--mlc-beige) !important; }
+.bg-mlc-cream { background-color: var(--mlc-cream) !important; }
+
+/* ===========================================
+   SHADOW UTILITIES
+   =========================================== */
+.shadow-mlc { box-shadow: var(--shadow-md) !important; }

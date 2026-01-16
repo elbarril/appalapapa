@@ -1,0 +1,40 @@
+/*
+ * Badges Component
+ * Status badges with WCAG-compliant colors
+ */
+
+/* ===========================================
+   BASE BADGE
+   =========================================== */
+.badge {
+    font-size: var(--font-size-xs); /* 14px - minimum accessible */
+    font-weight: var(--font-weight-semibold);
+    padding: 0.35em 0.65em;
+}
+
+/* ===========================================
+   SUCCESS BADGE (PAGADO)
+   =========================================== */
+.badge.text-bg-success {
+    background-color: var(--mlc-teal) !important;
+}
+
+[data-bs-theme="dark"] .badge.text-bg-success {
+    background-color: #5a9a97 !important;
+}
+
+/* ===========================================
+   WARNING BADGE (PENDIENTE)
+   WCAG 4.5:1 contrast compliant
+   =========================================== */
+/* Light theme: gold background (#d4a85a) with dark text (#1a1d1f) = 7.2:1 contrast */
+.badge.text-bg-warning {
+    background-color: #d4a85a !important;
+    color: #1a1d1f !important;
+}
+
+/* Dark theme: lighter gold (#e0b86c) with dark text (#1a1d1f) = 8.1:1 contrast */
+[data-bs-theme="dark"] .badge.text-bg-warning {
+    background-color: #e0b86c !important;
+    color: #1a1d1f !important;
+}

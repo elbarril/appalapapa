@@ -1,0 +1,11 @@
+{#
+  Footer Partial
+  
+  Contains the page footer for the application.
+  Extracted from base.html for modularity.
+#}
+<footer class="container-fluid text-center" role="contentinfo">
+    <div class="container">
+        <small>&copy; {{ now().year if now is defined else 2026 }} Terapia - Sistema de Gestión de Pacientes</small>
+    </div>
+</footer>

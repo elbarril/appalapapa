@@ -1,0 +1,41 @@
+/*
+ * Modals Component
+ * Modal dialog styling with theme support
+ */
+
+/* ===========================================
+   MODAL CONTENT
+   =========================================== */
+.modal-content {
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+    background-color: var(--card-header-bg);
+    border-bottom: 1px solid var(--card-border);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.modal-footer {
+    background-color: var(--card-header-bg);
+    border-top: 1px solid var(--card-border);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+/* ===========================================
+   MODAL TEXT
+   =========================================== */
+.modal-title {
+    font-size: var(--font-size-xl); /* 20px */
+    font-weight: var(--font-weight-semibold);
+}
+
+.modal-body {
+    font-size: var(--font-size-base); /* 16px */
+}
+
+.modal-body p {
+    font-size: var(--font-size-base); /* 16px */
+}

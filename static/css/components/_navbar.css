@@ -1,0 +1,179 @@
+/*
+ * Navbar Component
+ * Fixed top navigation with responsive mobile menu
+ */
+
+/* ===========================================
+   NAVBAR BASE
+   =========================================== */
+.navbar {
+    background-color: var(--nav-bg);
+    padding: var(--spacing-md) 0;
+    transition: var(--transition-normal);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+}
+
+.navbar-brand {
+    font-weight: var(--font-weight-semibold);
+    font-size: 1.25rem;
+    color: var(--nav-text);
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand:hover {
+    color: var(--nav-text);
+    opacity: 0.9;
+}
+
+/* ===========================================
+   NAV LINKS
+   =========================================== */
+.nav-link {
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base);
+    padding: var(--spacing-sm) var(--spacing-md);
+    transition: var(--transition-fast);
+}
+
+/* ===========================================
+   DROPDOWN MENU
+   =========================================== */
+.dropdown-menu {
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: var(--spacing-sm) 0;
+}
+
+.dropdown-item {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--font-size-base);
+    transition: var(--transition-fast);
+}
+
+/* ===========================================
+   MOBILE NAVIGATION
+   =========================================== */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        left: auto;
+        width: 30vw;
+        min-width: 200px;
+        max-width: 280px;
+        background-color: var(--nav-bg);
+        padding: var(--spacing-md);
+        border-radius: 0 0 0 var(--radius-md);
+        box-shadow: var(--shadow-md);
+    }
+    
+    .navbar-nav {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+    
+    .navbar-nav .nav-link,
+    .navbar-nav .navbar-text,
+    .navbar-nav .dropdown {
+        text-align: left;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .navbar-nav .d-flex,
+    .navbar-nav .align-items-center {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    /* Theme switcher alignment on mobile */
+    .navbar-nav .theme-switcher {
+        margin-left: 0;
+        margin-top: var(--spacing-sm);
+    }
+}
+
+/* ===========================================
+   LIGHT THEME NAVBAR
+   =========================================== */
+[data-bs-theme="light"] .navbar {
+    background-color: var(--mlc-teal);
+}
+
+[data-bs-theme="light"] .navbar-brand,
+[data-bs-theme="light"] .nav-link,
+[data-bs-theme="light"] .navbar-text {
+    color: var(--mlc-white);
+}
+
+[data-bs-theme="light"] .nav-link:hover,
+[data-bs-theme="light"] .nav-link:focus {
+    color: var(--mlc-beige);
+}
+
+[data-bs-theme="light"] .navbar-toggler-icon {
+    filter: invert(1);
+}
+
+[data-bs-theme="light"] .dropdown-menu {
+    background-color: var(--mlc-white);
+    border-color: var(--mlc-beige);
+}
+
+[data-bs-theme="light"] .dropdown-item {
+    color: var(--mlc-teal);
+}
+
+[data-bs-theme="light"] .dropdown-item:hover,
+[data-bs-theme="light"] .dropdown-item:focus {
+    background-color: var(--mlc-beige-light);
+    color: var(--mlc-teal);
+}
+
+/* ===========================================
+   THEME SWITCHER
+   =========================================== */
+.theme-switcher {
+    background: transparent;
+    border: none;
+    padding: var(--spacing-sm);
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+}
+
+[data-bs-theme="light"] .theme-switcher {
+    color: var(--mlc-white);
+}
+
+[data-bs-theme="light"] .theme-switcher:hover {
+    color: var(--mlc-beige);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .theme-switcher:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-switcher:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* Hide inactive theme icon */
+[data-bs-theme="dark"] .theme-icon-dark,
+[data-bs-theme="light"] .theme-icon-light {
+    display: none;
+}

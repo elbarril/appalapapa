@@ -1,0 +1,64 @@
+/*
+ * Accessibility Utilities
+ * WCAG 2.1 AA compliance helpers
+ */
+
+/* ===========================================
+   FOCUS VISIBLE
+   Keyboard navigation focus indicator
+   =========================================== */
+:focus-visible {
+    outline: 2px solid var(--mlc-teal);
+    outline-offset: 2px;
+}
+
+[data-bs-theme="dark"] :focus-visible {
+    outline-color: #5a9a97;
+}
+
+/* ===========================================
+   SKIP LINK
+   Keyboard-only skip to main content
+   =========================================== */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--mlc-teal);
+    color: white;
+    padding: 8px;
+    z-index: 100;
+    transition: top 0.3s;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ===========================================
+   MINIMUM FONT SIZES
+   Ensure all text meets WCAG 2.1 AA (14px min)
+   =========================================== */
+
+/* Navigation text */
+.nav-link,
+.navbar-text,
+.dropdown-item {
+    font-size: var(--font-size-base); /* 16px */
+}
+
+/* Table cells (if used) */
+td, th {
+    font-size: var(--font-size-base); /* 16px */
+}
+
+/* Lists */
+li {
+    font-size: var(--font-size-base); /* 16px */
+}
+
+/* Tooltips and popovers */
+.tooltip-inner,
+.popover-body {
+    font-size: var(--font-size-xs); /* 14px - minimum */
+}

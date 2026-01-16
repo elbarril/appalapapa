@@ -1,0 +1,179 @@
+/*
+ * Buttons Component
+ * Accessible button styles with brand colors
+ */
+
+/* ===========================================
+   BASE BUTTON
+   =========================================== */
+.btn {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base); /* 16px default */
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    transition: var(--transition-fast);
+}
+
+/* Small buttons - maintain 14px minimum */
+.btn-sm {
+    font-size: var(--font-size-xs); /* 14px - minimum accessible */
+    padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+/* ===========================================
+   PRIMARY BUTTON
+   =========================================== */
+.btn-primary {
+    background-color: var(--mlc-teal);
+    border-color: var(--mlc-teal);
+    color: var(--mlc-white);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--mlc-teal-light);
+    border-color: var(--mlc-teal-light);
+    color: var(--mlc-white);
+}
+
+[data-bs-theme="dark"] .btn-primary {
+    background-color: #5a9a97;
+    border-color: #5a9a97;
+}
+
+[data-bs-theme="dark"] .btn-primary:hover {
+    background-color: #6db3b0;
+    border-color: #6db3b0;
+}
+
+/* ===========================================
+   SUCCESS BUTTON - Teal Aligned
+   =========================================== */
+.btn-success {
+    background-color: var(--mlc-teal);
+    border-color: var(--mlc-teal);
+    color: white;
+}
+
+.btn-success:hover,
+.btn-success:focus {
+    background-color: var(--mlc-teal-light);
+    border-color: var(--mlc-teal-light);
+    color: white;
+}
+
+[data-bs-theme="dark"] .btn-success {
+    background-color: #5a9a97;
+    border-color: #5a9a97;
+}
+
+[data-bs-theme="dark"] .btn-success:hover,
+[data-bs-theme="dark"] .btn-success:focus {
+    background-color: #6db3b0;
+    border-color: #6db3b0;
+}
+
+/* ===========================================
+   OUTLINE SECONDARY BUTTON
+   =========================================== */
+.btn-outline-secondary {
+    border-width: 1.5px;
+}
+
+[data-bs-theme="light"] .btn-outline-secondary {
+    color: var(--mlc-teal);
+    border-color: var(--mlc-teal);
+}
+
+[data-bs-theme="light"] .btn-outline-secondary:hover {
+    background-color: var(--mlc-teal);
+    border-color: var(--mlc-teal);
+    color: var(--mlc-white);
+}
+
+/* ===========================================
+   OUTLINE DANGER BUTTON - Muted Red
+   =========================================== */
+.btn-outline-danger {
+    color: #8b5a5a;
+    border-color: #c4a0a0;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:focus {
+    background-color: #8b5a5a;
+    border-color: #8b5a5a;
+    color: white;
+}
+
+[data-bs-theme="dark"] .btn-outline-danger {
+    color: #c9a0a0;
+    border-color: #6b4a4a;
+}
+
+[data-bs-theme="dark"] .btn-outline-danger:hover,
+[data-bs-theme="dark"] .btn-outline-danger:focus {
+    background-color: #6b4a4a;
+    border-color: #6b4a4a;
+    color: #f5f5f5;
+}
+
+/* ===========================================
+   OUTLINE WARNING BUTTON - Muted Gold
+   =========================================== */
+.btn-outline-warning {
+    color: #8b7355;
+    border-color: #c9b896;
+}
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus {
+    background-color: #8b7355;
+    border-color: #8b7355;
+    color: white;
+}
+
+[data-bs-theme="dark"] .btn-outline-warning {
+    color: #c9b896;
+    border-color: #6b5a45;
+}
+
+[data-bs-theme="dark"] .btn-outline-warning:hover,
+[data-bs-theme="dark"] .btn-outline-warning:focus {
+    background-color: #6b5a45;
+    border-color: #6b5a45;
+    color: #f5f5f5;
+}
+
+/* ===========================================
+   CTA BUTTON - MLC Style
+   =========================================== */
+.btn-cta {
+    background-color: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-weight: var(--font-weight-medium);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    padding: var(--spacing-sm) 0;
+}
+
+.btn-cta:hover {
+    color: var(--mlc-teal-light);
+    text-decoration: underline;
+}
+
+/* ===========================================
+   FILTER BUTTON GROUP
+   =========================================== */
+.btn-group .btn-outline-secondary.active {
+    background-color: var(--mlc-teal);
+    border-color: var(--mlc-teal);
+    color: var(--mlc-white);
+}
+
+[data-bs-theme="dark"] .btn-group .btn-outline-secondary.active {
+    background-color: #5a9a97;
+    border-color: #5a9a97;
+}

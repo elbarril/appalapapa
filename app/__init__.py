@@ -60,6 +60,9 @@ def create_app(config_name=None):
     # Register error handlers
     register_error_handlers(app)
 
+    # Register request middleware (security headers, caching)
+    register_middleware(app)
+
     # Register CLI commands
     register_cli_commands(app)
 
@@ -125,6 +128,17 @@ def register_error_handlers(app):
     from flask_wtf.csrf import CSRFError
 
     app.register_error_handler(CSRFError, handle_csrf_error)
+
+
+def register_middleware(app):
+    """Register request/response middleware."""
+    from app.middleware.security import add_cache_headers, add_security_headers
+
+    # Add security headers to all responses
+    app.after_request(add_security_headers)
+
+    # Add cache headers for static assets (performance optimization)
+    app.after_request(add_cache_headers)
 
 
 def register_cli_commands(app):

@@ -1,65 +1,25 @@
 {% extends 'base.html' %}
+{% from 'macros/_forms.html' import email_input, password_input, checkbox_input %}
+{% from 'macros/_cards.html' import auth_card, auth_footer %}
+{% from 'macros/_buttons.html' import submit_button %}
 
 {% block title %}Iniciar sesión - Terapia{% endblock %}
 
 {% block main %}
-    <div class="auth-container">
-        <div class="auth-card card fade-in">
-            <div class="auth-header">
-                <i class="bi bi-heart-pulse display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
-                <h2>Bienvenido</h2>
-                <p>Ingresa a tu cuenta para continuar</p>
-            </div>
-
-            <form method="post" class="auth-body">
-                {{ form.hidden_tag() }}
-                
-                <div class="mb-3">
-                    <label for="email" class="form-label">
-                        <i class="bi bi-envelope me-1" aria-hidden="true"></i>
-                        Correo electrónico
-                    </label>
-                    {{ form.email(class="form-control", id="email", placeholder="tu@email.com", autocomplete="email") }}
-                    {% if form.email.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.email.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">
-                        <i class="bi bi-lock me-1" aria-hidden="true"></i>
-                        Contraseña
-                    </label>
-                    {{ form.password(class="form-control", id="password", autocomplete="current-password") }}
-                    {% if form.password.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.password.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-
-                <div class="mb-4 form-check">
-                    {{ form.remember_me(class="form-check-input", id="remember_me") }}
-                    <label class="form-check-label" for="remember_me">Recordarme en este dispositivo</label>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-2">
-                    <i class="bi bi-box-arrow-in-right me-1" aria-hidden="true"></i>
-                    Ingresar
-                </button>
-            </form>
+    {% call auth_card('heart-pulse', 'Bienvenido', 'Ingresa a tu cuenta para continuar') %}
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
             
-            <div class="auth-footer">
-                <a href="{{ url_for('auth.register') }}" class="btn btn-cta">
-                    ¿No tienes cuenta? <strong>Regístrate</strong>
-                </a>
-                <br>
-                <a href="{{ url_for('auth.reset_password') }}" class="btn btn-cta small">
-                    ¿Olvidaste tu contraseña?
-                </a>
-            </div>
-        </div>
-    </div>
+            {{ email_input(form.email, required=true) }}
+            {{ password_input(form.password, autocomplete='current-password', required=true) }}
+            {{ checkbox_input(form.remember_me, label='Recordarme en este dispositivo') }}
+
+            {{ submit_button('Ingresar', icon='box-arrow-in-right') }}
+        </form>
+        
+        {{ auth_footer([
+            (url_for('auth.register'), '¿No tienes cuenta? <strong>Regístrate</strong>', true),
+            (url_for('auth.reset_password'), '¿Olvidaste tu contraseña?', false)
+        ]) }}
+    {% endcall %}
 {% endblock %}

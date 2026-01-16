@@ -1,0 +1,97 @@
+/*
+ * Carousel Component
+ * Session carousel with accessible indicators
+ */
+
+/* ===========================================
+   CAROUSEL BASE
+   =========================================== */
+/* Enable touch/swipe from start */
+.carousel {
+    touch-action: pan-y pinch-zoom;
+}
+
+.carousel-inner {
+    touch-action: pan-x;
+}
+
+/* ===========================================
+   CAROUSEL INDICATORS
+   WCAG 2.1: 44x44px minimum touch target size
+   =========================================== */
+.carousel-indicators-bottom {
+    display: flex;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: var(--spacing-sm) 0;
+    margin: 0;
+}
+
+.carousel-indicators-bottom button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background-color: transparent;
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+/* Visual indicator dot (12px) centered in 44px touch target */
+.carousel-indicators-bottom button::before {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--text-muted);
+    opacity: 0.5;
+    transition: var(--transition-fast);
+}
+
+.carousel-indicators-bottom button:hover::before {
+    opacity: 0.75;
+}
+
+.carousel-indicators-bottom button.active::before {
+    opacity: 1;
+    background-color: var(--mlc-teal);
+}
+
+[data-bs-theme="dark"] .carousel-indicators-bottom button.active::before {
+    background-color: #5a9a97;
+}
+
+.carousel-indicators-bottom button:disabled {
+    cursor: not-allowed;
+}
+
+.carousel-indicators-bottom button:disabled::before {
+    opacity: 0.3;
+}
+
+/* Focus indicator for keyboard navigation */
+.carousel-indicators-bottom button:focus-visible {
+    outline: none;
+}
+
+.carousel-indicators-bottom button:focus-visible::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--mlc-teal);
+}
+
+[data-bs-theme="dark"] .carousel-indicators-bottom button:focus-visible::after {
+    border-color: #5a9a97;
+}

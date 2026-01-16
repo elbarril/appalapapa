@@ -1,0 +1,51 @@
+/*
+ * Containers Layout
+ * Page and section containers
+ */
+
+/* ===========================================
+   PATIENTS CONTAINER
+   =========================================== */
+.patients-container {
+    background-color: var(--bs-secondary-bg);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--card-border);
+}
+
+@media (max-width: 768px) {
+    .patients-container {
+        padding: var(--spacing-md);
+    }
+}
+
+/* ===========================================
+   FILTER BUTTONS IN CONTAINER
+   =========================================== */
+.patients-container > .btn-group {
+    display: flex;
+    width: 100%;
+}
+
+.patients-container > .btn-group .btn {
+    flex: 1;
+}
+
+/* Very small screens - stack filter buttons */
+@media (max-width: 400px) {
+    .patients-container > .btn-group {
+        flex-direction: column;
+    }
+    
+    .patients-container > .btn-group .btn {
+        border-radius: 0;
+    }
+    
+    .patients-container > .btn-group .btn:first-child {
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
+    }
+    
+    .patients-container > .btn-group .btn:last-child {
+        border-radius: 0 0 var(--radius-md) var(--radius-md);
+    }
+}

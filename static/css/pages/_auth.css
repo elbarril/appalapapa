@@ -1,0 +1,75 @@
+/*
+ * Auth Pages
+ * Login, register, password reset pages
+ */
+
+/* ===========================================
+   AUTH CONTAINER
+   =========================================== */
+.auth-container {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===========================================
+   AUTH CARD
+   =========================================== */
+.auth-card {
+    max-width: 420px;
+    width: 100%;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+}
+
+[data-bs-theme="light"] .auth-card {
+    background-color: var(--mlc-white);
+    border: 1px solid var(--mlc-beige);
+}
+
+/* ===========================================
+   AUTH HEADER
+   =========================================== */
+.auth-header {
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-md);
+}
+
+.auth-header h2 {
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-3xl); /* 28px - welcoming header */
+    margin-bottom: var(--spacing-sm);
+}
+
+.auth-header p {
+    color: var(--text-muted);
+    font-size: var(--font-size-base); /* 16px */
+    margin: 0;
+}
+
+/* ===========================================
+   AUTH BODY
+   =========================================== */
+.auth-body {
+    padding: var(--spacing-lg) var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+    .auth-body {
+        padding: var(--spacing-md);
+    }
+}
+
+/* ===========================================
+   AUTH FOOTER
+   =========================================== */
+.auth-footer {
+    text-align: center;
+    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-xl);
+    border-top: 1px solid var(--card-border);
+}
+
+.auth-footer a {
+    font-size: var(--font-size-base); /* 16px - clickable links accessible */
+}

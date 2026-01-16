@@ -1,0 +1,20 @@
+/*
+ * Header Layout
+ * Navbar wrapper and main content offset
+ */
+
+/* ===========================================
+   MAIN CONTENT OFFSET
+   Account for fixed navbar height
+   =========================================== */
+main#main-content {
+    margin-top: calc(74px + var(--spacing-lg));
+    padding-top: var(--spacing-md);
+}
+
+/* Mobile adjustment for extra spacing */
+@media (max-width: 991.98px) {
+    main#main-content {
+        margin-top: calc(74px + var(--spacing-xl));
+    }
+}

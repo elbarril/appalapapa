@@ -1,0 +1,314 @@
+{#
+  Modal Component Macros
+  
+  Reusable modal dialog macros for forms and confirmations.
+  
+  Usage:
+    {% from 'macros/_modals.html' import modal, confirm_modal, edit_modal %}
+#}
+
+{#
+  Render a basic modal dialog structure
+  
+  @param id - Modal ID (used for targeting)
+  @param title - Modal title text
+  @param icon - Bootstrap icon class without 'bi-' prefix (optional)
+  @param icon_color - Icon color class (default: 'text-mlc-teal')
+  @param size - Modal size: 'sm', 'lg', 'xl', or '' for default
+  
+  Usage:
+    {% call modal('myModal', 'Modal Title', icon='pencil-square') %}
+      <div class="modal-body">Content</div>
+      <div class="modal-footer">Buttons</div>
+    {% endcall %}
+#}
+{% macro modal(id, title, icon=None, icon_color='text-mlc-teal', size='') %}
+<div class="modal fade" 
+     id="{{ id }}" 
+     tabindex="-1" 
+     aria-labelledby="{{ id }}Label" 
+     aria-hidden="true">
+    <div class="modal-dialog {% if size %}modal-{{ size }}{% endif %}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ id }}Label">
+                    {% if icon %}
+                    <i class="bi bi-{{ icon }} me-2 {{ icon_color }}" aria-hidden="true"></i>
+                    {% endif %}
+                    {{ title }}
+                </h5>
+                <button type="button" 
+                        class="btn-close" 
+                        data-bs-dismiss="modal" 
+                        aria-label="Cerrar">
+                </button>
+            </div>
+            {{ caller() }}
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render a confirmation modal (typically for delete actions)
+  
+  @param id - Modal ID
+  @param title - Modal title
+  @param hidden_input_id - ID for hidden input storing item ID
+  @param item_name_id - ID for element displaying item name
+  @param confirm_btn_id - ID for confirm button
+  @param message - Confirmation message (use {name} as placeholder for item name)
+  @param warning - Optional warning message to display
+  @param confirm_text - Text for confirm button (default: 'Eliminar')
+#}
+{% macro confirm_modal(id, title, hidden_input_id, item_name_id, confirm_btn_id, message, warning=None, confirm_text='Eliminar') %}
+<div class="modal fade" 
+     id="{{ id }}" 
+     tabindex="-1" 
+     aria-labelledby="{{ id }}Label" 
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ id }}Label">
+                    <i class="bi bi-exclamation-triangle me-2 text-danger" aria-hidden="true"></i>
+                    {{ title }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="{{ hidden_input_id }}">
+                <p>{{ message|replace('{name}', '<strong id="' ~ item_name_id ~ '"></strong>')|safe }}</p>
+                {% if warning %}
+                <p class="text-danger">
+                    <small><i class="bi bi-info-circle me-1" aria-hidden="true"></i>{{ warning }}</small>
+                </p>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="{{ confirm_btn_id }}">
+                    {{ confirm_text }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render an edit form modal with standard form layout
+  
+  @param id - Modal ID
+  @param title - Modal title
+  @param icon - Bootstrap icon class without 'bi-' prefix
+  @param form_id - ID for the form element
+  @param submit_text - Text for submit button (default: 'Guardar Cambios')
+  
+  Usage:
+    {% call edit_modal('editModal', 'Editar Item', 'pencil-square', 'editForm') %}
+      <input type="hidden" id="editItemId">
+      <div class="mb-3">
+        <label for="editName" class="form-label">Nombre</label>
+        <input type="text" class="form-control" id="editName">
+      </div>
+    {% endcall %}
+#}
+{% macro edit_modal(id, title, icon, form_id, submit_text='Guardar Cambios') %}
+<div class="modal fade" 
+     id="{{ id }}" 
+     tabindex="-1" 
+     aria-labelledby="{{ id }}Label" 
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="{{ id }}Label">
+                    <i class="bi bi-{{ icon }} me-2 text-mlc-teal" aria-hidden="true"></i>
+                    {{ title }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="{{ form_id }}">
+                <div class="modal-body">
+                    {{ caller() }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                        {{ submit_text }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render edit patient modal with standard fields
+  This is a complete pre-built modal for editing patients.
+#}
+{% macro edit_patient_modal() %}
+<div class="modal fade" 
+     id="editPatientModal" 
+     tabindex="-1" 
+     aria-labelledby="editPatientModalLabel" 
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editPatientModalLabel">
+                    <i class="bi bi-pencil-square me-2 text-mlc-teal" aria-hidden="true"></i>
+                    Editar Paciente
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="editPatientForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editPatientId">
+                    <div class="mb-3">
+                        <label for="editPatientName" class="form-label">
+                            <i class="bi bi-person me-1" aria-hidden="true"></i>
+                            Nombre del Paciente
+                        </label>
+                        <input type="text" class="form-control" id="editPatientName" required 
+                               placeholder="Nombre completo" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPatientNotes" class="form-label">
+                            <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
+                            Notas (opcional)
+                        </label>
+                        <textarea class="form-control" id="editPatientNotes" rows="3" 
+                                  placeholder="Notas adicionales..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render delete patient confirmation modal
+#}
+{% macro delete_patient_modal() %}
+{{ confirm_modal(
+    id='deletePatientModal',
+    title='Confirmar Eliminación',
+    hidden_input_id='deletePatientId',
+    item_name_id='deletePatientName',
+    confirm_btn_id='confirmDeletePatientBtn',
+    message='¿Estás seguro de que deseas eliminar al paciente {name}?',
+    warning='Esta acción eliminará también todas las sesiones asociadas.'
+) }}
+{% endmacro %}
+
+{#
+  Render edit session modal with standard fields
+#}
+{% macro edit_session_modal() %}
+<div class="modal fade" 
+     id="editSessionModal" 
+     tabindex="-1" 
+     aria-labelledby="editSessionModalLabel" 
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editSessionModalLabel">
+                    <i class="bi bi-pencil-square me-2 text-mlc-teal" aria-hidden="true"></i>
+                    Editar Sesión
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="editSessionForm">
+                <div class="modal-body">
+                    <input type="hidden" id="editSessionId">
+                    <input type="hidden" id="editSessionPersonId">
+                    <div class="mb-3">
+                        <label for="editSessionDate" class="form-label">Fecha de la Sesión</label>
+                        <input type="date" class="form-control" id="editSessionDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editSessionPrice" class="form-label">Precio de la Sesión ($)</label>
+                        <input type="number" class="form-control" id="editSessionPrice" required 
+                               step="0.01" min="0.01" placeholder="0.00">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editSessionPending">
+                        <label class="form-check-label" for="editSessionPending">Pago pendiente</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editSessionNotes" class="form-label">Notas (opcional)</label>
+                        <textarea class="form-control" id="editSessionNotes" rows="2" 
+                                  placeholder="Notas adicionales..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render delete session confirmation modal
+#}
+{% macro delete_session_modal() %}
+<div class="modal fade" 
+     id="deleteSessionModal" 
+     tabindex="-1" 
+     aria-labelledby="deleteSessionModalLabel" 
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSessionModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2 text-danger" aria-hidden="true"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="deleteSessionId">
+                <p>¿Estás seguro de que deseas eliminar la sesión del <strong id="deleteSessionDate"></strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteSessionBtn">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{#
+  Render all dashboard modals (patient and session modals)
+  Convenience macro to include all modals needed for the patients list page.
+#}
+{% macro dashboard_modals() %}
+{{ edit_patient_modal() }}
+{{ delete_patient_modal() }}
+{{ edit_session_modal() }}
+{{ delete_session_modal() }}
+{% endmacro %}

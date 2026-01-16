@@ -1,0 +1,19 @@
+/*
+ * Footer Layout
+ * Page footer with accessible styling
+ */
+
+/* ===========================================
+   FOOTER
+   =========================================== */
+footer {
+    color: var(--text-muted);
+    font-size: var(--font-size-xs); /* 14px - minimum accessible */
+    padding: var(--spacing-lg) 0;
+    border-top: 1px solid var(--card-border);
+    margin-top: var(--spacing-xxl);
+}
+
+[data-bs-theme="light"] footer {
+    background-color: var(--mlc-beige-light);
+}

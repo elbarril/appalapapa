@@ -1,0 +1,61 @@
+/*
+ * Forms Component
+ * Form inputs, selects, labels with accessible styling
+ */
+
+/* ===========================================
+   FORM CONTROLS
+   =========================================== */
+.form-control,
+.form-select {
+    background-color: var(--input-bg);
+    border: 1.5px solid var(--input-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base); /* 16px */
+    transition: var(--transition-fast);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px rgba(63, 74, 73, 0.15);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(90, 154, 151, 0.25);
+}
+
+/* ===========================================
+   FORM LABELS
+   =========================================== */
+.form-label {
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-base); /* 16px - prominent labels */
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* Form check label - accessible size */
+.form-check-label {
+    font-size: var(--font-size-base); /* 16px */
+}
+
+/* ===========================================
+   FORM VALIDATION
+   =========================================== */
+.invalid-feedback {
+    font-size: var(--font-size-xs); /* 14px - minimum */
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--color-danger);
+}
+
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: var(--color-success);
+}

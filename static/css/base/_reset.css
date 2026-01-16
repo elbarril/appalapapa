@@ -1,0 +1,45 @@
+/*
+ * CSS Reset / Base Normalization
+ * Minimal reset - Bootstrap handles most normalization
+ */
+
+/* ===========================================
+   BOX SIZING
+   =========================================== */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* ===========================================
+   BODY
+   =========================================== */
+body {
+    font-family: var(--font-primary);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    background-color: var(--page-bg);
+    color: var(--text-primary);
+}
+
+/* ===========================================
+   IMAGES
+   =========================================== */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ===========================================
+   LINKS
+   =========================================== */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+}

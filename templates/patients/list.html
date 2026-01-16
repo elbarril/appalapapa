@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from 'macros/_cards.html' import patient_card, empty_state %}
+{% from 'macros/_modals.html' import dashboard_modals %}
 
 {% block title %}Pacientes - Terapia{% endblock %}
 
@@ -60,6 +62,7 @@
                 <button type="button" 
                         class="btn btn-sm btn-outline-secondary filter-btn {% if show == filter or (not show and loop.index == 1) %}active{% endif %}" 
                         data-filter="{{ filter }}"
+                        aria-pressed="{{ 'true' if show == filter or (not show and loop.index == 1) else 'false' }}"
                         onclick="applyFilter('{{ filter }}')">
                     <strong>{{ label|upper }}</strong>
                 </button>
@@ -71,265 +74,26 @@
             <!-- Grid layout: max 3 patients per row -->
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
             {% for person, sessions in grouped_sessions.items() %}
-                <div class="col">
-                    <div class="card h-100 patient-card fade-in" data-patient-id="{{ person[0] }}" style="animation-delay: {{ loop.index0 * 0.05 }}s">
-                        <!-- Patient header -->
-                        <div class="card-header">
-                            <h5 class="mb-2 patient-name" title="{{ person[1]|title }}">
-                                <i class="bi bi-person-fill me-1 text-mlc-teal" aria-hidden="true"></i>
-                                {{ person[1]|title }}
-                            </h5>
-                            <div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de paciente">
-                                <button type="button"
-                                   class="btn btn-outline-secondary flex-fill" 
-                                   title="Editar paciente" 
-                                   aria-label="Editar paciente {{ person[1]|title }}"
-                                   onclick="openEditPatientModal({{ person[0] }}, '{{ person[1]|e }}')">
-                                    <i class="bi bi-pencil me-1" aria-hidden="true"></i>Editar
-                                </button>
-                                {% if allow_delete %}
-                                    <button type="button"
-                                       class="btn btn-outline-danger flex-fill" 
-                                       title="Eliminar paciente" 
-                                       aria-label="Eliminar paciente {{ person[1]|title }}"
-                                       onclick="openDeletePatientModal({{ person[0] }}, '{{ person[1]|e }}')">
-                                        <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Patient body with sessions carousel -->
-                        <div class="card-body p-2">
-                            {% if sessions %}
-                                <!-- Carousel for session cards -->
-                                <div id="carousel-{{ person[0] }}" class="carousel slide" data-bs-ride="false" data-bs-touch="true">
-                                    <!-- Carousel slides -->
-                                    <div class="carousel-inner">
-                                        {% for id, date, price, pending in sessions %}
-                                        <div class="carousel-item {% if loop.first %}active{% endif %}" data-session-pending="{{ 'true' if pending else 'false' }}">
-                                            <div class="card mx-auto session-card" data-session-id="{{ id }}">
-                                                <div class="card-header d-flex justify-content-between align-items-center py-2">
-                                                    <small class="text-body-secondary session-date">{{ date }}</small>
-                                                    {% if not pending %}
-                                                        <span class="badge text-bg-success session-status">PAGADO</span>
-                                                    {% else %}
-                                                        <span class="badge text-bg-warning session-status">PENDIENTE</span>
-                                                    {% endif %}
-                                                </div>
-
-                                                <div class="card-body py-2">
-                                                    <p class="card-text mb-0 session-price">
-                                                        {{ price }}
-                                                    </p>
-                                                </div>
-
-                                                <div class="card-footer py-2">
-                                                    <div class="btn-group btn-group-sm w-100" role="group" aria-label="Acciones de sesión">
-                                                        <button type="button"
-                                                           class="btn btn-outline-secondary flex-fill"
-                                                           title="Editar sesión"
-                                                           aria-label="Editar sesión del {{ date|title }}"
-                                                           onclick="openEditSessionModal({{ id }}, {{ person[0] }})">
-                                                            <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Editar
-                                                        </button>
-                                                        <button type="button"
-                                                           class="btn btn-outline-danger flex-fill delete-session-btn"
-                                                           title="Eliminar sesión"
-                                                           aria-label="Eliminar sesión del {{ date|title }}"
-                                                           onclick="openDeleteSessionModal({{ id }}, '{{ date|e }}')">
-                                                            <i class="bi bi-trash me-1" aria-hidden="true"></i>Eliminar
-                                                        </button>
-                                                        {% if pending %}
-                                                            <button type="button"
-                                                               class="btn btn-success flex-fill toggle-payment-btn"
-                                                               title="Marcar como pagado"
-                                                               aria-label="Marcar sesión del {{ date|title }} como pagado"
-                                                               onclick="togglePayment({{ id }})">
-                                                                <i class="bi bi-check-circle me-1" aria-hidden="true"></i>Pagado
-                                                            </button>
-                                                        {% else %}
-                                                            <button type="button"
-                                                               class="btn btn-outline-secondary flex-fill toggle-payment-btn"
-                                                               title="Marcar como pendiente"
-                                                               aria-label="Marcar sesión del {{ date|title }} como pendiente"
-                                                               onclick="togglePayment({{ id }})">
-                                                                <i class="bi bi-clock-history me-1" aria-hidden="true"></i>Pendiente
-                                                            </button>
-                                                        {% endif %}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-
-                                    <!-- Carousel indicators at bottom -->
-                                    <div class="carousel-indicators-bottom {% if sessions|length <= 1 %}single-slide{% endif %}">
-                                        {% for session in sessions %}
-                                        <button type="button" 
-                                                data-bs-target="#carousel-{{ person[0] }}" 
-                                                data-bs-slide-to="{{ loop.index0 }}" 
-                                                {% if loop.first %}class="active" aria-current="true"{% endif %}
-                                                aria-label="Sesión {{ loop.index }}"
-                                                {% if sessions|length <= 1 %}disabled{% endif %}>
-                                        </button>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% else %}
-                                <p class="text-body-secondary text-center my-3">
-                                    <i class="bi bi-calendar-x me-1" aria-hidden="true"></i>
-                                    No hay sesiones registradas.
-                                </p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+                {{ patient_card(person[0], person[1], sessions, allow_delete, loop.index0 * 0.05) }}
             {% endfor %}
             </div>
         {% else %}
-            <div class="text-center my-5 py-5">
-                <i class="bi bi-people display-1 text-body-secondary mb-3" aria-hidden="true"></i>
-                <h3 class="text-body-secondary">No hay pacientes</h3>
-                <p class="text-body-secondary mb-4">Comienza agregando tu primer paciente.</p>
-                <a href="{{ url_for('patients.add_person') }}" class="btn btn-primary">
-                    <i class="bi bi-person-plus me-1" aria-hidden="true"></i>
-                    Agregar Paciente
-                </a>
-            </div>
+            {{ empty_state(
+                icon='people',
+                title='No hay pacientes',
+                message='Comienza agregando tu primer paciente.',
+                action_url=url_for('patients.add_person'),
+                action_text='Agregar Paciente',
+                action_icon='person-plus'
+            ) }}
         {% endif %}
         </div>
     </div>
 
-    <!-- Edit Patient Modal -->
-    <div class="modal fade" id="editPatientModal" tabindex="-1" aria-labelledby="editPatientModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editPatientModalLabel">
-                        <i class="bi bi-pencil-square me-2 text-mlc-teal" aria-hidden="true"></i>
-                        Editar Paciente
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <form id="editPatientForm">
-                    <div class="modal-body">
-                        <input type="hidden" id="editPatientId">
-                        <div class="mb-3">
-                            <label for="editPatientName" class="form-label">
-                                <i class="bi bi-person me-1" aria-hidden="true"></i>
-                                Nombre del Paciente
-                            </label>
-                            <input type="text" class="form-control" id="editPatientName" required 
-                                   placeholder="Nombre completo" maxlength="100">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editPatientNotes" class="form-label">
-                                <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
-                                Notas (opcional)
-                            </label>
-                            <textarea class="form-control" id="editPatientNotes" rows="3" 
-                                      placeholder="Notas adicionales..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
-                            Guardar Cambios
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Patient Modal -->
-    <div class="modal fade" id="deletePatientModal" tabindex="-1" aria-labelledby="deletePatientModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deletePatientModalLabel">
-                        <i class="bi bi-exclamation-triangle me-2 text-danger" aria-hidden="true"></i>
-                        Confirmar Eliminación
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="deletePatientId">
-                    <p>¿Estás seguro de que deseas eliminar al paciente <strong id="deletePatientName"></strong>?</p>
-                    <p class="text-danger"><small><i class="bi bi-info-circle me-1" aria-hidden="true"></i>Esta acción eliminará también todas las sesiones asociadas.</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeletePatientBtn">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Session Modal -->
-    <div class="modal fade" id="editSessionModal" tabindex="-1" aria-labelledby="editSessionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editSessionModalLabel">Editar Sesión</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <form id="editSessionForm">
-                    <div class="modal-body">
-                        <input type="hidden" id="editSessionId">
-                        <input type="hidden" id="editSessionPersonId">
-                        <div class="mb-3">
-                            <label for="editSessionDate" class="form-label">Fecha de la Sesión</label>
-                            <input type="date" class="form-control" id="editSessionDate" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editSessionPrice" class="form-label">Precio de la Sesión ($)</label>
-                            <input type="number" class="form-control" id="editSessionPrice" required 
-                                   step="0.01" min="0.01" placeholder="0.00">
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="editSessionPending">
-                            <label class="form-check-label" for="editSessionPending">Pago pendiente</label>
-                        </div>
-                        <div class="mb-3">
-                            <label for="editSessionNotes" class="form-label">Notas (opcional)</label>
-                            <textarea class="form-control" id="editSessionNotes" rows="2" 
-                                      placeholder="Notas adicionales..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Session Modal -->
-    <div class="modal fade" id="deleteSessionModal" tabindex="-1" aria-labelledby="deleteSessionModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteSessionModalLabel">Confirmar Eliminación</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="deleteSessionId">
-                    <p>¿Estás seguro de que deseas eliminar la sesión del <strong id="deleteSessionDate"></strong>?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteSessionBtn">Eliminar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Include all dashboard modals -->
+    {{ dashboard_modals() }}
 {% endblock main %}
 
 {% block extra_js %}
-    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock extra_js %}

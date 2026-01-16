@@ -1,64 +1,34 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% from 'macros/_forms.html' import text_input, textarea_input %}
+{% from 'macros/_cards.html' import auth_card %}
+{% from 'macros/_buttons.html' import form_buttons %}
 
 {% block title %}{% if editing %}Editar{% else %}Nuevo{% endif %} Paciente - Terapia{% endblock %}
 
 {% block main %}
-    <div class="auth-container">
-        <div class="auth-card card fade-in" style="max-width: 500px;">
-            <div class="auth-header">
-                {% if editing %}
-                    <i class="bi bi-person-gear display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
-                    <h2>Editar Paciente</h2>
-                    <p>Actualiza la información del paciente</p>
-                {% else %}
-                    <i class="bi bi-person-plus display-4 text-mlc-teal mb-3" aria-hidden="true"></i>
-                    <h2>Nuevo Paciente</h2>
-                    <p>Registra un nuevo paciente en el sistema</p>
-                {% endif %}
-            </div>
+    {% if editing %}
+        {% set card_icon = 'person-gear' %}
+        {% set card_title = 'Editar Paciente' %}
+        {% set card_subtitle = 'Actualiza la información del paciente' %}
+        {% set submit_text = 'Guardar Cambios' %}
+    {% else %}
+        {% set card_icon = 'person-plus' %}
+        {% set card_title = 'Nuevo Paciente' %}
+        {% set card_subtitle = 'Registra un nuevo paciente en el sistema' %}
+        {% set submit_text = 'Agregar Paciente' %}
+    {% endif %}
 
-            <form method="post" class="auth-body">
-                {{ form.hidden_tag() }}
-                
-                <div class="mb-3">
-                    <label for="name" class="form-label">
-                        <i class="bi bi-person me-1" aria-hidden="true"></i>
-                        Nombre del Paciente
-                    </label>
-                    {{ form.name(class="form-control", id="name", placeholder="Nombre completo", autocomplete="name") }}
-                    {% if form.name.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.name.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
+    {% call auth_card(card_icon, card_title, card_subtitle, max_width='500px') %}
+        <form method="post">
+            {{ form.hidden_tag() }}
+            
+            {{ text_input(form.name, label='Nombre del Paciente', icon='person', placeholder='Nombre completo', autocomplete='name') }}
+            
+            {% if form.notes is defined %}
+                {{ textarea_input(form.notes, label='Notas (opcional)', icon='journal-text', rows=3, placeholder='Notas adicionales...') }}
+            {% endif %}
 
-                {% if form.notes is defined %}
-                <div class="mb-4">
-                    <label for="notes" class="form-label">
-                        <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
-                        Notas (opcional)
-                    </label>
-                    {{ form.notes(class="form-control", id="notes", rows="3", placeholder="Notas adicionales...") }}
-                    {% if form.notes.errors %}
-                        <div class="invalid-feedback d-block">
-                            {% for error in form.notes.errors %}{{ error }}{% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-                {% endif %}
-
-                <div class="d-grid gap-2">
-                    <button type="submit" class="btn btn-primary py-2">
-                        <i class="bi bi-check-lg me-1" aria-hidden="true"></i>
-                        {% if editing %}Guardar Cambios{% else %}Agregar Paciente{% endif %}
-                    </button>
-                    <a href="{{ url_for('patients.index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-x-lg me-1" aria-hidden="true"></i>
-                        Cancelar
-                    </a>
-                </div>
-            </form>
-        </div>
-    </div>
+            {{ form_buttons(submit_text, submit_icon='check-lg', cancel_url=url_for('patients.index')) }}
+        </form>
+    {% endcall %}
 {% endblock main %}

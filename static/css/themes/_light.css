@@ -1,0 +1,33 @@
+/*
+ * Light Theme
+ * Bootstrap and custom overrides for light mode
+ */
+
+/* ===========================================
+   LIGHT THEME VARIABLES
+   =========================================== */
+[data-bs-theme="light"] {
+    /* Bootstrap overrides for light theme */
+    --bs-body-bg: var(--mlc-cream);
+    --bs-body-color: var(--mlc-teal);
+    --bs-primary: var(--mlc-teal);
+    --bs-primary-rgb: 63, 74, 73;
+    --bs-secondary-bg: var(--mlc-beige);
+    --bs-tertiary-bg: var(--mlc-beige-light);
+    --bs-card-bg: var(--mlc-white);
+    --bs-border-color: var(--mlc-beige);
+    
+    /* Custom light theme colors */
+    --page-bg: var(--mlc-cream);
+    --card-bg: var(--mlc-white);
+    --card-border: var(--mlc-beige);
+    --card-header-bg: var(--mlc-beige-light);
+    --text-primary: var(--mlc-teal);
+    --text-secondary: #5a6665;
+    --text-muted: #7a8685;
+    --nav-bg: var(--mlc-teal);
+    --nav-text: var(--mlc-white);
+    --input-bg: var(--mlc-white);
+    --input-border: var(--mlc-beige);
+    --input-focus-border: var(--mlc-teal);
+}
