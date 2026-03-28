@@ -11,12 +11,25 @@ from pathlib import Path
 
 # Load environment variables from .env file before any config is read
 from dotenv import load_dotenv
+from sqlalchemy.pool import NullPool
 
 # Base directory of the application
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load .env from the project root
 load_dotenv(BASE_DIR / ".env")
+
+
+def _fix_db_url(url):
+    """
+    Normalize Neon/Heroku-style postgres:// URIs to postgresql://.
+
+    SQLAlchemy 2.x dropped support for the bare postgres:// scheme.
+    Neon (and older Heroku) connection strings use it by default.
+    """
+    if url and url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql://", 1)
+    return url
 
 
 class Config:
@@ -78,8 +91,11 @@ class DevelopmentConfig(Config):
     DEBUG = True
     TESTING = False
 
-    # SQLite for local development
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
+    # SQLite for local development (or Postgres if DATABASE_URL is set)
+    SQLALCHEMY_DATABASE_URI = (
+        _fix_db_url(os.environ.get("DATABASE_URL"))
+        or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
+    )
 
     # Show SQL queries in console
     SQLALCHEMY_ECHO = True
@@ -129,7 +145,10 @@ class ProductionConfig(Config):
     TESTING = False
 
     # PostgreSQL required in production, fallback to SQLite for container testing
-    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
+    SQLALCHEMY_DATABASE_URI = (
+        _fix_db_url(os.environ.get("DATABASE_URL"))
+        or f"sqlite:///{BASE_DIR / 'instance' / 'database.db'}"
+    )
 
     # Connection pooling for production
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -162,11 +181,38 @@ class ProductionConfig(Config):
             )
 
 
+class VercelConfig(ProductionConfig):
+    """
+    Vercel serverless deployment configuration.
+
+    Vercel functions are ephemeral and stateless:
+    - No persistent DB connection pool (NullPool)
+    - No filesystem writes (stdout logging only)
+    - In-process rate limiting (memory://, resets on cold start)
+    """
+
+    # Serverless: each function invocation gets its own connection
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "poolclass": NullPool,
+    }
+
+    # Vercel captures stdout/stderr automatically — no file needed
+    LOG_FILE = None
+
+    # Rate limiting via in-process memory (resets on cold start)
+    RATELIMIT_STORAGE_URL = "memory://"
+
+    # Vercel preview URLs are cross-origin; Strict would break previews
+    SESSION_COOKIE_SAMESITE = "Lax"
+
+
 # Configuration dictionary for easy access
 config = {
     "development": DevelopmentConfig,
     "testing": TestingConfig,
     "production": ProductionConfig,
+    "vercel": VercelConfig,
     "default": DevelopmentConfig,
 }
 

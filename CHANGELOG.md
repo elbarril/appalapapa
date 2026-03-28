@@ -5,6 +5,19 @@ All notable changes to the Therapy Session Management Application will be docume
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.1] - 2026-02-24
+
+### Fixed
+- **Documentation**: Corrected CLI command references throughout README.md and instructions:
+  - `flask db init-db` → `flask db-utils init`
+  - `flask db seed` → `flask db-utils seed`
+  - `flask db drop-db --confirm` → `flask db-utils drop --yes`
+  - `flask user create EMAIL --password X --role Y` → `flask user create` (interactive)
+- **Documentation**: Updated project structure in README.md to include `macros/`, `partials/`, `docs/`, `static/fonts/`, and accurate JS module layout
+- **Documentation**: Corrected `static/js/api.js` removal note in v2.8.0 — file was retained as legacy (not deleted); modules replaced its functionality but the file remains for reference
+
+---
+
 ## [2.11.0] - 2026-01-15
 
 ### Added
@@ -116,8 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `modules/utils/` - Formatters, validators, helpers (3 files)
 - Template `list.html` now uses `<script type="module">` for ES6 module support
 
-### Removed
-- Deleted legacy `api.js` file (functionality fully migrated to modules)
+### Note
+- `api.js` was retained as a legacy file (not deleted as originally noted); the modules fully replace its functionality but the file remains in the codebase
 
 ### Technical
 - 15 new JavaScript modules organized by concern for better maintainability

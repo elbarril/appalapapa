@@ -170,24 +170,26 @@ def configure_logging(app):
     if app.debug or app.testing:
         return
 
-    # Ensure logs directory exists
-    log_dir = Path("logs")
-    log_dir.mkdir(exist_ok=True)
-
-    # Create file handler with rotation
-    log_file = app.config.get("LOG_FILE", "logs/app.log")
-    file_handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=10)  # 10MB
-
-    # Set log level
     log_level = getattr(logging, app.config.get("LOG_LEVEL", "INFO"))
-    file_handler.setLevel(log_level)
+    log_file = app.config.get("LOG_FILE")
+
+    if log_file:
+        # Docker / local production: rotate log files
+        log_dir = Path(log_file).parent
+        log_dir.mkdir(exist_ok=True)
+        handler = RotatingFileHandler(log_file, maxBytes=10 * 1024 * 1024, backupCount=10)  # 10MB
+    else:
+        # Vercel / stdout-only environments (no filesystem writes)
+        handler = logging.StreamHandler()
+
+    handler.setLevel(log_level)
 
     # Create formatter
     formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]")
-    file_handler.setFormatter(formatter)
+    handler.setFormatter(formatter)
 
     # Add handler to app logger
-    app.logger.addHandler(file_handler)
+    app.logger.addHandler(handler)
     app.logger.setLevel(log_level)
 
     app.logger.info("Application startup")

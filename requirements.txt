@@ -1,5 +1,7 @@
-# Include all dependencies for the therapy session management app
-# For environment-specific dependencies, see requirements/ folder
+# =============================================================================
+# Root requirements — installed by Vercel and used as the base for all envs.
+# For environment-specific extras, see requirements/ folder.
+# =============================================================================
 
 # Core Flask dependencies
 Flask>=3.0.0
@@ -9,7 +11,7 @@ Flask-Login>=0.6.3
 Flask-WTF>=1.2.0
 Flask-Limiter>=3.5.0
 
-# Database
+# Database ORM
 SQLAlchemy>=2.0.0
 
 # Security & Validation
@@ -20,10 +22,18 @@ email-validator>=2.1.0
 python-dotenv>=1.0.0
 python-decouple>=3.8
 
-# WSGI Server (for development)
-# For production, install gunicorn separately
+# Production WSGI server (gunicorn for Docker; Vercel uses its own runner)
+gunicorn>=21.0.0
 
-# Development extras (optional, install with: pip install -r requirements/dev.txt)
-# Testing extras (optional, install with: pip install -r requirements/test.txt)
-# Production extras (optional, install with: pip install -r requirements/prod.txt)
+# PostgreSQL driver — required for Neon and any Postgres instance
+psycopg2-binary>=2.9.9
+
+# Error monitoring (optional, enabled via SENTRY_DSN env var)
+sentry-sdk[flask]>=1.39.0
+
+# Signals support (required by Flask-SQLAlchemy events)
+blinker>=1.7.0
+
+# Development extras (optional): pip install -r requirements/dev.txt
+# Testing extras  (optional): pip install -r requirements/test.txt
 

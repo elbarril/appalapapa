@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "15mb" }
+    }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/(.*)",        "dest": "api/index.py" }
+  ],
+  "buildCommand": "FLASK_APP=api/index.py FLASK_CONFIG=vercel flask db upgrade",
+  "env": {
+    "FLASK_APP": "api/index.py",
+    "FLASK_CONFIG": "vercel"
+  }
+}

@@ -20,6 +20,7 @@
 - [Running Tests](#-running-tests)
 - [Environment Variables](#-environment-variables)
 - [API Documentation](#-api-documentation)
+- [Vercel + Neon Deployment](#-vercel--neon-deployment)
 - [Docker Deployment](#-docker-deployment)
 - [Production Deployment](#-production-deployment)
 - [CLI Commands](#-cli-commands)
@@ -120,18 +121,33 @@ appalapapa/
 │   │   ├── test_models.py
 │   │   ├── test_services.py
 │   │   └── test_validators.py
-│   └── integration/
-│       ├── test_auth_routes.py
-│       ├── test_patient_routes.py
-│       └── test_session_routes.py
+│   ├── integration/
+│   │   ├── test_api.py
+│   │   ├── test_auth_routes.py
+│   │   ├── test_patient_routes.py
+│   │   └── test_session_routes.py
+│   └── frontend/               # Playwright browser tests
+│       ├── conftest.py
+│       ├── test_accessibility.py
+│       ├── test_visual.py
+│       └── test_interactions.py
 ├── migrations/                  # Alembic migrations
 ├── requirements/                # Dependency files
 │   ├── base.txt
 │   ├── dev.txt
 │   ├── test.txt
 │   └── prod.txt
-├── templates/                   # Jinja2 templates (organized by module)
+├── templates/                   # Jinja2 templates
 │   ├── base.html               # Base template with navigation
+│   ├── macros/                 # Reusable Jinja2 macros
+│   │   ├── _forms.html
+│   │   ├── _cards.html
+│   │   ├── _modals.html
+│   │   └── _buttons.html
+│   ├── partials/               # Included partials
+│   │   ├── _navbar.html
+│   │   ├── _footer.html
+│   │   └── _flash_messages.html
 │   ├── auth/                   # Authentication templates
 │   │   ├── login.html
 │   │   ├── register.html
@@ -148,20 +164,39 @@ appalapapa/
 │       ├── 403.html
 │       ├── 404.html
 │       └── 500.html
-├── static/                      # Static assets (CSS, JS)
+├── static/                      # Static assets
 │   ├── css/
-│   │   └── bootstrap.min.css
-│   └── js/
-│       ├── bootstrap.bundle.min.js
-│       └── api.js              # JavaScript API client
+│   │   ├── main.css            # CSS entry point
+│   │   ├── base/               # _variables.css, _reset.css, _typography.css, _fonts.css
+│   │   ├── components/         # _navbar.css, _cards.css, _buttons.css, etc.
+│   │   ├── layout/             # _header.css, _footer.css, _containers.css
+│   │   ├── pages/              # _auth.css, _dashboard.css, _errors.css
+│   │   ├── themes/             # _light.css, _dark.css
+│   │   └── utilities/          # _accessibility.css, _animations.css, _helpers.css
+│   ├── js/
+│   │   ├── main.js             # JS entry point (ES6 module)
+│   │   └── modules/
+│   │       ├── api/            # API client, patients, sessions, dashboard
+│   │       ├── ui/             # Toast, modal, carousel, accessibility
+│   │       ├── components/     # patientCard, sessionCard, filterButtons, dashboardRenderer
+│   │       └── utils/          # formatters, validators, helpers
+│   └── fonts/                  # Self-hosted Nunito Sans + Bootstrap Icons
+├── docs/                        # Frontend documentation
+│   ├── css-components.md
+│   ├── js-modules.md
+│   ├── template-macros.md
+│   ├── frontend-style-guide.md
+│   └── frontend-contributing.md
 ├── .github/                     # GitHub configs
 │   ├── instructions/
-│   └── workflows/
+│   └── copilot-instructions/
 ├── run.py                       # Development entry point
 ├── wsgi.py                      # Production WSGI entry
 ├── Dockerfile                   # Docker configuration
-├── docker-compose.yml           # Docker Compose
+├── docker-compose.yml           # Development Docker Compose
+├── docker-compose.prod.yml      # Production Docker Compose
 ├── pytest.ini                   # Pytest configuration
+├── pyproject.toml               # Tool configuration (black, isort, flake8)
 ├── .env.example                 # Environment template
 └── README.md                    # This file
 ```
@@ -208,8 +243,8 @@ cp .env.example .env      # macOS/Linux
 
 ### 5. Initialize Database
 ```bash
-flask db init-db
-flask user create admin@example.com --role admin
+flask db-utils init
+flask user create   # Interactive: prompts for email, password, role
 ```
 
 ### 6. Run Development Server
@@ -243,13 +278,13 @@ copy .env.example .env
 # Edit .env file with your SECRET_KEY
 
 # 5. Initialize the database
-flask db init-db
+flask db-utils init
 
-# 6. Create admin user
-flask user create admin@example.com --password YourSecurePass123 --role admin
+# 6. Create admin user (interactive - prompts for email, password, role)
+flask user create
 
-# 7. (Optional) Seed sample data
-flask db seed
+# 7. (Optional) Seed sample data (creates test@example.com / test123)
+flask db-utils seed
 
 # 8. Run the development server
 python run.py
@@ -361,7 +396,7 @@ DATABASE_URL=sqlite:///instance/database.db  # Dev: SQLite
 # =============================================================================
 # Security Configuration
 # =============================================================================
-SESSION_LIFETIME_DAYS=30          # Session duration
+SESSION_LIFETIME_DAYS=7           # Session duration (days)
 
 # =============================================================================
 # Rate Limiting
@@ -447,6 +482,61 @@ Response:
 
 ---
 
+## ☁️ Vercel + Neon Deployment
+
+Deploy the app as a serverless function on Vercel with a managed PostgreSQL database on Neon. This is the recommended production setup for low-maintenance, zero-infrastructure hosting.
+
+### Prerequisites
+
+- A [Vercel](https://vercel.com) account (free tier works)
+- A [Neon](https://neon.tech) account (free tier works)
+- The repository pushed to GitHub
+
+### 1. Set Up Neon Database
+
+1. Create a new Neon project at [neon.tech](https://neon.tech)
+2. Choose a region (US East recommended for best Vercel compatibility)
+3. Copy the **Connection String** from the dashboard — it looks like:
+
+   ```text
+   postgresql://user:password@ep-xxxx.us-east-2.aws.neon.tech/neondb?sslmode=require
+   ```
+   > The app automatically converts `postgres://` to `postgresql://` if Neon provides the older format.
+
+### 2. Deploy to Vercel
+
+1. Go to [vercel.com](https://vercel.com) and click **Add New > Project**
+2. Import the `appalapapa` repository from GitHub
+3. Before clicking **Deploy**, open **Environment Variables** and add:
+
+   | Key | Value |
+   | --- | --- |
+   | `FLASK_CONFIG` | `vercel` |
+   | `DATABASE_URL` | `postgresql://...` (from Neon) |
+   | `SECRET_KEY` | Generate with `python -c "import secrets; print(secrets.token_hex(32))"` |
+
+4. **Important:** For `DATABASE_URL`, enable **"Available during Build"** so the migration build command can reach Neon.
+5. Click **Deploy**.
+
+Migrations run automatically via the `buildCommand` in `vercel.json` on every deployment.
+
+### 3. Create Admin User (first deploy only)
+
+After the first successful deploy, run locally pointing at Neon:
+
+```bash
+DATABASE_URL="postgresql://..." FLASK_CONFIG=vercel flask user create
+```
+
+### Notes on Vercel Limitations
+
+- **No persistent filesystem**: logs go to Vercel's stdout dashboard, not files.
+- **No connection pooling**: `NullPool` is used — each request opens/closes its own DB connection. For high traffic, consider adding [PgBouncer](https://neon.tech/docs/connect/connection-pooling) via Neon's built-in pooler.
+- **Rate limiting resets on cold starts**: in-process `memory://` storage is used. Acceptable for low-traffic apps.
+- **Static files**: served directly by Vercel's CDN from the `/static/` path, bypassing the serverless function.
+
+---
+
 ## 🐳 Docker Deployment
 
 ### Development with Docker
@@ -484,8 +574,8 @@ docker-compose up --build
 # Run migrations
 docker-compose exec web flask db upgrade
 
-# Create admin user
-docker-compose exec web flask user create admin@example.com --role admin
+# Create admin user (interactive - prompts for email, password, role)
+docker-compose exec web flask user create
 
 # Access container shell
 docker-compose exec web /bin/sh
@@ -554,39 +644,41 @@ server {
 
 ```bash
 # Initialize database with tables
-flask db init-db
+flask db-utils init
 
 # Drop all tables (dangerous!)
-flask db drop-db --confirm
+flask db-utils drop --yes
 
-# Seed sample data
-flask db seed
+# Seed sample data (creates test@example.com / test123)
+flask db-utils seed
 
-# Backup database
-flask db backup --output backup.sql
+# Backup database (SQLite only)
+flask db-utils backup -o backup.sql
 
 # Cleanup old audit logs
-flask db cleanup-audit --days 90
+flask db-utils cleanup-audit --days 365
 ```
 
 ### User Management
 
+All user commands are interactive and will prompt for required fields:
+
 ```bash
-# Create new user
-flask user create email@example.com --password Pass123 --role admin
+# Create new user (prompts for email, password, role)
+flask user create
 
 # List all users
 flask user list
 
-# Change user role
-flask user set-role email@example.com therapist
+# Change user role (prompts for email and new role)
+flask user set-role
 
-# Reset password
-flask user reset-password email@example.com
+# Reset password (prompts for email and new password)
+flask user reset-password
 
-# Activate/deactivate user
-flask user activate email@example.com
-flask user deactivate email@example.com
+# Activate/deactivate user (prompts for email)
+flask user activate
+flask user deactivate
 ```
 
 ---
