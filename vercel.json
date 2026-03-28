@@ -8,8 +8,7 @@
     }
   ],
   "routes": [
-    { "src": "/static/(.*)", "dest": "/static/$1" },
-    { "src": "/(.*)",        "dest": "api/index.py" }
+    { "src": "/(.*)", "dest": "api/index.py" }
   ],
   "buildCommand": "FLASK_APP=api/index.py FLASK_CONFIG=vercel flask db upgrade",
   "env": {

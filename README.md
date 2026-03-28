@@ -522,10 +522,10 @@ Migrations run automatically via the `buildCommand` in `vercel.json` on every de
 
 ### 3. Create Admin User (first deploy only)
 
-After the first successful deploy, run locally pointing at Neon:
+After the first successful deploy, run this command in your local terminal to create the initial admin user directly in the Neon database:
 
 ```bash
-DATABASE_URL="postgresql://..." FLASK_CONFIG=vercel flask user create
+DATABASE_URL="postgresql://neondb_owner:npg_gYdTCre63bKi@ep-royal-fog-ampm5xg8-pooler.c-5.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require" FLASK_CONFIG=vercel flask user create
 ```
 
 ### Notes on Vercel Limitations
